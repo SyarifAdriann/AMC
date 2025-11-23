@@ -1,0 +1,401 @@
+================================================================
+  PHP-Python Integration Test Log (proc_open Communication)
+================================================================
+Test Date: 2025-11-05 06:48:13
+Script: ml/predict.py
+Method: proc_open() with stdin/stdout pipes
+Total Test Cases: 10
+================================================================
+
+TEST CASE #1: Valid Input - A320 Commercial Flight
+----------------------------------------------------------------------
+Input JSON:
+{"aircraft_type":"A320","operator_airline":"BATIK AIR","category":"Komersial"}
+
+Output JSON:
+{
+    "success": true,
+    "input": {
+        "aircraft_type": "A320",
+        "operator_airline": "BATIK AIR",
+        "category": "COMMERCIAL",
+        "aircraft_size": "STANDARD",
+        "airline_tier": "HIGH_FREQUENCY",
+        "stand_zone": "RIGHT_COMMERCIAL"
+    },
+    "predictions": [
+        {
+            "stand": "A2",
+            "probability": 0.24302308452584498,
+            "rank": 1
+        },
+        {
+            "stand": "A3",
+            "probability": 0.24244196893592407,
+            "rank": 2
+        },
+        {
+            "stand": "A1",
+            "probability": 0.24112965348566737,
+            "rank": 3
+        }
+    ],
+    "metadata": {
+        "model_path": "C:\\xampp\\htdocs\\amc\\ml\\parking_stand_model_rf_redo.pkl",
+        "encoder_versions": [
+            "enc_aircraft_type.pkl",
+            "enc_aircraft_size.pkl",
+            "enc_operator_airline.pkl",
+            "enc_airline_tier.pkl",
+            "enc_category.pkl",
+            "enc_stand_zone.pkl",
+            "enc_parking_stand.pkl"
+        ],
+        "top_k_requested": 3
+    }
+}
+
+Expected Success: true
+Actual Success: true
+Status: PASS
+Execution Time: 24613.66 ms
+Predictions Returned: 3
+
+======================================================================
+
+TEST CASE #2: Valid Input - Unknown Aircraft Type (Fallback)
+----------------------------------------------------------------------
+Input JSON:
+{"aircraft_type":"UNKNOWN999","operator_airline":"TEST AIRLINE","category":"Charter"}
+
+Output JSON:
+{
+    "success": true,
+    "input": {
+        "aircraft_type": "UNKNOWN999",
+        "operator_airline": "TEST AIRLINE",
+        "category": "CHARTER",
+        "aircraft_size": "STANDARD",
+        "airline_tier": "LOW_FREQUENCY",
+        "stand_zone": "MIDDLE_CHARTER"
+    },
+    "predictions": [
+        {
+            "stand": "B6",
+            "probability": 0.3414552511868251,
+            "rank": 1
+        },
+        {
+            "stand": "B7",
+            "probability": 0.20134838371252906,
+            "rank": 2
+        },
+        {
+            "stand": "B5",
+            "probability": 0.15651777895452057,
+            "rank": 3
+        }
+    ],
+    "metadata": {
+        "model_path": "C:\\xampp\\htdocs\\amc\\ml\\parking_stand_model_rf_redo.pkl",
+        "encoder_versions": [
+            "enc_aircraft_type.pkl",
+            "enc_aircraft_size.pkl",
+            "enc_operator_airline.pkl",
+            "enc_airline_tier.pkl",
+            "enc_category.pkl",
+            "enc_stand_zone.pkl",
+            "enc_parking_stand.pkl"
+        ],
+        "top_k_requested": 3
+    }
+}
+
+Expected Success: true
+Actual Success: true
+Status: PASS
+Execution Time: 4592.87 ms
+Predictions Returned: 3
+
+======================================================================
+
+TEST CASE #3: Missing Required Field - No operator_airline
+----------------------------------------------------------------------
+Input JSON:
+{"aircraft_type":"A320","category":"Komersial"}
+
+Output JSON:
+{
+    "success": false,
+    "error": "aircraft_type, operator_airline, and category are required fields",
+    "type": "ValueError"
+}
+
+Expected Success: false
+Actual Success: false
+Status: PASS
+Execution Time: 1933.12 ms
+Error Message: aircraft_type, operator_airline, and category are required fields
+
+======================================================================
+
+TEST CASE #4: Missing Required Field - No aircraft_type
+----------------------------------------------------------------------
+Input JSON:
+{"operator_airline":"BATIK AIR","category":"Komersial"}
+
+Output JSON:
+{
+    "success": false,
+    "error": "aircraft_type, operator_airline, and category are required fields",
+    "type": "ValueError"
+}
+
+Expected Success: false
+Actual Success: false
+Status: PASS
+Execution Time: 1479.46 ms
+Error Message: aircraft_type, operator_airline, and category are required fields
+
+======================================================================
+
+TEST CASE #5: Missing Required Field - No category
+----------------------------------------------------------------------
+Input JSON:
+{"aircraft_type":"A320","operator_airline":"BATIK AIR"}
+
+Output JSON:
+{
+    "success": false,
+    "error": "aircraft_type, operator_airline, and category are required fields",
+    "type": "ValueError"
+}
+
+Expected Success: false
+Actual Success: false
+Status: PASS
+Execution Time: 1769.67 ms
+Error Message: aircraft_type, operator_airline, and category are required fields
+
+======================================================================
+
+TEST CASE #6: Invalid JSON - Malformed Input
+----------------------------------------------------------------------
+Input JSON:
+{invalid json}
+
+Output JSON:
+{
+    "success": false,
+    "error": "Invalid JSON payload: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)",
+    "type": "ValueError"
+}
+
+Expected Success: false
+Actual Success: false
+Status: PASS
+Execution Time: 1774.92 ms
+Error Message: Invalid JSON payload: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+======================================================================
+
+TEST CASE #7: Empty JSON Object
+----------------------------------------------------------------------
+Input JSON:
+[]
+
+Output JSON:
+{
+    "success": false,
+    "error": "'list' object has no attribute 'get'",
+    "type": "AttributeError"
+}
+
+Expected Success: false
+Actual Success: false
+Status: PASS
+Execution Time: 1733.61 ms
+Error Message: 'list' object has no attribute 'get'
+
+======================================================================
+
+TEST CASE #8: Special Characters in Aircraft Type
+----------------------------------------------------------------------
+Input JSON:
+{"aircraft_type":"B 737-800","operator_airline":"GARUDA","category":"Komersial"}
+
+Output JSON:
+{
+    "success": true,
+    "input": {
+        "aircraft_type": "B 737-800",
+        "operator_airline": "GARUDA",
+        "category": "COMMERCIAL",
+        "aircraft_size": "STANDARD",
+        "airline_tier": "HIGH_FREQUENCY",
+        "stand_zone": "RIGHT_COMMERCIAL"
+    },
+    "predictions": [
+        {
+            "stand": "B2",
+            "probability": 0.4127401952557139,
+            "rank": 1
+        },
+        {
+            "stand": "B1",
+            "probability": 0.32367577178138957,
+            "rank": 2
+        },
+        {
+            "stand": "A3",
+            "probability": 0.12877079016206464,
+            "rank": 3
+        }
+    ],
+    "metadata": {
+        "model_path": "C:\\xampp\\htdocs\\amc\\ml\\parking_stand_model_rf_redo.pkl",
+        "encoder_versions": [
+            "enc_aircraft_type.pkl",
+            "enc_aircraft_size.pkl",
+            "enc_operator_airline.pkl",
+            "enc_airline_tier.pkl",
+            "enc_category.pkl",
+            "enc_stand_zone.pkl",
+            "enc_parking_stand.pkl"
+        ],
+        "top_k_requested": 3
+    }
+}
+
+Expected Success: true
+Actual Success: true
+Status: PASS
+Execution Time: 4522.7 ms
+Predictions Returned: 3
+
+======================================================================
+
+TEST CASE #9: Small Aircraft - C208 for A0 Stand
+----------------------------------------------------------------------
+Input JSON:
+{"aircraft_type":"C 208","operator_airline":"SUSI AIR","category":"Komersial"}
+
+Output JSON:
+{
+    "success": true,
+    "input": {
+        "aircraft_type": "C 208",
+        "operator_airline": "SUSI AIR",
+        "category": "COMMERCIAL",
+        "aircraft_size": "SMALL_A0_COMPATIBLE",
+        "airline_tier": "MEDIUM_FREQUENCY",
+        "stand_zone": "RIGHT_COMMERCIAL"
+    },
+    "predictions": [
+        {
+            "stand": "A0",
+            "probability": 0.7568824706639202,
+            "rank": 1
+        },
+        {
+            "stand": "A1",
+            "probability": 0.06413770107302703,
+            "rank": 2
+        },
+        {
+            "stand": "A3",
+            "probability": 0.06341704183639733,
+            "rank": 3
+        }
+    ],
+    "metadata": {
+        "model_path": "C:\\xampp\\htdocs\\amc\\ml\\parking_stand_model_rf_redo.pkl",
+        "encoder_versions": [
+            "enc_aircraft_type.pkl",
+            "enc_aircraft_size.pkl",
+            "enc_operator_airline.pkl",
+            "enc_airline_tier.pkl",
+            "enc_category.pkl",
+            "enc_stand_zone.pkl",
+            "enc_parking_stand.pkl"
+        ],
+        "top_k_requested": 3
+    }
+}
+
+Expected Success: true
+Actual Success: true
+Status: PASS
+Execution Time: 4884.69 ms
+Predictions Returned: 3
+
+======================================================================
+
+TEST CASE #10: Cargo Flight - B733
+----------------------------------------------------------------------
+Input JSON:
+{"aircraft_type":"B 733","operator_airline":"TRIGANA","category":"Cargo"}
+
+Output JSON:
+{
+    "success": true,
+    "input": {
+        "aircraft_type": "B 733",
+        "operator_airline": "TRIGANA",
+        "category": "CARGO",
+        "aircraft_size": "STANDARD",
+        "airline_tier": "HIGH_FREQUENCY",
+        "stand_zone": "LEFT_CARGO"
+    },
+    "predictions": [
+        {
+            "stand": "B12",
+            "probability": 0.2981438842696607,
+            "rank": 1
+        },
+        {
+            "stand": "B11",
+            "probability": 0.23481582369707585,
+            "rank": 2
+        },
+        {
+            "stand": "B13",
+            "probability": 0.22863972791396767,
+            "rank": 3
+        }
+    ],
+    "metadata": {
+        "model_path": "C:\\xampp\\htdocs\\amc\\ml\\parking_stand_model_rf_redo.pkl",
+        "encoder_versions": [
+            "enc_aircraft_type.pkl",
+            "enc_aircraft_size.pkl",
+            "enc_operator_airline.pkl",
+            "enc_airline_tier.pkl",
+            "enc_category.pkl",
+            "enc_stand_zone.pkl",
+            "enc_parking_stand.pkl"
+        ],
+        "top_k_requested": 3
+    }
+}
+
+Expected Success: true
+Actual Success: true
+Status: PASS
+Execution Time: 4628.2 ms
+Predictions Returned: 3
+
+======================================================================
+
+
+SUMMARY STATISTICS
+----------------------------------------------------------------------
+Total Tests: 10
+Passed: 10
+Failed: 0
+Pass Rate: 100%
+
+Execution Time:
+  Average: 5193.29 ms
+  Minimum: 1479.46 ms
+  Maximum: 24613.66 ms

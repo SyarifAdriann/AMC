@@ -1,0 +1,9 @@
+# Phase 7 Predictor CLI Smoke Tests
+
+## Command 1
+powershell -Command "'{"aircraft_type":"A 320","operator_airline":"BATIK AIR","category":"Komersial"}' | python ml/predict.py"
+
+## Command 2 (Cold start)
+powershell -Command "'{"aircraft_type":"G 500","operator_airline":"NEW AIR","category":"Komersial"}' | python ml/predict.py"
+
+Run each command from the project root to reproduce the outputs captured during testing.

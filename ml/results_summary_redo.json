@@ -1,0 +1,23 @@
+{
+  "top1_accuracy": 0.36127167630057805,
+  "top3_accuracy": 0.8015414258188824,
+  "top5_accuracy": 0.9894026974951831,
+  "best_params": {
+    "class_weight": "balanced_subsample",
+    "max_depth": null,
+    "min_samples_leaf": 5,
+    "min_samples_split": 5,
+    "n_estimators": 100
+  },
+  "best_cv_score": 0.38824931494932796,
+  "train_accuracy": 0.41522157996146436,
+  "test_accuracy": 0.36127167630057805,
+  "feature_importance": {
+    "Aircraft Type": 0.20359930621556754,
+    "Aircraft Size": 0.08052004949606921,
+    "Airline": 0.208318895176223,
+    "Airline Tier": 0.028633056853928397,
+    "Category": 0.1031691190428278,
+    "Stand Zone": 0.3757595732153841
+  }
+}

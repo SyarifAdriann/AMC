@@ -18,9 +18,15 @@ class RonService
     {
         $today = date('Y-m-d');
 
+        // Combined update: mark as RON and format time in single query
         $updateStmt = $this->pdo->prepare(
             "UPDATE aircraft_movements
-             SET is_ron = 1
+             SET is_ron = 1,
+                 on_block_time = CASE
+                     WHEN on_block_time NOT LIKE '%)%'
+                     THEN CONCAT(on_block_time, ' (', DATE_FORMAT(movement_date, '%d/%m/%Y'), ')')
+                     ELSE on_block_time
+                 END
              WHERE (off_block_time IS NULL OR off_block_time = '')
                AND on_block_time IS NOT NULL
                AND on_block_time != ''
@@ -29,16 +35,6 @@ class RonService
         );
         $updateStmt->execute([':today' => $today]);
         $updated = (int) $updateStmt->rowCount();
-
-        $formatStmt = $this->pdo->prepare(
-            "UPDATE aircraft_movements
-             SET on_block_time = CONCAT(on_block_time, ' (', DATE_FORMAT(movement_date, '%d/%m/%Y'), ')')
-             WHERE is_ron = 1
-               AND on_block_time NOT LIKE '%)%'
-               AND on_block_time IS NOT NULL
-               AND on_block_time != ''"
-        );
-        $formatStmt->execute();
 
         return $updated;
     }
@@ -65,9 +61,11 @@ class RonService
         foreach ($movements as $movement) {
             $onBlockTime = $movement['on_block_time'];
             $id = (int) $movement['id'];
+            $cleanTime = $this->normalizeRonTime($onBlockTime);
 
             if (strpos($onBlockTime, '(') === false) {
-                $formattedTime = $onBlockTime . ' (' . $formatted . ')';
+                $timePart = $cleanTime !== '' ? $cleanTime : trim((string) $onBlockTime);
+                $formattedTime = ($timePart !== '' ? $timePart : $onBlockTime) . ' (' . $formatted . ')';
                 $update = $this->pdo->prepare(
                     "UPDATE aircraft_movements
                      SET is_ron = 1,
@@ -97,6 +95,21 @@ class RonService
         }
 
         return $updatedCount;
+    }
+
+    private function normalizeRonTime(?string $value): string
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return '';
+        }
+
+        if (preg_match('/^\d{3,4}$/', $value)) {
+            $value = str_pad($value, 4, '0', STR_PAD_LEFT);
+            return substr($value, 0, 2) . ':' . substr($value, 2, 2);
+        }
+
+        return $value;
     }
 
     public function markCompletion(int $movementId, ?string $offBlockTime): void

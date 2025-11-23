@@ -1,33 +1,11 @@
-<?php
+﻿<?php
 $title = 'Dashboard - AMC MONITORING SYSTEM';
 $styles = [
+    'assets/css/tailwind.css',
     'assets/css/styles.css',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css',
-    'assets/css/tailwind-custom.css'
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css'
 ];
-$head = <<<'HTML'
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              'amc-blue': '#3F72AF',
-              'amc-dark-blue': '#112D4E',
-              'amc-light': '#DBE2EF',
-              'amc-bg': '#F9F7F7'
-            },
-            fontFamily: {
-              'sans': ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'Arial', 'sans-serif']
-            },
-            screens: {
-              'xs': '475px',
-            }
-          }
-        }
-      }
-    </script>
-HTML;
+$head = '';;
 $bodyClass = 'gradient-bg min-h-screen font-sans';
 $bodyAttributes = 'id="dashboard-page"';
 $scripts = [
@@ -51,6 +29,9 @@ $hasRole = function ($roles) use ($user_role) {
             peakHourData: <?= json_encode($peakHourData) ?>,
             endpoints: {
                 refreshApron: 'api/apron/status',
+                dashboardMovements: 'api/dashboard/movements',
+                mlMetrics: 'api/ml/metrics',
+                mlLogs: 'api/ml/logs',
                 userAdmin: 'api/admin/users',
                 snapshots: 'api/snapshots'
             }
@@ -68,173 +49,171 @@ $hasRole = function ($roles) use ($user_role) {
 
             <!-- Dashboard Grid -->
             <div class="space-y-6">
-                
-                <!-- KPI Cards Row -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Live Apron Status Card -->
-                    <div class="bg-amc-bg rounded-xl shadow-lg border border-amc-light flex flex-col overflow-hidden">
+
+                <!-- KPI Row -->
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <!-- Live Apron Status -->
+                    <div class="bg-amc-bg rounded-xl shadow-lg border border-amc-light overflow-hidden">
                         <div class="bg-gradient-to-r from-blue-50 to-blue-100 text-amc-dark-blue px-4 py-3 lg:px-5 lg:py-4 font-bold text-sm lg:text-base border-b border-amc-light">
                             Live Apron Status
                         </div>
-                        <div class="p-4 lg:p-5 flex-grow flex items-center">
-                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+                        <div class="p-4 lg:p-5 space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
                                 <div class="text-center">
-                                    <div class="text-2xl lg:text-3xl font-bold text-amc-dark-blue mb-1 flex items-center justify-center h-12 lg:h-16" id="apron-total"><?= htmlspecialchars($apronStatus['total']) ?></div>
-                                    <div class="text-xs lg:text-sm text-gray-600 font-semibold">Total Stands</div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Stands</p>
+                                    <p class="text-3xl font-bold text-amc-dark-blue" id="apron-total"><?= htmlspecialchars($apronStatus['total']) ?></p>
                                 </div>
                                 <div class="text-center">
-                                    <div class="text-2xl lg:text-3xl font-bold text-green-600 mb-1 flex items-center justify-center h-12 lg:h-16" id="apron-available"><?= htmlspecialchars($apronStatus['available']) ?></div>
-                                    <div class="text-xs lg:text-sm text-gray-600 font-semibold">Available</div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Available</p>
+                                    <p class="text-3xl font-bold text-green-600" id="apron-available"><?= htmlspecialchars($apronStatus['available']) ?></p>
                                 </div>
                                 <div class="text-center">
-                                    <div class="text-2xl lg:text-3xl font-bold text-red-600 mb-1 flex items-center justify-center h-12 lg:h-16" id="apron-occupied"><?= htmlspecialchars($apronStatus['occupied']) ?></div>
-                                    <div class="text-xs lg:text-sm text-gray-600 font-semibold">Occupied</div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Occupied</p>
+                                    <p class="text-3xl font-bold text-red-500" id="apron-occupied"><?= htmlspecialchars($apronStatus['occupied']) ?></p>
                                 </div>
                                 <div class="text-center">
-                                    <div class="text-2xl lg:text-3xl font-bold text-yellow-500 mb-1 flex items-center justify-center h-12 lg:h-16" id="apron-ron"><?= htmlspecialchars($apronStatus['ron']) ?></div>
-                                    <div class="text-xs lg:text-sm text-gray-600 font-semibold">Live RON</div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Live RON</p>
+                                    <p class="text-3xl font-bold text-amber-500" id="apron-ron"><?= htmlspecialchars($apronStatus['ron']) ?></p>
                                 </div>
+                            </div>
+                            <div class="flex flex-wrap gap-3">
+                                <button id="set-ron-btn" class="flex-1 nav-btn-gradient text-white px-4 py-2 rounded-md text-sm font-semibold transition-all duration-300 hover:-translate-y-1 <?php if ($user_role==='viewer') echo 'bg-gray-400 cursor-not-allowed'; ?>" <?php if ($user_role==='viewer') echo 'disabled'; ?>>Set RON</button>
+                                <button id="refresh-btn" class="flex-1 bg-white text-amc-blue border border-amc-light px-4 py-2 rounded-md text-sm font-semibold transition-colors duration-300 hover:bg-blue-50" onclick="window.location.reload()">Refresh</button>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Movements Today Card -->
-                    <div class="bg-amc-bg rounded-xl shadow-lg border border-amc-light flex flex-col overflow-hidden">
+
+                    <!-- Movements Snapshot -->
+                    <div class="bg-amc-bg rounded-xl shadow-lg border border-amc-light overflow-hidden">
                         <div class="bg-gradient-to-r from-blue-50 to-blue-100 text-amc-dark-blue px-4 py-3 lg:px-5 lg:py-4 font-bold text-sm lg:text-base border-b border-amc-light">
-                            Movements Today
+                            Movements Snapshot (Today)
                         </div>
-                        <div class="p-4 lg:p-5 flex-grow">
-                            <div class="flex flex-col lg:flex-row justify-around gap-6">
-                                <div class="flex-1 text-center">
-                                    <h3 class="text-base lg:text-lg font-bold text-blue-600 mb-3">Arrivals</h3>
-                                    <div class="grid grid-cols-1 gap-2">
-                                        <div class="text-center">
-                                            <span class="block text-xl lg:text-2xl font-bold text-blue-600"><?= $movementsToday['commercial']['arrivals'] ?></span>
-                                            <span class="text-xs lg:text-sm text-gray-600">Commercial</span>
+                        <div class="p-4 lg:p-5 space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-white rounded-lg p-4 border border-gray-100 shadow-inner">
+                                    <p class="text-xs font-semibold text-gray-500 uppercase">Arrivals</p>
+                                    <div class="grid grid-cols-3 gap-3 mt-3 text-center">
+                                        <div>
+                                            <p class="text-2xl font-bold text-blue-600" data-category="commercial" data-metric="arrivals"><?= htmlspecialchars($movementsToday['commercial']['arrivals']) ?></p>
+                                            <p class="text-xxs text-gray-500 mt-1">Commercial</p>
                                         </div>
-                                        <div class="text-center">
-                                            <span class="block text-xl lg:text-2xl font-bold text-blue-600"><?= $movementsToday['cargo']['arrivals'] ?></span>
-                                            <span class="text-xs lg:text-sm text-gray-600">Cargo</span>
+                                        <div>
+                                            <p class="text-2xl font-bold text-teal-600" data-category="cargo" data-metric="arrivals"><?= htmlspecialchars($movementsToday['cargo']['arrivals']) ?></p>
+                                            <p class="text-xxs text-gray-500 mt-1">Cargo</p>
                                         </div>
-                                        <div class="text-center">
-                                            <span class="block text-xl lg:text-2xl font-bold text-blue-600"><?= $movementsToday['charter']['arrivals'] ?></span>
-                                            <span class="text-xs lg:text-sm text-gray-600">Charter</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="w-px bg-gray-300 hidden lg:block self-stretch"></div>
-                                
-                                <div class="flex-1 text-center">
-                                    <h3 class="text-base lg:text-lg font-bold text-green-600 mb-3">Departures</h3>
-                                    <div class="grid grid-cols-1 gap-2">
-                                        <div class="text-center">
-                                            <span class="block text-xl lg:text-2xl font-bold text-green-600"><?= $movementsToday['commercial']['departures'] ?></span>
-                                            <span class="text-xs lg:text-sm text-gray-600">Commercial</span>
-                                        </div>
-                                        <div class="text-center">
-                                            <span class="block text-xl lg:text-2xl font-bold text-green-600"><?= $movementsToday['cargo']['departures'] ?></span>
-                                            <span class="text-xs lg:text-sm text-gray-600">Cargo</span>
-                                        </div>
-                                        <div class="text-center">
-                                            <span class="block text-xl lg:text-2xl font-bold text-green-600"><?= $movementsToday['charter']['departures'] ?></span>
-                                            <span class="text-xs lg:text-sm text-gray-600">Charter</span>
+                                        <div>
+                                            <p class="text-2xl font-bold text-purple-600" data-category="charter" data-metric="arrivals"><?= htmlspecialchars($movementsToday['charter']['arrivals']) ?></p>
+                                            <p class="text-xxs text-gray-500 mt-1">Charter</p>
                                         </div>
                                     </div>
                                 </div>
+                                <div class="bg-white rounded-lg p-4 border border-gray-100 shadow-inner">
+                                    <p class="text-xs font-semibold text-gray-500 uppercase">Departures</p>
+                                    <div class="grid grid-cols-3 gap-3 mt-3 text-center">
+                                        <div>
+                                            <p class="text-2xl font-bold text-blue-600" data-category="commercial" data-metric="departures"><?= htmlspecialchars($movementsToday['commercial']['departures']) ?></p>
+                                            <p class="text-xxs text-gray-500 mt-1">Commercial</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-2xl font-bold text-teal-600" data-category="cargo" data-metric="departures"><?= htmlspecialchars($movementsToday['cargo']['departures']) ?></p>
+                                            <p class="text-xxs text-gray-500 mt-1">Cargo</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-2xl font-bold text-purple-600" data-category="charter" data-metric="departures"><?= htmlspecialchars($movementsToday['charter']['departures']) ?></p>
+                                            <p class="text-xxs text-gray-500 mt-1">Charter</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-500 text-center">
+                                Totals refresh every 30 seconds from live apron data.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Model Performance Snapshot -->
+                    <div class="bg-amc-bg rounded-xl shadow-lg border border-amc-light overflow-hidden">
+                        <div class="bg-gradient-to-r from-blue-50 to-blue-100 text-amc-dark-blue px-4 py-3 lg:px-5 lg:py-4 font-bold text-sm lg:text-base border-b border-amc-light">
+                            Model Performance Snapshot
+                        </div>
+                        <div class="p-4 lg:p-5 space-y-4">
+                            <div class="grid grid-cols-2 gap-4 text-center">
+                                <div>
+                                    <p class="text-xxs font-semibold text-gray-500 uppercase tracking-wide">Model Version</p>
+                                    <p class="text-2xl font-bold text-amc-dark-blue" id="ml-metrics-version">--</p>
+                                </div>
+                                <div>
+                                    <p class="text-xxs font-semibold text-gray-500 uppercase tracking-wide">Training Date</p>
+                                    <p class="text-2xl font-bold text-amc-dark-blue" id="ml-metrics-training">--</p>
+                                </div>
+                                <div>
+                                    <p class="text-xxs font-semibold text-gray-500 uppercase tracking-wide">Expected Top-3</p>
+                                    <p class="text-2xl font-bold text-emerald-600" id="ml-metrics-expected">--</p>
+                                </div>
+                                <div>
+                                    <p class="text-xxs font-semibold text-gray-500 uppercase tracking-wide">Observed Top-3</p>
+                                    <p class="text-2xl font-bold text-amber-500" id="ml-metrics-observed">--</p>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-lg border border-gray-100 p-3 text-sm space-y-1 shadow-inner">
+                                <p class="font-semibold text-amc-dark-blue">Predictions Logged</p>
+                                <p class="text-2xl font-bold text-gray-900" id="ml-metrics-sample">0</p>
+                                <p class="text-xs text-gray-500" id="ml-metrics-status">Awaiting model telemetry...</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Apron Movement by Hour Table -->
-                <div class="bg-amc-bg rounded-xl shadow-lg border border-amc-light overflow-hidden">
-                    <div class="bg-gradient-to-r from-blue-50 to-blue-100 text-amc-dark-blue px-4 py-3 lg:px-5 lg:py-4 font-bold text-sm lg:text-base border-b border-amc-light">
-                        Apron Movement by Hour
+                <!-- Operational Insights -->
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <div class="xl:col-span-2 bg-amc-bg rounded-xl shadow-lg border border-amc-light overflow-hidden">
+                        <div class="bg-gradient-to-r from-blue-50 to-blue-100 text-amc-dark-blue px-4 py-3 lg:px-5 lg:py-4 font-bold text-sm lg:text-base border-b border-amc-light">
+                            Apron Movement by Hour
+                        </div>
+                        <div class="p-4 lg:p-5 space-y-4">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-xs lg:text-sm border-collapse border border-gray-300">
+                                    <thead>
+                                        <tr class="bg-gray-50">
+                                            <th class="border border-gray-300 px-3 py-2 font-semibold text-gray-700 uppercase">TIME</th>
+                                            <th class="border border-gray-300 px-3 py-2 font-semibold text-gray-700 uppercase">Arrivals</th>
+                                            <th class="border border-gray-300 px-3 py-2 font-semibold text-gray-700 uppercase">Departures</th>
+                                            <th class="border border-gray-300 px-3 py-2 font-semibold text-gray-700 uppercase">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($movementsByHour as $row): ?>
+                                        <tr class="hover:bg-gray-50" data-time-range="<?= htmlspecialchars($row['time_range']) ?>">
+                                            <td class="border border-gray-300 px-3 py-2 text-center font-mono"><?= htmlspecialchars($row['time_range']) ?></td>
+                                            <td class="border border-gray-300 px-3 py-2 text-center font-semibold text-blue-600" data-metric="arrivals"><?= htmlspecialchars($row['Arrivals']) ?></td>
+                                            <td class="border border-gray-300 px-3 py-2 text-center font-semibold text-green-600" data-metric="departures"><?= htmlspecialchars($row['Departures']) ?></td>
+                                            <td class="border border-gray-300 px-3 py-2 text-center font-bold text-amc-dark-blue" data-metric="total"><?= htmlspecialchars($row['Arrivals'] + $row['Departures']) ?></td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="peakHoursSummary" class="bg-gray-50 rounded-lg border-l-4 border-amc-dark-blue p-4">
+                                <div class="font-bold text-amc-dark-blue mb-2">Peak Hours Summary</div>
+                                <div id="peakHoursContent" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="p-4 lg:p-5 overflow-x-auto">
-                        <table class="w-full text-xs lg:text-sm border-collapse border border-gray-300">
-                            <thead>
-                                <tr class="bg-gray-50">
-                                    <th class="border border-gray-300 px-3 py-2 font-semibold text-gray-700 uppercase">TIME</th>
-                                    <th class="border border-gray-300 px-3 py-2 font-semibold text-gray-700 uppercase">Arrivals</th>
-                                    <th class="border border-gray-300 px-3 py-2 font-semibold text-gray-700 uppercase">Departures</th>
-                                    <th class="border border-gray-300 px-3 py-2 font-semibold text-gray-700 uppercase">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($movementsByHour as $row): ?>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="border border-gray-300 px-3 py-2 text-center font-mono"><?= htmlspecialchars($row['time_range']) ?></td>
-                                    <td class="border border-gray-300 px-3 py-2 text-center font-semibold text-blue-600"><?= htmlspecialchars($row['Arrivals']) ?></td>
-                                    <td class="border border-gray-300 px-3 py-2 text-center font-semibold text-green-600"><?= htmlspecialchars($row['Departures']) ?></td>
-                                    <td class="border border-gray-300 px-3 py-2 text-center font-bold text-amc-dark-blue"><?= htmlspecialchars($row['Arrivals'] + $row['Departures']) ?></td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
 
-                <!-- Peak Hour Analysis -->
-                <?php /*
-                <div class="bg-amc-bg rounded-xl shadow-lg border border-amc-light overflow-hidden">
-                    <div class="bg-gradient-to-r from-blue-50 to-blue-100 text-amc-dark-blue px-4 py-3 lg:px-5 lg:py-4 font-bold text-sm lg:text-base border-b border-amc-light">
-                        <span class="block">Peak Hour Analysis - Movement Distribution</span>
-                        <span class="text-xs font-normal text-gray-600 mt-1">Hourly breakdown of arrivals and departures for operational planning</span>
-                    </div>
-                    <div class="p-4 lg:p-5">
-                        <!-- Custom Bar Chart -->
-                        <div id="customPeakChart" class="py-4">
-                            <div class="relative h-64 lg:h-96 overflow-x-auto bg-white rounded-lg border border-gray-200 p-4">
-                                <div class="flex items-end h-full min-w-full lg:min-w-0 gap-1 px-2">
-                                    <?php 
-                                    $maxMovements = max(array_map(function($h) { return $h['Arrivals'] + $h['Departures']; }, $peakHourData)) ?: 1;
-                                    foreach ($peakHourData as $index => $hour): 
-                                        $arrivalHeight = $maxMovements > 0 ? ($hour['Arrivals'] / $maxMovements) * 240 : 0;
-                                        $departureHeight = $maxMovements > 0 ? ($hour['Departures'] / $maxMovements) * 240 : 0;
-                                        $totalHeight = $maxMovements > 0 ? (($hour['Arrivals'] + $hour['Departures']) / $maxMovements) * 240 : 0;
-                                        $shortLabel = substr($hour['time_range'], 0, 2) . '-' . substr($hour['time_range'], -5, 2);
-                                    ?>
-                                    <div class="flex-1 flex flex-col items-center relative min-w-8">
-                                        <div class="flex gap-px items-end h-60 mb-1">
-                                            <div class="w-3 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-sm" style="height: <?= $arrivalHeight ?>px;" title="<?= $hour['time_range'] ?> - Arrivals: <?= $hour['Arrivals'] ?>"></div>
-                                            <div class="w-3 bg-gradient-to-t from-green-500 to-green-300 rounded-t-sm" style="height: <?= $departureHeight ?>px;" title="<?= $hour['time_range'] ?> - Departures: <?= $hour['Departures'] ?>"></div>
-                                        </div>
-                                        <?php if (($hour['Arrivals'] + $hour['Departures']) > 0): ?>
-                                        <div class="absolute w-2 h-2 bg-teal-500 rounded-full border-2 border-white shadow-md" style="bottom: <?= 20 + $totalHeight ?>px;" title="<?= $hour['time_range'] ?> - Total: <?= $hour['Arrivals'] + $hour['Departures'] ?>"></div>
-                                        <?php endif; ?>
-                                        <div class="text-xs text-gray-600 text-center transform -rotate-45 origin-bottom-left mt-2 min-w-12"><?= $shortLabel ?></div>
-                                        <?php if (($hour['Arrivals'] + $hour['Departures']) > 0): ?>
-                                        <div class="text-xs font-bold text-amc-dark-blue mt-1"><?= $hour['Arrivals'] + $hour['Departures'] ?></div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
-                            <div class="flex justify-center gap-6 mt-4 p-3 bg-gray-50 rounded-lg">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-3 h-3 bg-gradient-to-t from-blue-500 to-blue-300 rounded-sm"></div>
-                                    <span class="text-xs lg:text-sm text-gray-700">Arrivals</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <div class="w-3 h-3 bg-gradient-to-t from-green-500 to-green-300 rounded-sm"></div>
-                                    <span class="text-xs lg:text-sm text-gray-700">Departures</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <div class="w-2 h-2 bg-teal-500 rounded-full border-2 border-white"></div>
-                                    <span class="text-xs lg:text-sm text-gray-700">Total Movements</span>
-                                </div>
-                            </div>
+                    <div class="bg-amc-bg rounded-xl shadow-lg border border-amc-light overflow-hidden">
+                        <div class="bg-gradient-to-r from-blue-50 to-blue-100 text-amc-dark-blue px-4 py-3 lg:px-5 lg:py-4 font-bold text-sm lg:text-base border-b border-amc-light flex items-center justify-between">
+                            <span>Recent Prediction Outcomes</span>
+                            <button type="button" class="text-xs text-amc-blue hover:underline" id="ml-log-scroll">
+                                View Logbook
+                            </button>
                         </div>
-                        <div id="peakHoursSummary" class="mt-5 p-4 bg-gray-50 rounded-lg border-l-4 border-amc-dark-blue">
-                            <div class="font-bold mb-3 text-amc-dark-blue">Peak Hours Summary</div>
-                            <div id="peakHoursContent" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="p-4 lg:p-5">
+                            <div id="ml-metrics-recent" class="space-y-3 text-sm">
+                                <p class="text-xs text-gray-500">Loading recent logs...</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                */ ?>
 
                 <!-- Automated Reporting Suite -->
                 <div class="bg-amc-bg rounded-xl shadow-lg border border-amc-light overflow-hidden">
@@ -276,6 +255,69 @@ $hasRole = function ($roles) use ($user_role) {
                             <?= $reportOutput ?>
                         </div>
                         <?php endif; ?>
+                <!-- ML Prediction Logbook -->
+                <div id="ml-logbook-card" class="bg-amc-bg rounded-xl shadow-lg border border-amc-light overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-50 to-blue-100 text-amc-dark-blue px-4 py-3 lg:px-5 lg:py-4 font-bold text-sm lg:text-base border-b border-amc-light flex items-center justify-between">
+                        <span>ML Prediction Logbook</span>
+                        <button type="button" id="ml-log-toggle" class="text-xs font-semibold text-amc-blue border border-amc-light bg-white px-3 py-2 rounded-md hover:bg-blue-50 transition-colors duration-300">
+                            Show Logbook
+                        </button>
+                    </div>
+                    <div id="ml-log-content" class="p-4 lg:p-5 space-y-4 hidden">
+                        <div class="flex flex-col lg:flex-row gap-4">
+                            <div class="flex flex-col lg:flex-row gap-3 flex-1">
+                                <div class="flex flex-col">
+                                    <label for="ml-log-filter" class="text-xs font-semibold text-gray-600">Result</label>
+                                    <select id="ml-log-filter" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:border-amc-blue focus:shadow-sm">
+                                        <option value="all">All</option>
+                                        <option value="hit">Top-3 Hits</option>
+                                        <option value="miss">Missed</option>
+                                        <option value="pending">Pending</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col flex-1">
+                                    <label for="ml-log-search" class="text-xs font-semibold text-gray-600">Search</label>
+                                    <input id="ml-log-search" type="text" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:border-amc-blue focus:shadow-sm" placeholder="Search airline, stand, or flight">
+                                </div>
+                            </div>
+                            <div class="flex flex-col lg:flex-row gap-3 items-start lg:items-end">
+                                <div class="flex flex-col">
+                                    <label for="ml-log-limit" class="text-xs font-semibold text-gray-600">Rows</label>
+                                    <select id="ml-log-limit" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:border-amc-blue focus:shadow-sm">
+                                        <option value="25">25</option>
+                                        <option value="50" selected>50</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                </div>
+                                <button type="button" id="ml-log-refresh" class="bg-white border border-amc-light text-amc-blue px-4 py-2 rounded-md text-sm font-semibold transition-colors duration-300 hover:bg-blue-50">
+                                    Refresh
+                                </button>
+                            </div>
+                        </div>
+                        <p id="ml-log-status" class="text-xs text-gray-500">Logbook hidden. Click "Show Logbook" to load predictions.</p>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs lg:text-sm border-collapse border border-gray-200">
+                                <thead class="bg-gray-50 text-gray-600 uppercase">
+                                    <tr>
+                                        <th class="border border-gray-200 px-3 py-2 text-left">Logged At</th>
+                                        <th class="border border-gray-200 px-3 py-2 text-left">Aircraft</th>
+                                        <th class="border border-gray-200 px-3 py-2 text-left">Operator</th>
+                                        <th class="border border-gray-200 px-3 py-2 text-left">Category</th>
+                                        <th class="border border-gray-200 px-3 py-2 text-left">Model</th>
+                                        <th class="border border-gray-200 px-3 py-2 text-left">Predicted Top-3</th>
+                                        <th class="border border-gray-200 px-3 py-2 text-left">Assigned Stand</th>
+                                        <th class="border border-gray-200 px-3 py-2 text-left">Result</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ml-log-rows">
+                                    <tr>
+                                        <td colspan="8" class="px-4 py-6 text-center text-gray-500">Prediction data will appear here.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
                     </div>
                 </div>
 
@@ -300,8 +342,6 @@ $hasRole = function ($roles) use ($user_role) {
                 <?php endif; ?>
 
             </div>
-        </div>
-    </div>
 
     <?php require __DIR__ . '/partials/accounts-modal.php'; ?>
     <?php require __DIR__ . '/partials/user-form-modal.php'; ?>

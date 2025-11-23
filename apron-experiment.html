@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apron Map Experiment - HLP Airport</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #3F72AF 0%, #112D4E 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(249, 247, 247, 0.98);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #112D4E;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .info {
+            text-align: center;
+            color: #555;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        /* Apron Map Container */
+        #apron-wrapper {
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: 3px solid #DBE2EF;
+            /* Checkerboard background */
+            background:
+                linear-gradient(45deg, #DBE2EF 25%, #F9F7F7 25%, #F9F7F7 50%, #DBE2EF 50%, #DBE2EF 75%, #F9F7F7 75%);
+            background-size: 28.28px 28.28px;
+        }
+
+        #apron-container {
+            width: 1920px;
+            height: 1080px;
+            position: relative;
+            transform-origin: top left;
+        }
+
+        /* Infrastructure SVG Layer - behind stands */
+        #apron-infrastructure {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Stand boxes - above infrastructure */
+        .stand {
+            position: absolute;
+            z-index: 10;
+            background: linear-gradient(135deg, rgba(63, 114, 175, 0.9), rgba(17, 45, 78, 0.9));
+            border: 2px solid #112D4E;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-weight: 700;
+            cursor: pointer;
+            user-select: none;
+            font-size: 13px;
+            text-align: center;
+            line-height: 1.2;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .stand:hover {
+            transform: translateY(-3px) scale(1.05);
+            background: linear-gradient(135deg, rgba(219, 226, 239, 0.9), rgba(63, 114, 175, 0.9));
+            border-color: #3F72AF;
+            color: #112D4E;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .stand:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .stand.selected {
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            color: #000;
+            border-color: #ff9800;
+            box-shadow: 0 0 20px rgba(255, 193, 7, 0.6);
+        }
+
+        /* Zone labels */
+        .zone-label {
+            position: absolute;
+            font-size: 24px;
+            font-weight: 700;
+            color: #112D4E;
+            opacity: 0.17;
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            user-select: none;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+            transform: translateX(-50%);
+            z-index: 5;
+        }
+
+        /* Info panel */
+        #info-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #DBE2EF;
+        }
+
+        #info-panel h3 {
+            color: #112D4E;
+            margin-bottom: 10px;
+        }
+
+        #selected-stand {
+            font-size: 16px;
+            color: #3F72AF;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛫 HLP Airport - Apron Map with Infrastructure</h1>
+        <div class="info">Runway and taxiways aligned with adjusted stand positions. Click any stand to see details.</div>
+
+        <!-- Apron Map -->
+        <div id="apron-wrapper">
+            <div id="apron-container">
+                <!-- SVG Infrastructure Layer (created by JavaScript) -->
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div id="info-panel">
+            <h3>Selected Stand Info:</h3>
+            <div id="selected-stand">Click a stand to see details</div>
+        </div>
+    </div>
+
+    <script>
+        // Stand positions from experimental HTML (source of truth)
+        const stands = {
+            // MAIN APRON - Bottom section
+            'A0': [1785, 950], 'A1': [1712, 950], 'A2': [1621, 950], 'A3': [1518, 950],
+            'B1': [1414, 950], 'B2': [1321, 950], 'B3': [1229, 950], 'B4': [1136, 950],
+            'B5': [1043, 950], 'B6': [950, 950], 'B7': [859, 950], 'B8': [768, 950],
+            'B9': [673, 950], 'B10': [577, 950], 'B11': [483, 950], 'B12': [394, 950], 'B13': [306, 950],
+
+            // SOUTH APRON - Top section
+            'SA01': [152, 90], 'SA02': [365, 90], 'SA03': [578, 90], 'SA04': [791, 90],
+            'SA05': [1004, 90], 'SA06': [1218, 90], 'SA07': [87, 190], 'SA08': [210, 190],
+            'SA09': [300, 190], 'SA10': [423, 190], 'SA11': [514, 190], 'SA12': [635, 190],
+            'SA13': [726, 190], 'SA14': [849, 190], 'SA15': [940, 190], 'SA16': [1062, 190],
+            'SA17': [1153, 190], 'SA18': [1275, 190], 'SA19': [87, 290], 'SA20': [208, 290],
+            'SA21': [300, 290], 'SA22': [421, 290], 'SA23': [513, 290], 'SA24': [635, 290],
+            'SA25': [726, 290], 'SA26': [848, 290], 'SA27': [939, 290], 'SA28': [1061, 290],
+            'SA29': [1153, 290], 'SA30': [1275, 290],
+
+            // NEW SOUTH APRON
+            'NSA01': [1460, 90], 'NSA02': [1520, 90], 'NSA03': [1584, 90], 'NSA04': [1643, 90],
+            'NSA05': [1702, 90], 'NSA06': [1761, 90], 'NSA07': [1819, 90], 'NSA08': [1883, 124],
+            'NSA09': [1883, 237], 'NSA10': [1520, 272], 'NSA11': [1584, 272], 'NSA12': [1643, 272],
+            'NSA13': [1702, 272], 'NSA14': [1761, 272], 'NSA15': [1819, 272],
+
+            // REMOTE EAST
+            'RE01': [703, 780], 'RE02': [637, 780], 'RE03': [568, 780], 'RE04': [499, 780],
+            'RE05': [431, 780], 'RE06': [363, 780], 'RE07': [296, 780],
+
+            // REMOTE WEST
+            'RW01': [1647, 780], 'RW02': [1580, 780], 'RW03': [1513, 780], 'RW04': [1446, 780],
+            'RW05': [1379, 780], 'RW06': [1307, 780], 'RW07': [1241, 780], 'RW08': [1173, 780],
+            'RW09': [1107, 780], 'RW10': [1039, 780], 'RW11': [970, 780],
+
+            // WEST REMOTE (aligned with other stands)
+            'WR01': [115, 780],
+            'WR02': [115, 865],
+            'WR03': [115, 950]
+        };
+
+        const container = document.getElementById('apron-container');
+        const infoPanel = document.getElementById('selected-stand');
+        let selectedStand = null;
+
+        // Create infrastructure SVG layer
+        function createInfrastructure() {
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.id = 'apron-infrastructure';
+            svg.setAttribute('viewBox', '0 0 1920 1080');
+            svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+            // === OLD RUNWAY (now taxiway) - Light blue outline only ===
+            const oldRunway = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            oldRunway.setAttribute('x', '40');
+            oldRunway.setAttribute('y', '350');
+            oldRunway.setAttribute('width', '1840');
+            oldRunway.setAttribute('height', '70');
+            oldRunway.setAttribute('fill', 'none');
+            oldRunway.setAttribute('stroke', '#5a7fa8');
+            oldRunway.setAttribute('stroke-width', '6');
+            svg.appendChild(oldRunway);
+
+            // Old runway text label (low opacity)
+            const oldRunwayText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            oldRunwayText.setAttribute('x', '960');
+            oldRunwayText.setAttribute('y', '392');
+            oldRunwayText.setAttribute('text-anchor', 'middle');
+            oldRunwayText.setAttribute('font-size', '32');
+            oldRunwayText.setAttribute('font-weight', 'bold');
+            oldRunwayText.setAttribute('fill', '#5a7fa8');
+            oldRunwayText.setAttribute('opacity', '0.4');
+            oldRunwayText.setAttribute('font-family', 'Segoe UI, sans-serif');
+            oldRunwayText.textContent = 'OLD RUNWAY';
+            svg.appendChild(oldRunwayText);
+
+            // Old runway centerline (white dashed)
+            const oldCenterline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            oldCenterline.setAttribute('x1', '960');
+            oldCenterline.setAttribute('y1', '355');
+            oldCenterline.setAttribute('x2', '960');
+            oldCenterline.setAttribute('y2', '415');
+            oldCenterline.setAttribute('stroke', '#5a7fa8');
+            oldCenterline.setAttribute('stroke-width', '2');
+            oldCenterline.setAttribute('stroke-dasharray', '30 40');
+            svg.appendChild(oldCenterline);
+
+            // === MAIN RUNWAY - Dark blue outline only ===
+            const mainRunway = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            mainRunway.setAttribute('x', '40');
+            mainRunway.setAttribute('y', '460');
+            mainRunway.setAttribute('width', '1840');
+            mainRunway.setAttribute('height', '110');
+            mainRunway.setAttribute('fill', 'none');
+            mainRunway.setAttribute('stroke', '#112D4E');
+            mainRunway.setAttribute('stroke-width', '8');
+            svg.appendChild(mainRunway);
+
+            // Main runway text label (low opacity)
+            const mainRunwayText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            mainRunwayText.setAttribute('x', '960');
+            mainRunwayText.setAttribute('y', '525');
+            mainRunwayText.setAttribute('text-anchor', 'middle');
+            mainRunwayText.setAttribute('font-size', '38');
+            mainRunwayText.setAttribute('font-weight', 'bold');
+            mainRunwayText.setAttribute('fill', '#112D4E');
+            mainRunwayText.setAttribute('opacity', '0.4');
+            mainRunwayText.setAttribute('font-family', 'Segoe UI, sans-serif');
+            mainRunwayText.textContent = 'RUNWAY';
+            svg.appendChild(mainRunwayText);
+
+            // Main runway centerline (dashed)
+            const mainCenterline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            mainCenterline.setAttribute('x1', '960');
+            mainCenterline.setAttribute('y1', '465');
+            mainCenterline.setAttribute('x2', '960');
+            mainCenterline.setAttribute('y2', '565');
+            mainCenterline.setAttribute('stroke', '#112D4E');
+            mainCenterline.setAttribute('stroke-width', '3');
+            mainCenterline.setAttribute('stroke-dasharray', '40 60');
+            svg.appendChild(mainCenterline);
+
+            // === TAXIWAY ALPHA (directly above A0 - vertical) ===
+            const twyAlpha = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            twyAlpha.setAttribute('x', '1765');
+            twyAlpha.setAttribute('y', '570');
+            twyAlpha.setAttribute('width', '40');
+            twyAlpha.setAttribute('height', '330');
+            twyAlpha.setAttribute('fill', 'none');
+            twyAlpha.setAttribute('stroke', '#3F72AF');
+            twyAlpha.setAttribute('stroke-width', '5');
+            svg.appendChild(twyAlpha);
+
+            const alphaCenterline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            alphaCenterline.setAttribute('x1', '1785');
+            alphaCenterline.setAttribute('y1', '575');
+            alphaCenterline.setAttribute('x2', '1785');
+            alphaCenterline.setAttribute('y2', '895');
+            alphaCenterline.setAttribute('stroke', '#3F72AF');
+            alphaCenterline.setAttribute('stroke-width', '2');
+            alphaCenterline.setAttribute('stroke-dasharray', '30 40');
+            svg.appendChild(alphaCenterline);
+
+            // === TAXIWAY BRAVO (perfectly centered between RE01 and RW11 - vertical) ===
+            const twyBravo = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            twyBravo.setAttribute('x', '816');
+            twyBravo.setAttribute('y', '570');
+            twyBravo.setAttribute('width', '40');
+            twyBravo.setAttribute('height', '180');
+            twyBravo.setAttribute('fill', 'none');
+            twyBravo.setAttribute('stroke', '#3F72AF');
+            twyBravo.setAttribute('stroke-width', '5');
+            svg.appendChild(twyBravo);
+
+            const bravoCenterline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            bravoCenterline.setAttribute('x1', '836');
+            bravoCenterline.setAttribute('y1', '575');
+            bravoCenterline.setAttribute('x2', '836');
+            bravoCenterline.setAttribute('y2', '745');
+            bravoCenterline.setAttribute('stroke', '#3F72AF');
+            bravoCenterline.setAttribute('stroke-width', '2');
+            bravoCenterline.setAttribute('stroke-dasharray', '30 40');
+            svg.appendChild(bravoCenterline);
+
+            // === TAXIWAY CHARLIE (angular - bottom edge between WR01 and RE07) ===
+            const twyCharlie = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            twyCharlie.setAttribute('d', 'M 115 570 L 115 680 L 205 750');
+            twyCharlie.setAttribute('fill', 'none');
+            twyCharlie.setAttribute('stroke', '#3F72AF');
+            twyCharlie.setAttribute('stroke-width', '5');
+            twyCharlie.setAttribute('stroke-linecap', 'square');
+            twyCharlie.setAttribute('stroke-linejoin', 'miter');
+            svg.appendChild(twyCharlie);
+
+            const charlieCenterline = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            charlieCenterline.setAttribute('d', 'M 115 580 L 115 685 L 205 745');
+            charlieCenterline.setAttribute('fill', 'none');
+            charlieCenterline.setAttribute('stroke', '#3F72AF');
+            charlieCenterline.setAttribute('stroke-width', '2');
+            charlieCenterline.setAttribute('stroke-dasharray', '20 30');
+            svg.appendChild(charlieCenterline);
+
+            // === TAXIWAY DELTA (New South - aligned with NSA01, to left of NSA10) ===
+            const twyDelta = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            twyDelta.setAttribute('x', '1445');
+            twyDelta.setAttribute('y', '240');
+            twyDelta.setAttribute('width', '30');
+            twyDelta.setAttribute('height', '110');
+            twyDelta.setAttribute('fill', 'none');
+            twyDelta.setAttribute('stroke', '#3F72AF');
+            twyDelta.setAttribute('stroke-width', '4');
+            svg.appendChild(twyDelta);
+
+            const deltaCenterline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            deltaCenterline.setAttribute('x1', '1460');
+            deltaCenterline.setAttribute('y1', '245');
+            deltaCenterline.setAttribute('x2', '1460');
+            deltaCenterline.setAttribute('y2', '345');
+            deltaCenterline.setAttribute('stroke', '#3F72AF');
+            deltaCenterline.setAttribute('stroke-width', '1.5');
+            deltaCenterline.setAttribute('stroke-dasharray', '20 30');
+            svg.appendChild(deltaCenterline);
+
+            // === TAXIWAY ECHO (South Apron - aligned next to Delta taxiway) ===
+            const twyEcho = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            twyEcho.setAttribute('x', '1475');
+            twyEcho.setAttribute('y', '350');
+            twyEcho.setAttribute('width', '40');
+            twyEcho.setAttribute('height', '110');
+            twyEcho.setAttribute('fill', 'none');
+            twyEcho.setAttribute('stroke', '#3F72AF');
+            twyEcho.setAttribute('stroke-width', '5');
+            svg.appendChild(twyEcho);
+
+            const echoCenterline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            echoCenterline.setAttribute('x1', '1495');
+            echoCenterline.setAttribute('y1', '355');
+            echoCenterline.setAttribute('x2', '1495');
+            echoCenterline.setAttribute('y2', '455');
+            echoCenterline.setAttribute('stroke', '#3F72AF');
+            echoCenterline.setAttribute('stroke-width', '2');
+            echoCenterline.setAttribute('stroke-dasharray', '30 40');
+            svg.appendChild(echoCenterline);
+
+            // Insert SVG as first child (behind everything)
+            container.insertBefore(svg, container.firstChild);
+        }
+
+        // Create zone labels
+        function createZoneLabels() {
+            const zones = [
+                { text: 'SOUTH APRON', x: 681, y: 35 },
+                { text: 'NEW SOUTH APRON', x: 1672, y: 35 },
+                { text: 'MAIN APRON', x: 950, y: 910 },
+                { text: 'REMOTE EAST', x: 500, y: 740 },
+                { text: 'REMOTE WEST', x: 1309, y: 740 }
+            ];
+
+            zones.forEach(zone => {
+                const label = document.createElement('div');
+                label.className = 'zone-label';
+                label.textContent = zone.text;
+                label.style.left = `${zone.x}px`;
+                label.style.top = `${zone.y}px`;
+                container.appendChild(label);
+            });
+        }
+
+        // Create infrastructure first
+        createInfrastructure();
+
+        // Create zone labels
+        createZoneLabels();
+
+        // Create stand elements
+        Object.entries(stands).forEach(([code, [x, y]]) => {
+            const standDiv = document.createElement('div');
+            standDiv.className = 'stand';
+            standDiv.textContent = code;
+            standDiv.style.left = `${x}px`;
+            standDiv.style.top = `${y}px`;
+            standDiv.dataset.stand = code;
+
+            standDiv.addEventListener('click', function() {
+                if (selectedStand) {
+                    selectedStand.classList.remove('selected');
+                }
+                this.classList.add('selected');
+                selectedStand = this;
+
+                infoPanel.innerHTML = `
+                    <strong>Stand:</strong> ${code}<br>
+                    <strong>Position:</strong> X=${x}px, Y=${y}px<br>
+                    <strong>Zone:</strong> ${getStandType(code)}
+                `;
+            });
+
+            container.appendChild(standDiv);
+        });
+
+        function getStandType(code) {
+            if (code.startsWith('A')) return 'Main Apron - A Series';
+            if (code.startsWith('B')) return 'Main Apron - B Series';
+            if (code.startsWith('SA')) return 'South Apron';
+            if (code.startsWith('NSA')) return 'New South Apron';
+            if (code.startsWith('WR')) return 'West Remote';
+            if (code.startsWith('RE')) return 'Remote East';
+            if (code.startsWith('RW')) return 'Remote West';
+            return 'Unknown';
+        }
+
+        // Responsive scaling
+        function resizeApron() {
+            const wrapper = document.getElementById('apron-wrapper');
+            const container = document.getElementById('apron-container');
+            const wrapperWidth = wrapper.clientWidth;
+            let scale = (wrapperWidth / 1920) * 0.95;
+            container.style.transform = `scale(${scale})`;
+            wrapper.style.height = `${1080 * scale}px`;
+        }
+
+        window.addEventListener('load', resizeApron);
+        window.addEventListener('resize', resizeApron);
+    </script>
+</body>
+</html>

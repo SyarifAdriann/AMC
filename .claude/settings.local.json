@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mysql:*)",
+      "Bash(C:xamppmysqlbinmysql.exe -u root -e \"USE amc; SOURCE C:/xampp/htdocs/amc/database/migrations/add_performance_indexes.sql\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"USE amc; SOURCE C:/xampp/htdocs/amc/database/migrations/add_performance_indexes.sql\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -D amc -e \"ALTER TABLE aircraft_details ADD INDEX idx_category (category)\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -D amc -e \"ALTER TABLE aircraft_details ADD INDEX idx_category_operator (category, operator_airline)\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -D amc -e \"ALTER TABLE aircraft_movements ADD INDEX idx_availability (movement_date, off_block_time, is_ron, ron_complete)\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -D amc -e \"ALTER TABLE aircraft_movements ADD INDEX idx_occupancy (movement_date, is_ron, ron_complete, parking_stand)\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -D amc -e \"ALTER TABLE aircraft_movements ADD INDEX idx_parking_stand_registration (parking_stand, registration)\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -D amc -e \"ALTER TABLE ml_prediction_log ADD INDEX idx_prediction_date (prediction_date)\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -D amc -e \"ALTER TABLE ml_prediction_log ADD INDEX idx_prediction_accuracy (prediction_date, was_prediction_correct)\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -D amc -e \"ALTER TABLE ml_prediction_log ADD INDEX idx_requested_by (requested_by_user)\")",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -D amc -e \"ALTER TABLE airline_preferences ADD INDEX idx_airline_category_active (airline_category, active, airline_name)\")",
+      "Bash(php:*)",
+      "Bash(curl:*)",
+      "Bash(timeout 3 bash:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss init)",
+      "Bash(npm run build:css:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(test:*)",
+      "WebSearch",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nUpdate AMC system with ML predictions, UI improvements, and code cleanup\n\nMajor changes:\n- Add ML-based aircraft parking prediction system with Random Forest model\n- Implement caching layer for improved performance\n- Update dashboard and apron view controllers with enhanced data handling\n- Add comprehensive database migrations and performance indexes\n- Include analysis reports and documentation for ML system\n- Clean up old documentation and test artifacts\n- Add tools for data processing, model training, and system maintenance\n- Update UI styling with Tailwind CSS integration\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

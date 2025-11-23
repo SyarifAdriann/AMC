@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom components for exact visual replication */
+@layer components {
+  .gradient-bg {
+    background: linear-gradient(135deg, #3F72AF 0%, #112D4E 100%);
+  }
+
+  .container-bg {
+    background: rgba(249, 247, 247, 0.98);
+    backdrop-filter: blur(10px);
+  }
+
+  .nav-btn-gradient {
+    background: linear-gradient(135deg, #3F72AF, #112D4E);
+    box-shadow: 0 4px 15px rgba(63, 114, 175, 0.4);
+  }
+
+  .nav-btn-gradient:hover {
+    box-shadow: 0 6px 20px rgba(63, 114, 175, 0.6);
+  }
+
+  .stand-gradient {
+    background: linear-gradient(135deg, rgba(63, 114, 175, 0.9), rgba(17, 45, 78, 0.9));
+  }
+
+  .table-header-gradient {
+    background: linear-gradient(135deg, #3F72AF, #112D4E);
+  }
+
+  .apron-checkerboard {
+    background:
+      linear-gradient(45deg, #DBE2EF 25%, #F9F7F7 25%, #F9F7F7 50%, #DBE2EF 50%, #DBE2EF 75%, #F9F7F7 75%);
+    background-size: 28.28px 28.28px;
+  }
+
+  .modal-backdrop {
+    backdrop-filter: blur(5px);
+  }
+}
+
+/* Responsive table styles */
+@media (max-width: 1024px) {
+  .desktop-table { display: none !important; }
+  .mobile-cards { display: block !important; }
+}
+
+@media (min-width: 1025px) {
+  .desktop-table { display: block !important; }
+  .mobile-cards { display: none !important; }
+}
+
+/* Touch-friendly inputs */
+@media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents iOS zoom */
+  }
+}
+
+.master-table td.selected {
+    background: rgba(63, 114, 175, 0.2) !important;
+    border: 1px solid #3F72AF !important;
+}

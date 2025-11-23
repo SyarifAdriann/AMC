@@ -1,0 +1,4 @@
+Baseline (most frequent stand) accuracy: 10.044%
+Model top-1 accuracy: 27.948%
+Model top-3 accuracy: 58.079%
+Top-3 improvement over baseline: 48.035%

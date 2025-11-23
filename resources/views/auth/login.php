@@ -10,25 +10,7 @@ $usernameValue = $oldInput['username'] ?? '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AMC Login - Aircraft Movement Control</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              'amc-blue': '#3F72AF',
-              'amc-dark-blue': '#112D4E',
-              'amc-light': '#DBE2EF',
-              'amc-bg': '#F9F7F7'
-            },
-            fontFamily: {
-              'sans': ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'Arial', 'sans-serif']
-            }
-          }
-        }
-      }
-    </script>
-    <link rel="stylesheet" href="assets/css/tailwind-custom.css">
+    <link rel="stylesheet" href="assets/css/tailwind.css">
 </head>
 <body class="gradient-bg min-h-screen font-sans flex items-center justify-center p-4">
     <div class="w-full max-w-md mx-auto">
@@ -54,7 +36,7 @@ $usernameValue = $oldInput['username'] ?? '';
                     <input type="password" id="password" name="password" required
                            class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:border-amc-blue focus:shadow-sm transition-all duration-300">
                 </div>
-                <button type="submit" name="login" class="w-full nav-btn-gradient text-white py-2 px-4 rounded-md font-semibold text-sm transition-all duration-300 hover:-translate-y-1">Login</button>
+                <button type="submit" name="login" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-2 px-4 rounded-md font-semibold text-sm transition-all duration-300 hover:-translate-y-1 shadow-md">Login</button>
             </form>
 
             <p class="mt-4 text-xs text-gray-600 text-center">

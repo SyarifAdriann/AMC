@@ -1,33 +1,11 @@
 <?php
 $title = 'AMC MONITORING SYSTEM';
 $styles = [
+    'assets/css/tailwind.css',
     'assets/css/styles.css?v=1.6',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css',
-    'assets/css/tailwind-custom.css'
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css'
 ];
-$head = <<<'HTML'
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              'amc-blue': '#3F72AF',
-              'amc-dark-blue': '#112D4E',
-              'amc-light': '#DBE2EF',
-              'amc-bg': '#F9F7F7'
-            },
-            fontFamily: {
-              'sans': ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'Arial', 'sans-serif']
-            },
-            screens: {
-              'xs': '475px',
-            }
-          }
-        }
-      }
-    </script>
-HTML;
+$head = '';
 $bodyClass = 'gradient-bg min-h-screen font-sans';
 $scripts = [
     'assets/js/mobile-adaptations.js',
@@ -171,8 +149,7 @@ ob_start();
                         'RE05'=>[431,700],'RE06'=>[363,700],'RE07'=>[296,700],
                         'RW01'=>[1647,700],'RW02'=>[1580,700],'RW03'=>[1513,700],'RW04'=>[1446,700],
                         'RW05'=>[1379,700],'RW06'=>[1307,700],'RW07'=>[1241,700],'RW08'=>[1173,700],
-                        'RW09'=>[1107,700],'RW10'=>[1039,700],'RW11'=>[970,700],
-                        'HGR'=>[1751,495]
+                        'RW09'=>[1107,700],'RW10'=>[1039,700],'RW11'=>[970,700]
                     ];
                     foreach($stands as $code => $pos) {
                         echo "<div class=\"stand-gradient absolute border-2 border-amc-dark-blue rounded-lg px-2 py-1 lg:px-3 lg:py-2 font-bold cursor-pointer select-none text-xs lg:text-sm text-center leading-tight text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:bg-gradient-to-br hover:from-amc-light hover:to-amc-blue hover:text-amc-dark-blue hover:shadow-xl active:translate-y-0 active:scale-100\" data-stand=\"$code\" style=\"left:{$pos[0]}px; top:{$pos[1]}px;\" title=\"Click to edit $code\">$code</div>";
@@ -183,13 +160,9 @@ ob_start();
         </div>
     </div>
 
-    <!-- MODALS (Keep existing modal content but update classes) -->
+    <!-- MODALS -->
     <!-- Stand Modal -->
     <?php require __DIR__ . '/partials/stand-modal.php'; ?>
-
-
-    <!-- Hangar Records Modal -->
-    <?php require __DIR__ . '/partials/hangar-modal.php'; ?>
 
 
     <!-- Keep existing JavaScript but add mobile adaptations -->
@@ -197,10 +170,12 @@ ob_start();
     
     <script>
         window.apronConfig = {
+            userRole: <?= json_encode($user_role) ?>,
             initialMovements: <?= json_encode($currentMovements); ?>,
             endpoints: {
                 apron: 'api/apron',
-                refreshApron: 'api/apron/status'
+                refreshApron: 'api/apron/status',
+                recommend: 'api/apron/recommend'
             }
         };
     </script>

@@ -1,0 +1,36 @@
+﻿Tables_in_amc (ml_%)
+ml_model_versions
+ml_prediction_log
+Field	Type	Null	Key	Default	Extra
+id	int(11)	NO	PRI	NULL	auto_increment
+version_number	varchar(20)	NO	UNI	NULL	
+training_date	date	NO		NULL	
+training_samples	int(11)	NO		NULL	
+test_accuracy	decimal(5,4)	YES		NULL	
+top3_accuracy	decimal(5,4)	NO		NULL	
+model_file_path	varchar(255)	NO		NULL	
+notes	text	YES		NULL	
+is_active	tinyint(1)	YES		0	
+created_by	bigint(20) unsigned	YES	MUL	NULL	
+created_at	timestamp	NO		current_timestamp()	
+Field	Type	Null	Key	Default	Extra
+id	int(11)	NO	PRI	NULL	auto_increment
+prediction_token	char(36)	NO	UNI	NULL	
+prediction_date	datetime	NO		current_timestamp()	
+aircraft_type	varchar(50)	NO		NULL	
+operator_airline	varchar(100)	NO		NULL	
+category	varchar(50)	NO		NULL	
+predicted_stands	longtext	NO		NULL	
+recommendation_payload	longtext	YES		NULL	
+model_version	varchar(20)	YES	MUL	NULL	
+requested_by_user	bigint(20) unsigned	YES	MUL	NULL	
+assigned_by_user	bigint(20) unsigned	YES	MUL	NULL	
+actual_stand_assigned	varchar(10)	YES		NULL	
+was_prediction_correct	tinyint(1)	YES		NULL	
+actual_recorded_at	datetime	YES		NULL	
+notes	text	YES		NULL	
+id	version_number	training_date	training_samples	test_accuracy	top3_accuracy	model_file_path	notes	is_active	created_by	created_at
+1	v1.0	2025-10-24	1145	0.4310	0.6157	ml/parking_stand_model.pkl	Baseline model trained from parking_history.csv snapshot on 2025-10-24.	1	1	2025-10-25 20:32:59
+
+# Recent prediction log entries
+id	prediction_token	aircraft_type	operator_airline	category	model_version	requested_by_user 2	f429ac001e817a22d1ff038de50c5849	B 738	GARUDA	KOMERSIAL	v1.0	6 1	0676e94c958bb7e8dc9f932f26314b0e	B 738	GARUDA	KOMERSIAL	v1.0	6

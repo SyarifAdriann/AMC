@@ -336,4 +336,4 @@ You are fully authorized to:
 * **Create** new files (e.g., new `.js` scripts, `.php` includes, or test files).
 * **Delete** files if they are made redundant by your refactoring.
 * **Execute** shell commands to install dependencies (like Puppeteer).
-* **Interact** directly with the MySQL database (SELECT, INSERT, UPDATE, DELETE, ALTER).
+...

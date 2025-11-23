@@ -1,0 +1,19 @@
+Stand Distribution (Post-filter):
+parking_stand
+A0      29
+A1      69
+A2      90
+A3      90
+B1     113
+B10     41
+B11     56
+B12     51
+B13     55
+B2      90
+B3      83
+B4      88
+B5      59
+B6      62
+B7      68
+B8      53
+B9      48

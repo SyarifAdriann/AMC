@@ -57,6 +57,17 @@ class DashboardController extends Controller
         return $this->renderDashboard();
     }
 
+    public function movementMetrics(): Response
+    {
+        $today = date('Y-m-d');
+        return Response::json([
+            'success' => true,
+            'snapshots' => $this->buildCategoryBreakdown($today),
+            'hourly' => $this->buildHourlyBreakdown($today),
+            'timestamp' => date('c')
+        ]);
+    }
+
     public function handle(): Response
     {
         $request = $this->request();
@@ -241,6 +252,15 @@ class DashboardController extends Controller
 
         foreach ($this->movements->categoryBreakdown($date) as $row) {
             $category = strtolower((string) ($row['category'] ?? 'charter'));
+
+            // Map Indonesian category names to English
+            $categoryMap = [
+                'komersial' => 'commercial',
+                'kargo' => 'cargo',
+            ];
+
+            $category = $categoryMap[$category] ?? $category;
+
             if (isset($defaults[$category])) {
                 $defaults[$category]['arrivals'] = (int) ($row['arrivals'] ?? 0);
                 $defaults[$category]['departures'] = (int) ($row['departures'] ?? 0);

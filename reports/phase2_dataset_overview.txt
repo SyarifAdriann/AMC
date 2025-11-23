@@ -1,0 +1,16 @@
+=== DATASET AMC.csv OVERVIEW ===
+Rows: 1295
+Columns: ['REGISTRATION', 'TYPE', 'ON BLOCK', 'OFF BLOCK', 'PARKING STAND', 'FROM', 'TO', 'ARR', 'DEP', 'OPERATOR / AIRLINES', 'CATEGORY']
+
+Preview:
+     TYPE OPERATOR / AIRLINES   CATEGORY PARKING STAND
+0   A 320           BATIK AIR  Komersial            A3
+1    GLEX                 JAS    CHARTER            B4
+2   A 320           BATIK AIR  Komersial          SA02
+3  ATR 72             TRAVIRA    CHARTER            B6
+4   B 733              TRI MG      cargo           B13
+5   B 733            AIRNESIA      cargo           B12
+6  CL 850              JETSET    CHARTER            B5
+7   A 320           BATIK AIR  Komersial            B9
+8   A 320           BATIK AIR  Komersial            B3
+9   A 320           BATIK AIR  Komersial            B8

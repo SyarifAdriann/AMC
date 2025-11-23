@@ -1,8 +1,52 @@
 (function () {
+    
     const config = window.apronConfig || {};
     const endpoints = config.endpoints || {};
     const apronEndpoint = endpoints.apron || 'api/apron';
     const refreshApronEndpoint = endpoints.refreshApron || 'api/apron/status';
+    const refreshMovementsEndpoint = endpoints.refreshMovements || 'api/apron/movements';
+    const recommendEndpoint = endpoints.recommend || 'api/apron/recommend';
+    const userRole = config.userRole || 'viewer';
+
+    function ensureToastHost() {
+        let host = document.getElementById('apron-toast-host');
+        if (!host) {
+            host = document.createElement('div');
+            host.id = 'apron-toast-host';
+            host.className = 'apron-toast-container';
+            document.body.appendChild(host);
+        }
+        return host;
+    }
+
+    function showAssignmentToast({ standCode, rank, probability, message, isAiMatch, modelVersion }) {
+        const host = ensureToastHost();
+        const toast = document.createElement('div');
+        toast.className = 'apron-toast apron-toast-success';
+        const badge = isAiMatch
+            ? `<span class="apron-toast-badge">AI rank #${rank}</span>`
+            : '<span class="apron-toast-badge apron-toast-badge-muted">Manual override</span>';
+        const confidence = typeof probability === 'number'
+            ? `<span class="apron-toast-meta">${(probability * 100).toFixed(1)}% confidence</span>`
+            : '';
+        const model = modelVersion ? `<span class="apron-toast-meta">Model ${modelVersion}</span>` : '';
+
+        toast.innerHTML = `
+            <div class="apron-toast-title">${message || 'Movement saved successfully.'}</div>
+            <div class="apron-toast-body">
+                Stand <strong>${standCode || '—'}</strong> ${badge}
+                <div class="apron-toast-foot">${confidence}${model}</div>
+            </div>
+        `;
+
+        host.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add('apron-toast-visible'));
+
+        setTimeout(() => {
+            toast.classList.add('apron-toast-fade');
+            toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+        }, 3200);
+    }
 
     function normalizeJsonResponse(text) {
         if (typeof text !== 'string') {
@@ -69,6 +113,239 @@
     }
 
     const initialMovements = Array.isArray(config.initialMovements) ? config.initialMovements : [];
+    const recommendationElements = {
+        panel: document.getElementById('ml-recommendation-panel'),
+        status: document.getElementById('ml-recommendation-status'),
+        list: document.getElementById('ml-recommendation-list'),
+        button: document.getElementById('ml-recommend-btn'),
+        version: document.getElementById('ml-recommendation-version'),
+        logInput: document.getElementById('f-prediction-log-id'),
+        categoryField: document.getElementById('f-category')
+    };
+    if (recommendationElements.button && userRole === 'viewer') {
+        recommendationElements.button.disabled = true;
+        recommendationElements.button.title = 'Viewer role cannot request AI suggestions.';
+    }
+    let recommendationState = {
+        logId: null,
+        predictions: [],
+        metadata: {}
+    };
+
+    function findRecommendationMeta(standCode) {
+        const target = (standCode || '').toUpperCase();
+        if (!target) {
+            return null;
+        }
+        for (let i = 0; i < recommendationState.predictions.length; i += 1) {
+            const item = recommendationState.predictions[i];
+            if ((item.stand || '').toUpperCase() === target) {
+                return {
+                    rank: i + 1,
+                    probability: typeof item.probability === 'number' ? item.probability : null
+                };
+            }
+        }
+        return null;
+    }
+
+    function updateRecommendationStatus(message, tone = 'info') {
+        if (!recommendationElements.status) {
+            return;
+        }
+        recommendationElements.status.textContent = message;
+        recommendationElements.status.classList.remove('text-green-600', 'text-red-600', 'text-slate-600');
+        const toneClass = tone === 'success' ? 'text-green-600' : tone === 'error' ? 'text-red-600' : 'text-slate-600';
+        recommendationElements.status.classList.add(toneClass);
+    }
+
+    function resetRecommendationPanel(message = 'Fill aircraft details then click “Get AI Recommendations”.') {
+        if (!recommendationElements.panel) {
+            return;
+        }
+        recommendationState = { logId: null, predictions: [], metadata: {} };
+        if (recommendationElements.list) {
+            recommendationElements.list.innerHTML = '';
+        }
+        if (recommendationElements.logInput) {
+            recommendationElements.logInput.value = '';
+        }
+        if (recommendationElements.version) {
+            recommendationElements.version.textContent = '--';
+        }
+        updateRecommendationStatus(message);
+    }
+
+    function setRecommendationLoading(isLoading) {
+        if (!recommendationElements.button) {
+            return;
+        }
+        recommendationElements.button.disabled = isLoading || userRole === 'viewer';
+        recommendationElements.button.textContent = isLoading ? 'Fetching...' : 'Get AI Recommendations';
+    }
+
+    function highlightSelectedRecommendation() {
+        if (!recommendationElements.list) {
+            return;
+        }
+        const target = (recommendationState.selectedStand || '').toUpperCase();
+        recommendationElements.list.querySelectorAll('button[data-stand]').forEach(btn => {
+            if (btn.dataset.stand === target && target !== '') {
+                btn.classList.add('ring-4', 'ring-yellow-400', 'ring-offset-2', 'scale-105');
+                btn.classList.remove('border-transparent');
+                btn.classList.add('border-yellow-300');
+            } else {
+                btn.classList.remove('ring-4', 'ring-yellow-400', 'ring-offset-2', 'scale-105', 'border-yellow-300');
+                btn.classList.add('border-transparent');
+            }
+        });
+    }
+
+    function renderRecommendationCards(items, source = 'model') {
+        if (!recommendationElements.list) {
+            return;
+        }
+        recommendationElements.list.innerHTML = '';
+        if (!Array.isArray(items) || items.length === 0) {
+            recommendationElements.list.innerHTML = '<p class="text-sm text-slate-600 text-center py-4">No recommendations available. Try adjusting aircraft details.</p>';
+            return;
+        }
+
+        items.forEach((item, index) => {
+            const stand = (item.stand || '').toUpperCase();
+            const probability = typeof item.probability === 'number'
+                ? `${Math.round(item.probability * 100)}%`
+                : 'N/A';
+            const rank = item.rank || (index + 1);
+
+            // Different gradient colors for each rank with high-contrast white text
+            const gradients = [
+                'from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700', // Rank 1
+                'from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700',  // Rank 2
+                'from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700' // Rank 3
+            ];
+            const gradient = gradients[rank - 1] || gradients[0];
+
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = `w-full bg-gradient-to-br ${gradient} rounded p-2 text-left transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 border border-transparent hover:border-white`;
+            button.innerHTML = `
+                <div class="flex items-start justify-between mb-1">
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-5 h-5 rounded-full bg-white bg-opacity-30 flex items-center justify-center text-white font-bold text-xs">#${rank}</div>
+                        <div class="text-xl font-black text-white drop-shadow-lg">${stand}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-lg font-bold text-white drop-shadow-md">${probability}</div>
+                        <div class="text-xs uppercase tracking-wider text-white text-opacity-90 font-semibold">Confidence</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1 mt-1 pt-1 border-t border-white border-opacity-30">
+                    <svg class="w-3 h-3 text-white text-opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span class="text-xs text-white text-opacity-95 font-medium">Click to select ${stand}</span>
+                </div>
+            `;
+            button.dataset.stand = stand;
+            button.addEventListener('click', () => {
+                const standInput = document.getElementById('f-stand');
+                if (standInput) {
+                    standInput.value = stand;
+                    standInput.focus();
+                }
+                recommendationState.selectedStand = stand;
+                highlightSelectedRecommendation();
+            });
+            recommendationElements.list.appendChild(button);
+        });
+        highlightSelectedRecommendation();
+    }
+
+    function requestRecommendations() {
+        if (!recommendationElements.button || userRole === 'viewer') {
+            return;
+        }
+        const typeField = document.getElementById('f-type');
+        const operatorField = document.getElementById('f-op');
+        const categoryField = recommendationElements.categoryField;
+
+        const aircraftType = (typeField ? typeField.value : '').trim();
+        const operator = (operatorField ? operatorField.value : '').trim();
+        const category = (categoryField ? categoryField.value : '').trim();
+
+        if (!aircraftType || !operator || !category) {
+            alert('Aircraft type, operator airline, and category are required to fetch recommendations.');
+            return;
+        }
+
+        setRecommendationLoading(true);
+        updateRecommendationStatus('Fetching recommendations...', 'info');
+
+        fetchJson(recommendEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                aircraft_type: aircraftType,
+                operator_airline: operator,
+                category
+            })
+        })
+        .then(data => {
+            if (!data || data.success === false) {
+                throw new Error(data && data.message ? data.message : 'Unable to fetch recommendations.');
+            }
+            recommendationState = {
+                logId: data.prediction_log_id || null,
+                predictions: data.recommendations || [],
+                metadata: data.metadata || {}
+            };
+            if (recommendationElements.logInput) {
+                recommendationElements.logInput.value = recommendationState.logId || '';
+            }
+            if (recommendationElements.version) {
+                recommendationElements.version.textContent = recommendationState.metadata.model_version || 'N/A';
+            }
+            const source = data.source || 'model';
+            recommendationState.selectedStand = recommendationState.predictions.length ? recommendationState.predictions[0].stand : null;
+            renderRecommendationCards(recommendationState.predictions, source);
+            updateRecommendationStatus(
+                recommendationState.predictions.length
+                    ? `Showing ${recommendationState.predictions.length} recommended stand${recommendationState.predictions.length > 1 ? 's' : ''}.`
+                    : 'No recommendations returned. Try adjusting details.',
+                recommendationState.predictions.length ? 'success' : 'info'
+            );
+        })
+        .catch(error => {
+            resetRecommendationPanel('Unable to fetch recommendations. Please review inputs and try again.');
+            console.error('Recommendation request failed:', error);
+        })
+        .finally(() => {
+            setRecommendationLoading(false);
+        });
+    }
+
+    if (recommendationElements.button) {
+        recommendationElements.button.addEventListener('click', requestRecommendations);
+    }
+    resetRecommendationPanel();
+    ['f-type', 'f-op', 'f-category'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            const handler = () => resetRecommendationPanel('Inputs changed. Fetch fresh recommendations.');
+            el.addEventListener('change', handler);
+            el.addEventListener('input', handler);
+        }
+    });
+    const standField = document.getElementById('f-stand');
+    if (standField) {
+        standField.addEventListener('input', () => {
+            const value = standField.value.trim().toUpperCase();
+            const match = recommendationState.predictions.find(item => (item.stand || '').toUpperCase() === value);
+            recommendationState.selectedStand = match ? match.stand.toUpperCase() : null;
+            highlightSelectedRecommendation();
+        });
+    }
 // Autofill aircraft details when registration changes
 function handleRegistrationAutofill(registration) {
     if (!registration || registration.length < 3) return;
@@ -140,15 +417,15 @@ function loadMovementsFromDatabase() {
     initialMovements.forEach(movement => {
         const standCode = movement.parking_stand;
         if (!standCode) return;
-        
+
         // Initialize stand data structure if not exists
         if (!standData[standCode]) {
             standData[standCode] = { current: null, planned: null };
         }
-        
+
         // Determine if this is current (has on_block_time) or planned
         const isCurrentMovement = movement.on_block_time && movement.on_block_time.trim() !== '';
-        
+
         // Map database fields to client-side structure
         const movementData = {
             id: movement.id, // Make sure ID is included
@@ -162,9 +439,10 @@ function loadMovementsFromDatabase() {
             dep: movement.flight_no_dep || '',
             op: movement.operator_airline || '',
             remarks: movement.remarks || '',
+            category: movement.category || '',
             ron: movement.is_ron == 1
         };
-        
+
         // Store in appropriate category
         if (isCurrentMovement) {
             standData[standCode].current = movementData;
@@ -172,11 +450,72 @@ function loadMovementsFromDatabase() {
             standData[standCode].planned = movementData;
         }
     });
-    
+
     // Render all stands after loading data
     Object.keys(standData).forEach(standCode => {
         renderStandIcons(standCode);
     });
+}
+
+// Refresh movements from server without full page reload
+function refreshMovementsData() {
+    console.log('Refreshing movements data...');
+    return fetchJson(refreshMovementsEndpoint)
+        .then(data => {
+            if (data.success && data.movements) {
+                // Clear existing stand data
+                Object.keys(standData).forEach(standCode => {
+                    standData[standCode] = { current: null, planned: null };
+                });
+
+                // Process new movements
+                data.movements.forEach(movement => {
+                    const standCode = movement.parking_stand;
+                    if (!standCode) return;
+
+                    if (!standData[standCode]) {
+                        standData[standCode] = { current: null, planned: null };
+                    }
+
+                    const isCurrentMovement = movement.on_block_time && movement.on_block_time.trim() !== '';
+
+                    const movementData = {
+                        id: movement.id,
+                        registration: movement.registration || '',
+                        type: movement.aircraft_type || '',
+                        onblock: movement.on_block_time || '',
+                        offblock: movement.off_block_time || '',
+                        from: movement.from_location || '',
+                        to: movement.to_location || '',
+                        arr: movement.flight_no_arr || '',
+                        dep: movement.flight_no_dep || '',
+                        op: movement.operator_airline || '',
+                        remarks: movement.remarks || '',
+                        category: movement.category || '',
+                        ron: movement.is_ron == 1
+                    };
+
+                    if (isCurrentMovement) {
+                        standData[standCode].current = movementData;
+                    } else {
+                        standData[standCode].planned = movementData;
+                    }
+                });
+
+                // Re-render all stands
+                Object.keys(standData).forEach(standCode => {
+                    renderStandIcons(standCode);
+                });
+
+                console.log('Movements refreshed successfully');
+                return true;
+            }
+            return false;
+        })
+        .catch(error => {
+            console.error('Failed to refresh movements:', error);
+            return false;
+        });
 }
 
 // Call the function when page loads
@@ -195,7 +534,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error('Failed to refresh apron status', error);
             });
-    }, 5000); // Refresh every 5s
+    }, 30000); // Refresh every 30s
 });
         // ===== Responsive Apron Map Scaling (with 5% shrink) =====
         function resizeApron() {
@@ -318,6 +657,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('f-op').value = data.op || '';
                 document.getElementById('f-remarks').value = data.remarks || '';
                 document.getElementById('f-ron').checked = data.ron || false;
+                if (document.getElementById('f-category')) {
+                    document.getElementById('f-category').value = data.category || 'Komersial';
+                }
+                if (recommendationElements.logInput) {
+                    recommendationElements.logInput.value = '';
+                }
+                resetRecommendationPanel('Loaded existing movement. Update details before requesting new AI suggestions.');
                 document.getElementById('standModalBg').style.display = 'flex';
                 setTimeout(() => {
                     document.getElementById('f-reg').focus();
@@ -330,30 +676,30 @@ document.addEventListener('DOMContentLoaded', function() {
     el.addEventListener('click', () => {
         console.log(`Stand ${el.dataset.stand} clicked`);
         const code = el.dataset.stand;
-        if (code === 'HGR') {
-            document.getElementById('hgrModalBg').style.display = 'flex';
-            setTimeout(() => {
-                const firstInput = document.querySelector('#hgr-table input:not([readonly])');
-                if (firstInput) firstInput.focus();
-            }, 10);
-        } else {
-            editingStand = null;
-            editingType = null;
-            editingId = null;
-            
-            // Pre-fill parking stand but allow editing
-            document.getElementById('f-stand').value = code;
-            
-            // Clear other fields
-            ['f-reg','f-type','f-onblock','f-offblock','f-from','f-to','f-arr','f-dep','f-op','f-remarks'].forEach(id => {
-                document.getElementById(id).value = '';
-            });
-            document.getElementById('f-ron').checked = false;
-            document.getElementById('standModalBg').style.display = 'flex';
-            setTimeout(() => {
-                document.getElementById('f-reg').focus();
-            }, 10);
+
+        editingStand = null;
+        editingType = null;
+        editingId = null;
+
+        // Pre-fill parking stand but allow editing
+        document.getElementById('f-stand').value = code;
+
+        // Clear other fields
+        ['f-reg','f-type','f-onblock','f-offblock','f-from','f-to','f-arr','f-dep','f-op','f-remarks'].forEach(id => {
+            document.getElementById(id).value = '';
+        });
+        document.getElementById('f-ron').checked = false;
+        if (document.getElementById('f-category')) {
+            document.getElementById('f-category').value = 'Komersial';
         }
+        if (recommendationElements.logInput) {
+            recommendationElements.logInput.value = '';
+        }
+        resetRecommendationPanel();
+        document.getElementById('standModalBg').style.display = 'flex';
+        setTimeout(() => {
+            document.getElementById('f-reg').focus();
+        }, 10);
     });
 });
         
@@ -398,9 +744,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         window.addEventListener('DOMContentLoaded', () => {
-            // Roster and HGR use default navigation
+            // Roster uses default navigation
             enableTableNav('#roster-table');
-            enableTableNav('#hgr-table');
 
             // Stand modal custom navigation:
             const orderIds = [
@@ -492,7 +837,6 @@ if (departureField) {
 
             // Sheets-like behavior for all tables:
             setupSheetBehavior('#roster-table');
-            setupSheetBehavior('#standFormTable');
             setupSheetBehavior('#hgr-table');
 
             // ===== Save Roster =====
@@ -575,7 +919,8 @@ if (sr) sr.addEventListener('click', () => {
                     flight_no_dep: document.getElementById('f-dep').value,
                     operator_airline: document.getElementById('f-op').value,
                     remarks: document.getElementById('f-remarks').value,
-                    is_ron: document.getElementById('f-ron').checked
+                    is_ron: document.getElementById('f-ron').checked,
+                    category: document.getElementById('f-category') ? document.getElementById('f-category').value : ''
                 };
 
                 const payload = {
@@ -583,6 +928,11 @@ if (sr) sr.addEventListener('click', () => {
                     parking_stand: standCode,
                     ...movementData
                 };
+
+                const predictionLogInput = document.getElementById('f-prediction-log-id');
+                if (predictionLogInput && predictionLogInput.value) {
+                    payload.prediction_log_id = predictionLogInput.value;
+                }
 
                 // Include ID if editing existing movement
                 if (editingId) {
@@ -596,7 +946,32 @@ if (sr) sr.addEventListener('click', () => {
                 })
                 .then(res => {
                     if (res.success) {
-                        location.reload();
+                        const match = findRecommendationMeta(standCode);
+                        showAssignmentToast({
+                            standCode: (standCode || '').toUpperCase(),
+                            rank: match ? match.rank : null,
+                            probability: match ? match.probability : null,
+                            message: res.message || 'Movement saved successfully.',
+                            isAiMatch: Boolean(match),
+                            modelVersion: recommendationState.metadata && recommendationState.metadata.model_version
+                                ? recommendationState.metadata.model_version
+                                : (recommendationState.metadata && recommendationState.metadata.version_number) || null
+                        });
+                        resetRecommendationPanel('Movement saved. Update inputs to fetch fresh recommendations.');
+
+                        // Refresh movements and status without full page reload
+                        setTimeout(() => {
+                            refreshMovementsData();
+                            // Also refresh apron status counters
+                            fetchJson(refreshApronEndpoint)
+                                .then(data => {
+                                    document.querySelector('#apron-total').textContent = data.total;
+                                    document.querySelector('#apron-available').textContent = data.available;
+                                    document.querySelector('#apron-occupied').textContent = data.occupied;
+                                    document.querySelector('#apron-ron').textContent = data.ron;
+                                })
+                                .catch(error => console.error('Failed to refresh apron status', error));
+                        }, 300);
                     } else {
                         alert('Error saving movement: ' + res.message);
                     }

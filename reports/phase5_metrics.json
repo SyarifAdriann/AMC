@@ -1,0 +1,18 @@
+{
+  "timestamp": "2025-10-27T05:15:20.489073Z",
+  "train_accuracy": 0.2972061657032755,
+  "test_accuracy": 0.28998073217726394,
+  "precision_macro": 0.3057800406473402,
+  "recall_macro": 0.3149452969510352,
+  "top3_accuracy": 0.6252408477842004,
+  "baseline_accuracy": 0.10886319845857419,
+  "best_params": {
+    "class_weight": "balanced",
+    "criterion": "gini",
+    "max_depth": null,
+    "min_samples_leaf": 4,
+    "n_estimators": 300
+  },
+  "train_size": 4152,
+  "test_size": 1038
+}

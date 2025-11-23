@@ -1,0 +1,32 @@
+PARKING STAND distribution (pre-filter):
+PARKING STAND
+A0           29
+A1           69
+A2           90
+A3           90
+B1          113
+B10          41
+B11          56
+B12          51
+B13          55
+B2           90
+B3           83
+B4           88
+B5           59
+B6           62
+B7           68
+B8           53
+B9           48
+BASE OPS      5
+BASEOPS      10
+NSA07         3
+NSA08         1
+NSA09         3
+NSA10         8
+NSA11         5
+NSA12         4
+RE01          2
+RE02          2
+RE03          3
+RE04          2
+RE05          1

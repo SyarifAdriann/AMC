@@ -1,0 +1,24 @@
+Total predictions: 229
+Correct predictions: 64
+Incorrect predictions: 165
+
+Top misclassified stand pairs (actual -> predicted counts):
+  4 -> 2: 11
+  14 -> 2: 11
+  3 -> 2: 10
+  9 -> 4: 10
+  8 -> 6: 8
+  1 -> 2: 8
+  3 -> 4: 7
+  15 -> 2: 7
+  7 -> 6: 6
+  12 -> 11: 6
+
+Stands with most misclassifications:
+  3: 18 errors
+  14: 14 errors
+  1: 12 errors
+  10: 12 errors
+  13: 12 errors
+
+Notes: Encoded features used; further analysis will map encodings to labels during integration.

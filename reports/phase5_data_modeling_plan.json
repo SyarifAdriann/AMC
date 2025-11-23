@@ -1,0 +1,45 @@
+{
+  "strategy": {
+    "train_test_split": {
+      "test_size": 0.2,
+      "random_state": 42,
+      "stratify": true
+    },
+    "grid_search": {
+      "params": {
+        "criterion": [
+          "gini",
+          "entropy"
+        ],
+        "max_depth": [
+          null,
+          5,
+          10,
+          15
+        ],
+        "min_samples_split": [
+          2,
+          5,
+          10
+        ],
+        "min_samples_leaf": [
+          1,
+          2,
+          4
+        ]
+      },
+      "cv": 5,
+      "scoring": "accuracy"
+    }
+  },
+  "metrics": [
+    "accuracy",
+    "precision",
+    "recall",
+    "top_3_accuracy"
+  ],
+  "outputs": {
+    "model": "ml/parking_stand_model.pkl",
+    "feature_importance": "reports/phase5_feature_importance.csv"
+  }
+}

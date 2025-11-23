@@ -1,0 +1,13 @@
+Cleaned Dataset Stats (selected):
+Rows: 1145
+Unique aircraft_type: 42
+Unique operator_airline: 28
+Unique category: 4
+Unique parking_stand: 17
+
+Category distribution:
+category
+Komersial    680
+Charter      271
+Cargo        192
+Militer        2

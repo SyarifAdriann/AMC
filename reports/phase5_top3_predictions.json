@@ -1,0 +1,852 @@
+[
+  {
+    "actual": "B10",
+    "top3": [
+      {
+        "stand": "B12",
+        "probability": 0.3052713328405663
+      },
+      {
+        "stand": "B13",
+        "probability": 0.23338737288367034
+      },
+      {
+        "stand": "B11",
+        "probability": 0.21262489062140452
+      }
+    ]
+  },
+  {
+    "actual": "B1",
+    "top3": [
+      {
+        "stand": "B2",
+        "probability": 0.16633249569305925
+      },
+      {
+        "stand": "B1",
+        "probability": 0.15905336035278797
+      },
+      {
+        "stand": "A2",
+        "probability": 0.1385022608494693
+      }
+    ]
+  },
+  {
+    "actual": "B11",
+    "top3": [
+      {
+        "stand": "B12",
+        "probability": 0.3052713328405663
+      },
+      {
+        "stand": "B13",
+        "probability": 0.23338737288367034
+      },
+      {
+        "stand": "B11",
+        "probability": 0.21262489062140452
+      }
+    ]
+  },
+  {
+    "actual": "B3",
+    "top3": [
+      {
+        "stand": "B2",
+        "probability": 0.16633249569305925
+      },
+      {
+        "stand": "B1",
+        "probability": 0.15905336035278797
+      },
+      {
+        "stand": "A2",
+        "probability": 0.1385022608494693
+      }
+    ]
+  },
+  {
+    "actual": "B10",
+    "top3": [
+      {
+        "stand": "B12",
+        "probability": 0.3052713328405663
+      },
+      {
+        "stand": "B13",
+        "probability": 0.23338737288367034
+      },
+      {
+        "stand": "B11",
+        "probability": 0.21262489062140452
+      }
+    ]
+  },
+  {
+    "actual": "B6",
+    "top3": [
+      {
+        "stand": "B5",
+        "probability": 0.4110843098049651
+      },
+      {
+        "stand": "B4",
+        "probability": 0.22005010725638224
+      },
+      {
+        "stand": "B3",
+        "probability": 0.07211966643097803
+      }
+    ]
+  },
+  {
+    "actual": "B3",
+    "top3": [
+      {
+        "stand": "B4",
+        "probability": 0.42649150595466656
+      },
+      {
+        "stand": "B3",
+        "probability": 0.18730840088258238
+      },
+      {
+        "stand": "B5",
+        "probability": 0.14297184016751768
+      }
+    ]
+  },
+  {
+    "actual": "B4",
+    "top3": [
+      {
+        "stand": "B4",
+        "probability": 0.42649150595466656
+      },
+      {
+        "stand": "B3",
+        "probability": 0.18730840088258238
+      },
+      {
+        "stand": "B5",
+        "probability": 0.14297184016751768
+      }
+    ]
+  },
+  {
+    "actual": "B3",
+    "top3": [
+      {
+        "stand": "B3",
+        "probability": 0.41997899863417226
+      },
+      {
+        "stand": "B2",
+        "probability": 0.10775256990950043
+      },
+      {
+        "stand": "B6",
+        "probability": 0.10227597915940763
+      }
+    ]
+  },
+  {
+    "actual": "A3",
+    "top3": [
+      {
+        "stand": "B8",
+        "probability": 0.12860505900180333
+      },
+      {
+        "stand": "A2",
+        "probability": 0.12787695003681315
+      },
+      {
+        "stand": "A3",
+        "probability": 0.12340785446415768
+      }
+    ]
+  },
+  {
+    "actual": "B5",
+    "top3": [
+      {
+        "stand": "B2",
+        "probability": 0.16633249569305925
+      },
+      {
+        "stand": "B1",
+        "probability": 0.15905336035278797
+      },
+      {
+        "stand": "A2",
+        "probability": 0.1385022608494693
+      }
+    ]
+  },
+  {
+    "actual": "B3",
+    "top3": [
+      {
+        "stand": "B4",
+        "probability": 0.4988394755377801
+      },
+      {
+        "stand": "B5",
+        "probability": 0.2304625631227798
+      },
+      {
+        "stand": "B3",
+        "probability": 0.13445170016884483
+      }
+    ]
+  },
+  {
+    "actual": "B7",
+    "top3": [
+      {
+        "stand": "B8",
+        "probability": 0.12860505900180333
+      },
+      {
+        "stand": "A2",
+        "probability": 0.12787695003681315
+      },
+      {
+        "stand": "A3",
+        "probability": 0.12340785446415768
+      }
+    ]
+  },
+  {
+    "actual": "B10",
+    "top3": [
+      {
+        "stand": "B10",
+        "probability": 0.3245946238403194
+      },
+      {
+        "stand": "B11",
+        "probability": 0.22802368335646045
+      },
+      {
+        "stand": "B13",
+        "probability": 0.17274971522082244
+      }
+    ]
+  },
+  {
+    "actual": "A2",
+    "top3": [
+      {
+        "stand": "A1",
+        "probability": 0.46531641566905363
+      },
+      {
+        "stand": "A2",
+        "probability": 0.17119223193543978
+      },
+      {
+        "stand": "A3",
+        "probability": 0.1253290587093859
+      }
+    ]
+  },
+  {
+    "actual": "B3",
+    "top3": [
+      {
+        "stand": "B4",
+        "probability": 0.2970979228082164
+      },
+      {
+        "stand": "B3",
+        "probability": 0.23316178324657866
+      },
+      {
+        "stand": "B5",
+        "probability": 0.19006226301417403
+      }
+    ]
+  },
+  {
+    "actual": "B8",
+    "top3": [
+      {
+        "stand": "B11",
+        "probability": 0.3206732343323528
+      },
+      {
+        "stand": "B10",
+        "probability": 0.23055093323551168
+      },
+      {
+        "stand": "B13",
+        "probability": 0.19761892535882727
+      }
+    ]
+  },
+  {
+    "actual": "B7",
+    "top3": [
+      {
+        "stand": "B8",
+        "probability": 0.12860505900180333
+      },
+      {
+        "stand": "A2",
+        "probability": 0.12787695003681315
+      },
+      {
+        "stand": "A3",
+        "probability": 0.12340785446415768
+      }
+    ]
+  },
+  {
+    "actual": "A3",
+    "top3": [
+      {
+        "stand": "B8",
+        "probability": 0.12860505900180333
+      },
+      {
+        "stand": "A2",
+        "probability": 0.12787695003681315
+      },
+      {
+        "stand": "A3",
+        "probability": 0.12340785446415768
+      }
+    ]
+  },
+  {
+    "actual": "A2",
+    "top3": [
+      {
+        "stand": "B8",
+        "probability": 0.12860505900180333
+      },
+      {
+        "stand": "A2",
+        "probability": 0.12787695003681315
+      },
+      {
+        "stand": "A3",
+        "probability": 0.12340785446415768
+      }
+    ]
+  },
+  {
+    "actual": "B11",
+    "top3": [
+      {
+        "stand": "B12",
+        "probability": 0.3052713328405663
+      },
+      {
+        "stand": "B13",
+        "probability": 0.23338737288367034
+      },
+      {
+        "stand": "B11",
+        "probability": 0.21262489062140452
+      }
+    ]
+  },
+  {
+    "actual": "B11",
+    "top3": [
+      {
+        "stand": "B11",
+        "probability": 0.3206732343323528
+      },
+      {
+        "stand": "B10",
+        "probability": 0.23055093323551168
+      },
+      {
+        "stand": "B13",
+        "probability": 0.19761892535882727
+      }
+    ]
+  },
+  {
+    "actual": "A1",
+    "top3": [
+      {
+        "stand": "B8",
+        "probability": 0.12860505900180333
+      },
+      {
+        "stand": "A2",
+        "probability": 0.12787695003681315
+      },
+      {
+        "stand": "A3",
+        "probability": 0.12340785446415768
+      }
+    ]
+  },
+  {
+    "actual": "B8",
+    "top3": [
+      {
+        "stand": "B8",
+        "probability": 0.12860505900180333
+      },
+      {
+        "stand": "A2",
+        "probability": 0.12787695003681315
+      },
+      {
+        "stand": "A3",
+        "probability": 0.12340785446415768
+      }
+    ]
+  },
+  {
+    "actual": "A2",
+    "top3": [
+      {
+        "stand": "B2",
+        "probability": 0.16633249569305925
+      },
+      {
+        "stand": "B1",
+        "probability": 0.15905336035278797
+      },
+      {
+        "stand": "A2",
+        "probability": 0.1385022608494693
+      }
+    ]
+  },
+  {
+    "actual": "B13",
+    "top3": [
+      {
+        "stand": "B13",
+        "probability": 0.2887894933188946
+      },
+      {
+        "stand": "B12",
+        "probability": 0.26231648114944534
+      },
+      {
+        "stand": "B11",
+        "probability": 0.20948003288441197
+      }
+    ]
+  },
+  {
+    "actual": "B2",
+    "top3": [
+      {
+        "stand": "B1",
+        "probability": 0.32281374682109537
+      },
+      {
+        "stand": "B2",
+        "probability": 0.1540190206301008
+      },
+      {
+        "stand": "A3",
+        "probability": 0.12610385688750364
+      }
+    ]
+  },
+  {
+    "actual": "A3",
+    "top3": [
+      {
+        "stand": "B8",
+        "probability": 0.12860505900180333
+      },
+      {
+        "stand": "A2",
+        "probability": 0.12787695003681315
+      },
+      {
+        "stand": "A3",
+        "probability": 0.12340785446415768
+      }
+    ]
+  },
+  {
+    "actual": "B13",
+    "top3": [
+      {
+        "stand": "B13",
+        "probability": 0.2887894933188946
+      },
+      {
+        "stand": "B12",
+        "probability": 0.26231648114944534
+      },
+      {
+        "stand": "B11",
+        "probability": 0.20948003288441197
+      }
+    ]
+  },
+  {
+    "actual": "B3",
+    "top3": [
+      {
+        "stand": "B3",
+        "probability": 0.5613061027415892
+      },
+      {
+        "stand": "B5",
+        "probability": 0.12110544156823119
+      },
+      {
+        "stand": "B9",
+        "probability": 0.08848701232262553
+      }
+    ]
+  },
+  {
+    "actual": "B12",
+    "top3": [
+      {
+        "stand": "B12",
+        "probability": 0.3052713328405663
+      },
+      {
+        "stand": "B13",
+        "probability": 0.23338737288367034
+      },
+      {
+        "stand": "B11",
+        "probability": 0.21262489062140452
+      }
+    ]
+  },
+  {
+    "actual": "B3",
+    "top3": [
+      {
+        "stand": "A1",
+        "probability": 0.46531641566905363
+      },
+      {
+        "stand": "A2",
+        "probability": 0.17119223193543978
+      },
+      {
+        "stand": "A3",
+        "probability": 0.1253290587093859
+      }
+    ]
+  },
+  {
+    "actual": "B8",
+    "top3": [
+      {
+        "stand": "B8",
+        "probability": 0.12860505900180333
+      },
+      {
+        "stand": "A2",
+        "probability": 0.12787695003681315
+      },
+      {
+        "stand": "A3",
+        "probability": 0.12340785446415768
+      }
+    ]
+  },
+  {
+    "actual": "A1",
+    "top3": [
+      {
+        "stand": "B8",
+        "probability": 0.12860505900180333
+      },
+      {
+        "stand": "A2",
+        "probability": 0.12787695003681315
+      },
+      {
+        "stand": "A3",
+        "probability": 0.12340785446415768
+      }
+    ]
+  },
+  {
+    "actual": "B1",
+    "top3": [
+      {
+        "stand": "B1",
+        "probability": 0.32281374682109537
+      },
+      {
+        "stand": "B2",
+        "probability": 0.1540190206301008
+      },
+      {
+        "stand": "A3",
+        "probability": 0.12610385688750364
+      }
+    ]
+  },
+  {
+    "actual": "B6",
+    "top3": [
+      {
+        "stand": "B4",
+        "probability": 0.2034310700830972
+      },
+      {
+        "stand": "B10",
+        "probability": 0.19042389731462983
+      },
+      {
+        "stand": "B6",
+        "probability": 0.17438305280845184
+      }
+    ]
+  },
+  {
+    "actual": "A1",
+    "top3": [
+      {
+        "stand": "B8",
+        "probability": 0.12860505900180333
+      },
+      {
+        "stand": "A2",
+        "probability": 0.12787695003681315
+      },
+      {
+        "stand": "A3",
+        "probability": 0.12340785446415768
+      }
+    ]
+  },
+  {
+    "actual": "A1",
+    "top3": [
+      {
+        "stand": "B2",
+        "probability": 0.16633249569305925
+      },
+      {
+        "stand": "B1",
+        "probability": 0.15905336035278797
+      },
+      {
+        "stand": "A2",
+        "probability": 0.1385022608494693
+      }
+    ]
+  },
+  {
+    "actual": "A2",
+    "top3": [
+      {
+        "stand": "B8",
+        "probability": 0.12860505900180333
+      },
+      {
+        "stand": "A2",
+        "probability": 0.12787695003681315
+      },
+      {
+        "stand": "A3",
+        "probability": 0.12340785446415768
+      }
+    ]
+  },
+  {
+    "actual": "B5",
+    "top3": [
+      {
+        "stand": "B5",
+        "probability": 0.290827143101338
+      },
+      {
+        "stand": "B6",
+        "probability": 0.19651475719338102
+      },
+      {
+        "stand": "B4",
+        "probability": 0.15577373351687962
+      }
+    ]
+  },
+  {
+    "actual": "B10",
+    "top3": [
+      {
+        "stand": "B11",
+        "probability": 0.3206732343323528
+      },
+      {
+        "stand": "B10",
+        "probability": 0.23055093323551168
+      },
+      {
+        "stand": "B13",
+        "probability": 0.19761892535882727
+      }
+    ]
+  },
+  {
+    "actual": "B4",
+    "top3": [
+      {
+        "stand": "B4",
+        "probability": 0.23371622246308174
+      },
+      {
+        "stand": "B5",
+        "probability": 0.22718735732796427
+      },
+      {
+        "stand": "B3",
+        "probability": 0.15804564339667396
+      }
+    ]
+  },
+  {
+    "actual": "B3",
+    "top3": [
+      {
+        "stand": "B1",
+        "probability": 0.32281374682109537
+      },
+      {
+        "stand": "B2",
+        "probability": 0.1540190206301008
+      },
+      {
+        "stand": "A3",
+        "probability": 0.12610385688750364
+      }
+    ]
+  },
+  {
+    "actual": "A3",
+    "top3": [
+      {
+        "stand": "B8",
+        "probability": 0.12860505900180333
+      },
+      {
+        "stand": "A2",
+        "probability": 0.12787695003681315
+      },
+      {
+        "stand": "A3",
+        "probability": 0.12340785446415768
+      }
+    ]
+  },
+  {
+    "actual": "B6",
+    "top3": [
+      {
+        "stand": "B4",
+        "probability": 0.2133835198788082
+      },
+      {
+        "stand": "B5",
+        "probability": 0.2092127075897221
+      },
+      {
+        "stand": "B7",
+        "probability": 0.16077043849847936
+      }
+    ]
+  },
+  {
+    "actual": "B6",
+    "top3": [
+      {
+        "stand": "B1",
+        "probability": 0.32281374682109537
+      },
+      {
+        "stand": "B2",
+        "probability": 0.1540190206301008
+      },
+      {
+        "stand": "A3",
+        "probability": 0.12610385688750364
+      }
+    ]
+  },
+  {
+    "actual": "B11",
+    "top3": [
+      {
+        "stand": "B11",
+        "probability": 0.3206732343323528
+      },
+      {
+        "stand": "B10",
+        "probability": 0.23055093323551168
+      },
+      {
+        "stand": "B13",
+        "probability": 0.19761892535882727
+      }
+    ]
+  },
+  {
+    "actual": "B4",
+    "top3": [
+      {
+        "stand": "B3",
+        "probability": 0.276561459158636
+      },
+      {
+        "stand": "B6",
+        "probability": 0.18031973841109944
+      },
+      {
+        "stand": "B7",
+        "probability": 0.16818287311900976
+      }
+    ]
+  },
+  {
+    "actual": "B7",
+    "top3": [
+      {
+        "stand": "B2",
+        "probability": 0.16633249569305925
+      },
+      {
+        "stand": "B1",
+        "probability": 0.15905336035278797
+      },
+      {
+        "stand": "A2",
+        "probability": 0.1385022608494693
+      }
+    ]
+  },
+  {
+    "actual": "A3",
+    "top3": [
+      {
+        "stand": "B2",
+        "probability": 0.42566690909551835
+      },
+      {
+        "stand": "B1",
+        "probability": 0.21175816439550593
+      },
+      {
+        "stand": "A3",
+        "probability": 0.10632309420535256
+      }
+    ]
+  }
+]

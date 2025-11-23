@@ -1,0 +1,53 @@
+
+graph TD
+    subgraph User Interface (apron/index.php)
+        A[User clicks "Assign Stand" on Apron Map] --> B{Stand Assignment Modal Opens};
+        B --> C[User fills in flight details: <br>Aircraft Type, Airline, Category];
+        C --> D[User clicks "Get AI Recommendations"];
+    end
+
+    subgraph PHP Backend (ApronController.php)
+        D --> E{POST /api/apron/recommend};
+        E --> F[Call getStandRecommendations() function];
+        F --> G[Input Validation & Normalization];
+        G --> H[callPythonPredictor()];
+    end
+
+    subgraph Python ML Service (predict.py)
+        H --> I[Python script receives JSON input];
+        I --> J[Load Model & Encoders (.pkl files)];
+        J --> K[Preprocess input (handle unseen values)];
+        K --> L[model.predict_proba(X_input)];
+        L --> M[Get Top-3 Stand Predictions & Probabilities];
+        M --> N[Return JSON output to PHP];
+    end
+
+    subgraph PHP Backend (Post-Processing)
+        N --> O[PHP receives JSON from Python];
+        O --> P[applyBusinessRules() function];
+        P --> P1[1. Get Available Stands (DB Query)];
+        P1 --> P2[2. Filter out occupied stands];
+        P2 --> P3[3. Get Airline Preferences (DB Query)];
+        P3 --> P4[4. Calculate Combined Score <br>(60% ML + 40% Preference)];
+        P4 --> Q[Re-rank recommendations];
+    end
+
+    subgraph User Interface (Update)
+        Q --> R[Return final recommendations to UI];
+        R --> S[JavaScript displays recommendation cards];
+        S --> T[User selects a recommended stand];
+        T --> U[Stand is assigned, data saved to DB];
+    end
+
+    subgraph Fallback & Logging
+        H -- Failure --> FB1[Fallback: getFallbackStands()];
+        FB1 --> FB2[Query historical frequency from DB];
+        FB2 --> Q;
+        O -- Failure --> FB1;
+        U --> LOG[Log prediction vs. actual assignment in ml_prediction_log];
+    end
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style U fill:#f9f,stroke:#333,stroke-width:2px
+    style D fill:#bbf,stroke:#333,stroke-width:2px
+    style R fill:#bbf,stroke:#333,stroke-width:2px

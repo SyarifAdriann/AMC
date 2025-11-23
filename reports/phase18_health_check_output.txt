@@ -1,0 +1,7 @@
+--- Starting ML Health Check ---
+SUCCESS: Model file found at ml\parking_stand_model.pkl
+SUCCESS: All encoder files found.
+SUCCESS: Model loaded successfully.
+SUCCESS: All encoders loaded successfully.
+SUCCESS: Test prediction completed successfully.
+--- ML Health Check Passed ---

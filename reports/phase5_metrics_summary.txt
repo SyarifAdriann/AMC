@@ -1,0 +1,9 @@
+Phase 5 Model Metrics
+----------------------
+Train accuracy: 0.377
+Test accuracy: 0.279
+Precision (macro): 0.237
+Recall (macro): 0.273
+Top-3 accuracy: 0.581
+Baseline accuracy: 0.100
+Best params: {'criterion': 'gini', 'max_depth': 10, 'min_samples_leaf': 1, 'min_samples_split': 3}

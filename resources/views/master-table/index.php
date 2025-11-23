@@ -1,33 +1,11 @@
 <?php
 $title = 'Master Table - AMC MONITORING SYSTEM';
 $styles = [
+    'assets/css/tailwind.css',
     'assets/css/styles.css?v=1.6',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css',
-    'assets/css/tailwind-custom.css'
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css'
 ];
-$head = <<<'HTML'
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              'amc-blue': '#3F72AF',
-              'amc-dark-blue': '#112D4E',
-              'amc-light': '#DBE2EF',
-              'amc-bg': '#F9F7F7'
-            },
-            fontFamily: {
-              'sans': ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'Arial', 'sans-serif']
-            },
-            screens: {
-              'xs': '475px',
-            }
-          }
-        }
-      }
-    </script>
-HTML;
+$head = '';
 $bodyClass = 'gradient-bg min-h-screen font-sans';
 $scripts = [
     'assets/js/mobile-adaptations.js',
@@ -139,7 +117,7 @@ ob_start();
                                 <span class="font-semibold text-gray-600">On Block:</span>
                                 <div class="mt-1">
                                     <?php if ($user_role !== 'viewer'): ?>
-                                    <input value="<?= htmlspecialchars($movement['on_block_time']) ?>" data-field="on_block_time" data-original="<?= htmlspecialchars($movement['on_block_time']) ?>" class="w-full text-xs border border-gray-300 rounded px-2 py-1 focus:border-amc-blue">
+                                    <input value="<?= htmlspecialchars($movement['on_block_time']) ?>" data-field="on_block_time" data-original="<?= htmlspecialchars($movement['on_block_time']) ?>" class="w-full text-xs font-mono border border-gray-300 rounded px-2 py-1 focus:border-amc-blue">
                                     <?php else: ?>
                                     <span class="text-gray-800"><?= htmlspecialchars($movement['on_block_time']) ?></span>
                                     <?php endif; ?>
@@ -149,7 +127,7 @@ ob_start();
                                 <span class="font-semibold text-gray-600">Off Block:</span>
                                 <div class="mt-1">
                                     <?php if ($user_role !== 'viewer'): ?>
-                                    <input value="<?= htmlspecialchars($movement['off_block_time']) ?>" data-field="off_block_time" data-original="<?= htmlspecialchars($movement['off_block_time']) ?>" class="w-full text-xs border border-gray-300 rounded px-2 py-1 focus:border-amc-blue">
+                                    <input value="<?= htmlspecialchars($movement['off_block_time']) ?>" data-field="off_block_time" data-original="<?= htmlspecialchars($movement['off_block_time']) ?>" class="w-full text-xs font-mono border border-gray-300 rounded px-2 py-1 focus:border-amc-blue">
                                     <?php else: ?>
                                     <span class="text-gray-800"><?= htmlspecialchars($movement['off_block_time']) ?></span>
                                     <?php endif; ?>
@@ -218,7 +196,7 @@ ob_start();
                             </div>
                             <div>
                                 <span class="font-semibold text-gray-600">On Block:</span>
-                                <input data-field="on_block_time" data-original="" placeholder="On Block Time" class="w-full mt-1 text-xs border border-gray-300 rounded px-2 py-1 focus:border-amc-blue">
+                                <input data-field="on_block_time" data-original="" placeholder="On Block Time" class="w-full mt-1 text-xs font-mono border border-gray-300 rounded px-2 py-1 focus:border-amc-blue">
                             </div>
                         </div>
                     </div>
@@ -233,8 +211,8 @@ ob_start();
                                 <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-8">NO</th>
                                 <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-20">REGISTRATION</th>
                                 <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-20">TYPE</th>
-                                <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-16">ON BLOCK</th>
-                                <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-16">OFF BLOCK</th>
+                                <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-28">ON BLOCK</th>
+                                <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-28">OFF BLOCK</th>
                                 <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-16">PARKING STAND</th>
                                 <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-16">FROM</th>
                                 <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-16">TO</th>
@@ -264,8 +242,8 @@ ob_start();
                                 <td class="border border-gray-300 px-1 py-1"><input class="w-full border-none bg-transparent text-xs text-center" readonly value="<?= $row_number++ ?>"></td>
                                 <td class="border border-gray-300 px-1 py-1"><input class="w-full border-none bg-transparent text-xs focus:bg-white focus:border focus:border-amc-blue focus:shadow-sm" value="<?= htmlspecialchars($movement['registration']) ?>" data-field="registration" data-original="<?= htmlspecialchars($movement['registration']) ?>" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
                                 <td class="border border-gray-300 px-1 py-1"><input class="w-full border-none bg-transparent text-xs focus:bg-white focus:border focus:border-amc-blue focus:shadow-sm" value="<?= htmlspecialchars($movement['aircraft_type']) ?>" data-field="aircraft_type" data-original="<?= htmlspecialchars($movement['aircraft_type']) ?>" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
-                                <td class="border border-gray-300 px-1 py-1"><input class="w-full border-none bg-transparent text-xs focus:bg-white focus:border focus:border-amc-blue focus:shadow-sm" value="<?= htmlspecialchars($movement['on_block_time']) ?>" data-field="on_block_time" data-original="<?= htmlspecialchars($movement['on_block_time']) ?>" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
-                                <td class="border border-gray-300 px-1 py-1"><input class="w-full border-none bg-transparent text-xs focus:bg-white focus:border focus:border-amc-blue focus:shadow-sm" value="<?= htmlspecialchars($movement['off_block_time']) ?>" data-field="off_block_time" data-original="<?= htmlspecialchars($movement['off_block_time']) ?>" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
+                                <td class="border border-gray-300 px-1 py-1 whitespace-nowrap"><input class="w-full border-none bg-transparent text-xs font-mono focus:bg-white focus:border focus:border-amc-blue focus:shadow-sm" value="<?= htmlspecialchars($movement['on_block_time']) ?>" data-field="on_block_time" data-original="<?= htmlspecialchars($movement['on_block_time']) ?>" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
+                                <td class="border border-gray-300 px-1 py-1 whitespace-nowrap"><input class="w-full border-none bg-transparent text-xs font-mono focus:bg-white focus:border focus:border-amc-blue focus:shadow-sm" value="<?= htmlspecialchars($movement['off_block_time']) ?>" data-field="off_block_time" data-original="<?= htmlspecialchars($movement['off_block_time']) ?>" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
                                 <td class="border border-gray-300 px-1 py-1"><input class="w-full border-none bg-transparent text-xs focus:bg-white focus:border focus:border-amc-blue focus:shadow-sm" value="<?= htmlspecialchars($movement['parking_stand']) ?>" data-field="parking_stand" data-original="<?= htmlspecialchars($movement['parking_stand']) ?>" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
                                 <td class="border border-gray-300 px-1 py-1"><input class="w-full border-none bg-transparent text-xs focus:bg-white focus:border focus:border-amc-blue focus:shadow-sm" value="<?= htmlspecialchars($movement['from_location']) ?>" data-field="from_location" data-original="<?= htmlspecialchars($movement['from_location']) ?>" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
                                 <td class="border border-gray-300 px-1 py-1"><input class="w-full border-none bg-transparent text-xs focus:bg-white focus:border focus:border-amc-blue focus:shadow-sm" value="<?= htmlspecialchars($movement['to_location']) ?>" data-field="to_location" data-original="<?= htmlspecialchars($movement['to_location']) ?>" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
@@ -295,8 +273,8 @@ ob_start();
                                 <td class="border border-gray-300 px-1 py-1"><input class="w-full border-none bg-transparent text-xs text-center" readonly value="<?= $next_row_number++ ?>"></td>
                                 <td class="border border-gray-300 px-1 py-1"><input class="w-full border-dashed border border-gray-300 bg-transparent text-xs focus:bg-white focus:border-solid focus:border-amc-blue focus:shadow-sm" value="" data-field="registration" data-original="" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
                                 <td class="border border-gray-300 px-1 py-1"><input class="w-full border-dashed border border-gray-300 bg-transparent text-xs focus:bg-white focus:border-solid focus:border-amc-blue focus:shadow-sm" value="" data-field="aircraft_type" data-original="" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
-                                <td class="border border-gray-300 px-1 py-1"><input class="w-full border-dashed border border-gray-300 bg-transparent text-xs focus:bg-white focus:border-solid focus:border-amc-blue focus:shadow-sm" value="" data-field="on_block_time" data-original="" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
-                                <td class="border border-gray-300 px-1 py-1"><input class="w-full border-dashed border border-gray-300 bg-transparent text-xs focus:bg-white focus:border-solid focus:border-amc-blue focus:shadow-sm" value="" data-field="off_block_time" data-original="" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
+                                <td class="border border-gray-300 px-1 py-1 whitespace-nowrap"><input class="w-full border-dashed border border-gray-300 bg-transparent text-xs font-mono focus:bg-white focus:border-solid focus:border-amc-blue focus:shadow-sm" value="" data-field="on_block_time" data-original="" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
+                                <td class="border border-gray-300 px-1 py-1 whitespace-nowrap"><input class="w-full border-dashed border border-gray-300 bg-transparent text-xs font-mono focus:bg-white focus:border-solid focus:border-amc-blue focus:shadow-sm" value="" data-field="off_block_time" data-original="" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
                                 <td class="border border-gray-300 px-1 py-1"><input class="w-full border-dashed border border-gray-300 bg-transparent text-xs focus:bg-white focus:border-solid focus:border-amc-blue focus:shadow-sm" value="" data-field="parking_stand" data-original="" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
                                 <td class="border border-gray-300 px-1 py-1"><input class="w-full border-dashed border border-gray-300 bg-transparent text-xs focus:bg-white focus:border-solid focus:border-amc-blue focus:shadow-sm" value="" data-field="from_location" data-original="" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
                                 <td class="border border-gray-300 px-1 py-1"><input class="w-full border-dashed border border-gray-300 bg-transparent text-xs focus:bg-white focus:border-solid focus:border-amc-blue focus:shadow-sm" value="" data-field="to_location" data-original="" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
@@ -379,7 +357,7 @@ ob_start();
                                 <span class="font-semibold text-gray-600">On Block:</span>
                                 <div class="mt-1">
                                     <?php if ($user_role !== 'viewer'): ?>
-                                    <input value="<?= htmlspecialchars($ron_movement['on_block_time'] ?? '') ?>" data-field="on_block_time" data-original="<?= htmlspecialchars($ron_movement['on_block_time'] ?? '') ?>" class="w-full text-xs border border-gray-300 rounded px-2 py-1 focus:border-amc-blue">
+                                    <input value="<?= htmlspecialchars($ron_movement['on_block_time'] ?? '') ?>" data-field="on_block_time" data-original="<?= htmlspecialchars($ron_movement['on_block_time'] ?? '') ?>" class="w-full text-xs font-mono border border-gray-300 rounded px-2 py-1 focus:border-amc-blue">
                                     <?php else: ?>
                                     <span class="text-gray-800"><?= htmlspecialchars($ron_movement['on_block_time'] ?? '') ?></span>
                                     <?php endif; ?>
@@ -389,7 +367,7 @@ ob_start();
                                 <span class="font-semibold text-gray-600">Off Block:</span>
                                 <div class="mt-1">
                                     <?php if ($user_role !== 'viewer'): ?>
-                                    <input value="<?= htmlspecialchars($ron_movement['off_block_time'] ?? '') ?>" data-field="off_block_time" data-original="<?= htmlspecialchars($ron_movement['off_block_time'] ?? '') ?>" class="w-full text-xs border border-gray-300 rounded px-2 py-1 focus:border-amc-blue">
+                                    <input value="<?= htmlspecialchars($ron_movement['off_block_time'] ?? '') ?>" data-field="off_block_time" data-original="<?= htmlspecialchars($ron_movement['off_block_time'] ?? '') ?>" class="w-full text-xs font-mono border border-gray-300 rounded px-2 py-1 focus:border-amc-blue">
                                     <?php else: ?>
                                     <span class="text-gray-800"><?= htmlspecialchars($ron_movement['off_block_time'] ?? '') ?></span>
                                     <?php endif; ?>
@@ -422,8 +400,8 @@ ob_start();
                                 <td class="border border-gray-300 px-1 py-1"><input class="w-full border-none bg-transparent text-xs focus:bg-white focus:border focus:border-amc-blue focus:shadow-sm" value="<?= htmlspecialchars($ron_movement['registration'] ?? '') ?>" data-field="registration" data-original="<?= htmlspecialchars($ron_movement['registration'] ?? '') ?>" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
                                 <td class="border border-gray-300 px-1 py-1"><input class="w-full border-none bg-transparent text-xs focus:bg-white focus:border focus:border-amc-blue focus:shadow-sm" value="<?= htmlspecialchars($ron_movement['aircraft_type'] ?? '') ?>" data-field="aircraft_type" data-original="<?= htmlspecialchars($ron_movement['aircraft_type'] ?? '') ?>" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
                                 <td class="border border-gray-300 px-1 py-1"><input class="w-full border-none bg-transparent text-xs focus:bg-white focus:border focus:border-amc-blue focus:shadow-sm" value="<?= htmlspecialchars($ron_movement['operator_airline'] ?? '') ?>" data-field="operator_airline" data-original="<?= htmlspecialchars($ron_movement['operator_airline'] ?? '') ?>" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
-                                <td class="border border-gray-300 px-1 py-1"><input class="w-full border-none bg-transparent text-xs focus:bg-white focus:border focus:border-amc-blue focus:shadow-sm" value="<?= htmlspecialchars($ron_movement['on_block_time'] ?? '') ?>" data-field="on_block_time" data-original="<?= htmlspecialchars($ron_movement['on_block_time'] ?? '') ?>" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
-                                <td class="border border-gray-300 px-1 py-1"><input class="w-full border-none bg-transparent text-xs focus:bg-white focus:border focus:border-amc-blue focus:shadow-sm" value="<?= htmlspecialchars($ron_movement['off_block_time'] ?? '') ?>" data-field="off_block_time" data-original="<?= htmlspecialchars($ron_movement['off_block_time'] ?? '') ?>" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
+                                <td class="border border-gray-300 px-1 py-1 whitespace-nowrap"><input class="w-full border-none bg-transparent text-xs font-mono focus:bg-white focus:border focus:border-amc-blue focus:shadow-sm" value="<?= htmlspecialchars($ron_movement['on_block_time'] ?? '') ?>" data-field="on_block_time" data-original="<?= htmlspecialchars($ron_movement['on_block_time'] ?? '') ?>" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
+                                <td class="border border-gray-300 px-1 py-1 whitespace-nowrap"><input class="w-full border-none bg-transparent text-xs font-mono focus:bg-white focus:border focus:border-amc-blue focus:shadow-sm" value="<?= htmlspecialchars($ron_movement['off_block_time'] ?? '') ?>" data-field="off_block_time" data-original="<?= htmlspecialchars($ron_movement['off_block_time'] ?? '') ?>" <?= ($user_role === 'viewer') ? 'readonly' : '' ?>></td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>

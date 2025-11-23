@@ -1,0 +1,5 @@
+Missing Values (Pre-clean):
+TYPE: 0
+OPERATOR / AIRLINES: 13
+CATEGORY: 13
+PARKING STAND: 0

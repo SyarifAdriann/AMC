@@ -12,8 +12,9 @@
   .nav-btn-gradient {
     background: linear-gradient(135deg, #3F72AF, #112D4E);
     box-shadow: 0 4px 15px rgba(63, 114, 175, 0.4);
+    color: white !important;
   }
-  
+
   .nav-btn-gradient:hover {
     box-shadow: 0 6px 20px rgba(63, 114, 175, 0.6);
   }
@@ -58,4 +59,9 @@
 .master-table td.selected {
     background: rgba(63, 114, 175, 0.2) !important;
     border: 1px solid #3F72AF !important;
+}
+
+.text-xxs {
+    font-size: 0.65rem;
+    line-height: 0.85rem;
 }

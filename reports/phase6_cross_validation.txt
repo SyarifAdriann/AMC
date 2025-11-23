@@ -1,0 +1,11 @@
+ mean_test_score  std_test_score                                                                                  params
+        0.317700        0.017659   {'criterion': 'gini', 'max_depth': 10, 'min_samples_leaf': 1, 'min_samples_split': 3}
+        0.315520        0.019633   {'criterion': 'gini', 'max_depth': 10, 'min_samples_leaf': 1, 'min_samples_split': 2}
+        0.315514        0.013818   {'criterion': 'gini', 'max_depth': 10, 'min_samples_leaf': 1, 'min_samples_split': 5}
+        0.313311        0.017666 {'criterion': 'gini', 'max_depth': None, 'min_samples_leaf': 2, 'min_samples_split': 5}
+        0.313311        0.017666 {'criterion': 'gini', 'max_depth': None, 'min_samples_leaf': 2, 'min_samples_split': 3}
+        0.313311        0.017666 {'criterion': 'gini', 'max_depth': None, 'min_samples_leaf': 2, 'min_samples_split': 2}
+        0.313311        0.017666   {'criterion': 'gini', 'max_depth': 10, 'min_samples_leaf': 2, 'min_samples_split': 3}
+        0.313311        0.017666   {'criterion': 'gini', 'max_depth': 10, 'min_samples_leaf': 2, 'min_samples_split': 2}
+        0.313311        0.017666   {'criterion': 'gini', 'max_depth': 15, 'min_samples_leaf': 2, 'min_samples_split': 2}
+        0.313311        0.017666   {'criterion': 'gini', 'max_depth': 10, 'min_samples_leaf': 2, 'min_samples_split': 5}

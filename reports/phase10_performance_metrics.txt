@@ -1,0 +1,7 @@
+Timestamp: 2025-10-26 11:49:01 SE Asia Standard Time
+Runs: 10
+Payload: {'aircraft_type': 'A320', 'operator_airline': 'BATIK AIR', 'category': 'Komersial'}
+Average latency: 4.027 s
+P95 latency: 4.716 s
+Min latency: 3.599 s
+Max latency: 4.716 s

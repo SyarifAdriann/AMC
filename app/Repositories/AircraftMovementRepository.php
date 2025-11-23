@@ -127,15 +127,17 @@ class AircraftMovementRepository extends Repository
     public function findCurrentApronMovements(): array
     {
         $stmt = $this->pdo->prepare(
-            "SELECT registration, aircraft_type, on_block_time, off_block_time, parking_stand,
-                    from_location, to_location, flight_no_arr, flight_no_dep, operator_airline,
-                    remarks, is_ron, ron_complete, movement_date, id
-             FROM aircraft_movements
+            "SELECT am.registration, am.aircraft_type, am.on_block_time, am.off_block_time, am.parking_stand,
+                    am.from_location, am.to_location, am.flight_no_arr, am.flight_no_dep, am.operator_airline,
+                    am.remarks, am.is_ron, am.ron_complete, am.movement_date, am.id,
+                    COALESCE(ad.category, '') AS category
+             FROM aircraft_movements am
+             LEFT JOIN aircraft_details ad ON ad.registration = am.registration
              WHERE (
-                (movement_date = CURDATE() AND (off_block_time IS NULL OR off_block_time = '')) OR
-                (is_ron = 1 AND ron_complete = 0)
+                (am.movement_date = CURDATE() AND (am.off_block_time IS NULL OR am.off_block_time = '')) OR
+                (am.is_ron = 1 AND am.ron_complete = 0)
              )
-             ORDER BY movement_date DESC, id ASC"
+             ORDER BY am.movement_date DESC, am.id ASC"
         );
         $stmt->execute();
 

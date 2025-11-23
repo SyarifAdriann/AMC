@@ -1,0 +1,11 @@
+test_missing_required_fields_raise (ml.test_predict.BuildFeatureVectorTests.test_missing_required_fields_raise) ... ok
+test_normalizes_required_fields (ml.test_predict.BuildFeatureVectorTests.test_normalizes_required_fields) ... ok
+test_cli_smoke (ml.test_predict.PredictCliTests.test_cli_smoke) ... ok
+test_predictions_are_sorted_and_bounded (ml.test_predict.PredictCliTests.test_predictions_are_sorted_and_bounded) ... ok
+test_top_k_flag_returns_requested_length (ml.test_predict.PredictCliTests.test_top_k_flag_returns_requested_length) ... ok
+test_unknown_aircraft_type_uses_fallback (ml.test_predict.PredictCliTests.test_unknown_aircraft_type_uses_fallback) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 13.693s
+
+OK

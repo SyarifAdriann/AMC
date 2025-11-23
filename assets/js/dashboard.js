@@ -4,22 +4,145 @@
     const userEndpoint = endpoints.userAdmin || 'api/admin/users';
     const snapshotEndpoint = endpoints.snapshots || 'api/snapshots';
     const refreshApronEndpoint = endpoints.refreshApron || 'api/apron/status';
+    const dashboardMovementsEndpoint = endpoints.dashboardMovements || 'api/dashboard/movements';
+    const mlMetricsEndpoint = endpoints.mlMetrics || 'api/ml/metrics';
+    const mlLogsEndpoint = endpoints.mlLogs || 'api/ml/logs';
     const userRole = config.userRole || 'viewer';
     const peakHourData = Array.isArray(config.peakHourData) ? config.peakHourData : [];
+    const logControls = {
+        filter: document.getElementById('ml-log-filter'),
+        search: document.getElementById('ml-log-search'),
+        limit: document.getElementById('ml-log-limit'),
+        refresh: document.getElementById('ml-log-refresh'),
+        rows: document.getElementById('ml-log-rows'),
+        status: document.getElementById('ml-log-status')
+    };
 
-        const peakHourData = Array.isArray(config.peakHourData) ? config.peakHourData : [];
+    function debounce(fn, delay = 300) {
+        let timer;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => fn.apply(null, args), delay);
+        };
+    }
 
-// Auto-refresh apron status
+    function sanitizeText(value) {
+        const div = document.createElement('div');
+        div.textContent = value == null ? '' : String(value);
+        return div.innerHTML;
+    }
+
+    function fetchJson(url, options = {}) {
+        const fetchOptions = { credentials: 'same-origin', ...options };
+        return fetch(url, fetchOptions).then(async response => {
+            const raw = await response.text();
+            if (!response.ok) {
+                const message = raw || response.statusText || `HTTP ${response.status}`;
+                throw new Error(message);
+            }
+            if (!raw) {
+                return {};
+            }
+            try {
+                return JSON.parse(raw);
+            } catch (error) {
+                throw new Error('Invalid JSON response');
+            }
+        });
+    }
+
+// Update movement snapshots (category breakdown)
+function updateMovementSnapshots(snapshots) {
+    if (!snapshots) {
+        console.warn('Dashboard: No snapshot data to update');
+        return;
+    }
+
+    // Update commercial
+    const commercialArr = document.querySelector('[data-category="commercial"][data-metric="arrivals"]');
+    const commercialDep = document.querySelector('[data-category="commercial"][data-metric="departures"]');
+    if (commercialArr) commercialArr.textContent = snapshots.commercial?.arrivals || 0;
+    if (commercialDep) commercialDep.textContent = snapshots.commercial?.departures || 0;
+
+    // Update cargo
+    const cargoArr = document.querySelector('[data-category="cargo"][data-metric="arrivals"]');
+    const cargoDep = document.querySelector('[data-category="cargo"][data-metric="departures"]');
+    if (cargoArr) cargoArr.textContent = snapshots.cargo?.arrivals || 0;
+    if (cargoDep) cargoDep.textContent = snapshots.cargo?.departures || 0;
+
+    // Update charter
+    const charterArr = document.querySelector('[data-category="charter"][data-metric="arrivals"]');
+    const charterDep = document.querySelector('[data-category="charter"][data-metric="departures"]');
+    if (charterArr) charterArr.textContent = snapshots.charter?.arrivals || 0;
+    if (charterDep) charterDep.textContent = snapshots.charter?.departures || 0;
+
+    console.log('✓ Movement snapshots updated:', {
+        commercial: `${snapshots.commercial?.arrivals}/${snapshots.commercial?.departures}`,
+        cargo: `${snapshots.cargo?.arrivals}/${snapshots.cargo?.departures}`,
+        charter: `${snapshots.charter?.arrivals}/${snapshots.charter?.departures}`
+    });
+}
+
+// Update hourly breakdown table
+function updateHourlyBreakdown(hourly) {
+    if (!hourly || !Array.isArray(hourly)) return;
+
+    hourly.forEach(row => {
+        const timeRange = row.time_range;
+        const rowElement = document.querySelector(`[data-time-range="${timeRange}"]`);
+        if (rowElement) {
+            const arrivals = row.Arrivals || 0;
+            const departures = row.Departures || 0;
+            const total = arrivals + departures;
+
+            const arrivalsCell = rowElement.querySelector('[data-metric="arrivals"]');
+            const departuresCell = rowElement.querySelector('[data-metric="departures"]');
+            const totalCell = rowElement.querySelector('[data-metric="total"]');
+
+            if (arrivalsCell) arrivalsCell.textContent = arrivals;
+            if (departuresCell) departuresCell.textContent = departures;
+            if (totalCell) totalCell.textContent = total;
+        }
+    });
+}
+
+// Function to refresh dashboard metrics
+function refreshDashboardMetrics() {
+    console.log('⟳ Refreshing dashboard metrics...');
+    fetchJson(dashboardMovementsEndpoint)
+        .then(data => {
+            if (data.success) {
+                updateMovementSnapshots(data.snapshots);
+                updateHourlyBreakdown(data.hourly);
+                console.log('✓ Dashboard fully refreshed at', data.timestamp);
+            } else {
+                console.warn('Dashboard API returned success=false');
+            }
+        })
+        .catch(error => {
+            console.error('✗ Failed to refresh dashboard metrics:', error);
+        });
+}
+
+// Auto-refresh apron status every 30 seconds (starts immediately)
 setInterval(() => {
     fetch(refreshApronEndpoint)
         .then(response => response.json())
         .then(data => {
-            document.querySelector('#apron-total').textContent = data.total;
-            document.querySelector('#apron-available').textContent = data.available;
-            document.querySelector('#apron-occupied').textContent = data.occupied;
-            document.querySelector('#apron-ron').textContent = data.ron;
+            const total = document.querySelector('#apron-total');
+            const available = document.querySelector('#apron-available');
+            const occupied = document.querySelector('#apron-occupied');
+            const ron = document.querySelector('#apron-ron');
+
+            if (total) total.textContent = data.total;
+            if (available) available.textContent = data.available;
+            if (occupied) occupied.textContent = data.occupied;
+            if (ron) ron.textContent = data.ron;
+        })
+        .catch(error => {
+            console.error('Failed to refresh apron status:', error);
         });
-}, 5000);
+}, 30000);
 
 // Peak hours summary
 function updatePeakHoursSummary() {
@@ -75,6 +198,171 @@ function updatePeakHoursSummary() {
     document.getElementById('peakHoursContent').innerHTML = summaryHTML;
 }
 
+    function loadMlMetrics() {
+        const versionEl = document.getElementById('ml-metrics-version');
+        if (!versionEl) {
+            return;
+        }
+        const trainingEl = document.getElementById('ml-metrics-training');
+        const expectedEl = document.getElementById('ml-metrics-expected');
+        const observedEl = document.getElementById('ml-metrics-observed');
+        const sampleEl = document.getElementById('ml-metrics-sample');
+        const statusEl = document.getElementById('ml-metrics-status');
+        const recentEl = document.getElementById('ml-metrics-recent');
+
+        const setPlaceholders = (text, tone = 'muted') => {
+            versionEl.textContent = '--';
+            if (trainingEl) trainingEl.textContent = '--';
+            if (expectedEl) expectedEl.textContent = '--';
+            if (observedEl) observedEl.textContent = '--';
+            if (sampleEl) sampleEl.textContent = '--';
+            if (recentEl) recentEl.innerHTML = '<p class="text-xs text-slate-400">No recent predictions to display.</p>';
+            if (statusEl) {
+                statusEl.textContent = text;
+                statusEl.classList.remove('text-green-600', 'text-red-600', 'text-amber-500', 'text-slate-500');
+                const toneClass = tone === 'success' ? 'text-green-600' : tone === 'warning' ? 'text-amber-500' : tone === 'error' ? 'text-red-600' : 'text-slate-500';
+                statusEl.classList.add(toneClass);
+            }
+        };
+
+    fetchJson(mlMetricsEndpoint)
+        .then(data => {
+            if (!data || data.success === false) {
+                throw new Error(data && data.message ? data.message : 'Unable to load metrics');
+            }
+            const model = data.model || {};
+            const observed = data.observed || {};
+            versionEl.textContent = model.version || 'N/A';
+            if (trainingEl) trainingEl.textContent = model.training_date || 'N/A';
+
+            const expectedVal = typeof model.top3_accuracy_expected === 'number' ? model.top3_accuracy_expected : null;
+            if (expectedEl) expectedEl.textContent = expectedVal !== null ? (expectedVal * 100).toFixed(1) + '%' : '--';
+
+            const observedVal = typeof observed.observed_top3_accuracy === 'number' ? observed.observed_top3_accuracy : null;
+            if (observedEl) observedEl.textContent = observedVal !== null ? (observedVal * 100).toFixed(1) + '%' : '--';
+
+            if (sampleEl) sampleEl.textContent = observed.total_predictions != null ? observed.total_predictions : 0;
+
+            if (statusEl) {
+                const total = observed.total_predictions || 0;
+                const window = observed.window_days || 30;
+                statusEl.textContent = total > 0
+                    ? `Tracking ${total} predictions across the last ${window} days.`
+                    : 'No prediction logs recorded for the recent window.';
+
+                statusEl.classList.remove('text-green-600', 'text-red-600', 'text-amber-500', 'text-slate-500');
+                if (observedVal !== null && expectedVal !== null) {
+                    statusEl.classList.add(observedVal >= expectedVal ? 'text-green-600' : 'text-amber-500');
+                } else {
+                    statusEl.classList.add('text-slate-500');
+                }
+            }
+
+            if (recentEl) {
+                const recent = Array.isArray(data.recent) ? data.recent : [];
+                if (recent.length === 0) {
+                    recentEl.innerHTML = '<p class="text-xs text-slate-400">No recent prediction logs.</p>';
+                } else {
+                    recentEl.innerHTML = recent.map(item => {
+                        const isCorrect = item.was_prediction_correct;
+                        const statusBadge = isCorrect === null
+                            ? '<span class="px-2 py-0.5 rounded-full text-xxs bg-slate-200 text-slate-600">pending</span>'
+                            : isCorrect
+                                ? '<span class="px-2 py-0.5 rounded-full text-xxs bg-green-100 text-green-700">top-3</span>'
+                                : '<span class="px-2 py-0.5 rounded-full text-xxs bg-red-100 text-red-700">missed</span>';
+                        const date = item.prediction_date ? new Date(item.prediction_date.replace(' ', 'T')) : null;
+                        const displayDate = date ? date.toLocaleString() : 'N/A';
+                        return `
+                            <div class="border border-slate-100 rounded-lg p-2 flex flex-col gap-1">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="font-semibold text-amc-dark-blue">${item.operator_airline || 'UNKNOWN'}</span>
+                                    ${statusBadge}
+                                </div>
+                                <div class="text-xxs text-slate-500">${item.aircraft_type || ''} • Cat ${item.category || 'N/A'} • ${item.model_version || '–'}</div>
+                                <div class="text-xxs text-slate-500">Logged ${displayDate}</div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+        })
+        .catch(err => {
+            console.error('Failed to load ML metrics', err);
+            setPlaceholders('Unable to load ML metrics at this time.', 'error');
+        });
+}
+
+    function renderPredictionLogRows(logs) {
+        if (!logControls.rows) {
+            return;
+        }
+        if (!Array.isArray(logs) || logs.length === 0) {
+            logControls.rows.innerHTML = '<tr><td colspan="8" class="px-4 py-4 text-center text-slate-500">No prediction entries match the current filters.</td></tr>';
+            return;
+        }
+
+        logControls.rows.innerHTML = logs.map(log => {
+            const date = log.prediction_date ? new Date(log.prediction_date.replace(' ', 'T')) : null;
+            const displayDate = date ? date.toLocaleString() : 'N/A';
+            const predictions = Array.isArray(log.predictions) && log.predictions.length > 0
+                ? log.predictions.map(item => `<div class="font-semibold text-amc-dark-blue">${sanitizeText(item.stand || '')}<span class="text-xxs text-slate-500 ml-1">#${item.rank || '-'}</span></div>`).join('')
+                : '<span class="text-slate-400">No data</span>';
+            let resultBadge = '<span class="px-2 py-0.5 rounded-full text-xxs bg-slate-200 text-slate-600">pending</span>';
+            if (log.result === 'hit') {
+                resultBadge = '<span class="px-2 py-0.5 rounded-full text-xxs bg-green-100 text-green-700 font-semibold">top-3 match</span>';
+            } else if (log.result === 'miss') {
+                resultBadge = '<span class="px-2 py-0.5 rounded-full text-xxs bg-red-100 text-red-700 font-semibold">missed</span>';
+            }
+
+            const assigned = log.actual_stand
+                ? `<span class="font-semibold text-amc-dark-blue">${sanitizeText(log.actual_stand)}</span>`
+                : '<span class="text-slate-400">Pending</span>';
+
+            return `
+                <tr class="hover:bg-gray-50">
+                    <td class="border border-gray-200 px-3 py-2 whitespace-nowrap">${sanitizeText(displayDate)}</td>
+                    <td class="border border-gray-200 px-3 py-2">${sanitizeText(log.aircraft_type || 'N/A')}</td>
+                    <td class="border border-gray-200 px-3 py-2">${sanitizeText(log.operator_airline || 'N/A')}</td>
+                    <td class="border border-gray-200 px-3 py-2">${sanitizeText(log.category || 'N/A')}</td>
+                    <td class="border border-gray-200 px-3 py-2">${sanitizeText(log.model_version || '—')}</td>
+                    <td class="border border-gray-200 px-3 py-2 space-y-1">${predictions}</td>
+                    <td class="border border-gray-200 px-3 py-2">${assigned}</td>
+                    <td class="border border-gray-200 px-3 py-2">${resultBadge}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function loadMlPredictionLogs() {
+        if (!logControls.rows) {
+            return;
+        }
+        const params = new URLSearchParams({
+            result: logControls.filter ? logControls.filter.value : 'all',
+            search: logControls.search ? logControls.search.value.trim() : '',
+            limit: logControls.limit ? logControls.limit.value : 50
+        });
+        if (logControls.status) {
+            logControls.status.textContent = 'Loading prediction entries…';
+        }
+
+        fetchJson(`${mlLogsEndpoint}?${params.toString()}`)
+            .then(data => {
+                const logs = Array.isArray(data.logs) ? data.logs : [];
+                renderPredictionLogRows(logs);
+                if (logControls.status) {
+                    logControls.status.textContent = `Showing ${logs.length} entr${logs.length === 1 ? 'y' : 'ies'}.`;
+                }
+            })
+            .catch(error => {
+                console.error('Failed to load ML logs', error);
+                renderPredictionLogRows([]);
+                if (logControls.status) {
+                    logControls.status.textContent = 'Unable to load prediction log.';
+                }
+            });
+    }
+
 // Modal Management System
 class ModalManager {
     constructor() {
@@ -85,15 +373,17 @@ class ModalManager {
     setupEventListeners() {
         // Modal trigger buttons
         document.addEventListener('click', (e) => {
-            if (e.target.hasAttribute('data-modal-target')) {
+            const openTrigger = e.target.closest('[data-modal-target]');
+            if (openTrigger) {
                 e.preventDefault();
-                const modalId = e.target.getAttribute('data-modal-target');
+                const modalId = openTrigger.getAttribute('data-modal-target');
                 this.openModal(modalId);
             }
-            
-            if (e.target.hasAttribute('data-modal-close')) {
+
+            const closeTrigger = e.target.closest('[data-modal-close]');
+            if (closeTrigger) {
                 e.preventDefault();
-                this.closeModal(e.target.closest('.modal-backdrop'));
+                this.closeModal(closeTrigger.closest('.modal-backdrop'));
             }
         });
 
@@ -181,20 +471,22 @@ class ModalManager {
         if (!tbody) return;
 
         tbody.innerHTML = users.map(user => `
-            <tr>
-                <td>${this.escapeHtml(user.full_name || '')}</td>
-                <td>${this.escapeHtml(user.username)}</td>
-                <td>${this.escapeHtml(user.email || '')}</td>
-                <td><span class="role-badge role-${user.role}">${user.role}</span></td>
-                <td><span class="status-badge status-${user.status}">${user.status}</span></td>
-                <td>${user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : 'Never'}</td>
-                <td class="actions">
-                    <button onclick="modalManager.editUser(${user.id})" class="action-btn edit">Edit</button>
-                    <button onclick="modalManager.resetPassword(${user.id}, '${this.escapeHtml(user.username)}')" class="action-btn reset">Reset PW</button>
-                    <button onclick="modalManager.toggleStatus(${user.id}, '${user.status}')" class="action-btn ${user.status === 'active' ? 'suspend' : 'activate'}">
-                        ${user.status === 'active' ? 'Suspend' : 'Activate'}
-                    </button>
-                    ${userRole === 'admin' ? `<button onclick="modalManager.deleteUser(${user.id}, '${this.escapeHtml(user.username)}')" class="action-btn delete">Delete</button>` : ''}
+            <tr class="hover:bg-slate-50">
+                <td class="px-3 py-2 text-xs">${this.escapeHtml(user.full_name || '')}</td>
+                <td class="px-3 py-2 text-xs">${this.escapeHtml(user.username)}</td>
+                <td class="px-3 py-2 text-xs">${this.escapeHtml(user.email || '')}</td>
+                <td class="px-3 py-2 text-xs"><span class="role-badge role-${user.role}">${user.role}</span></td>
+                <td class="px-3 py-2 text-xs"><span class="status-badge status-${user.status}">${user.status}</span></td>
+                <td class="px-3 py-2 text-xs">${user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : 'Never'}</td>
+                <td class="px-3 py-2">
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="modalManager.editUser(${user.id})" class="action-btn edit">Edit</button>
+                        <button onclick="modalManager.resetPassword(${user.id}, '${this.escapeHtml(user.username)}')" class="action-btn reset">Reset PW</button>
+                        <button onclick="modalManager.toggleStatus(${user.id}, '${user.status}')" class="action-btn ${user.status === 'active' ? 'suspend' : 'activate'}">
+                            ${user.status === 'active' ? 'Suspend' : 'Activate'}
+                        </button>
+                        ${userRole === 'admin' ? `<button onclick="modalManager.deleteUser(${user.id}, '${this.escapeHtml(user.username)}')" class="action-btn delete">Delete</button>` : ''}
+                    </div>
                 </td>
             </tr>
         `).join('');
@@ -796,7 +1088,56 @@ const modalManager = new ModalManager();
 
 // Form submissions
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize dashboard metrics refresh
+    refreshDashboardMetrics(); // Initial load
+    setInterval(refreshDashboardMetrics, 30000); // Refresh every 30 seconds
+
     updatePeakHoursSummary();
+    loadMlMetrics();
+    setInterval(loadMlMetrics, 60000);
+    if (logControls.rows) {
+        const debouncedLogSearch = debounce(() => loadMlPredictionLogs(), 350);
+        loadMlPredictionLogs();
+        if (logControls.filter) {
+            logControls.filter.addEventListener('change', () => loadMlPredictionLogs());
+        }
+        if (logControls.limit) {
+            logControls.limit.addEventListener('change', () => loadMlPredictionLogs());
+        }
+        if (logControls.search) {
+            logControls.search.addEventListener('input', debouncedLogSearch);
+        }
+        if (logControls.refresh) {
+            logControls.refresh.addEventListener('click', () => loadMlPredictionLogs());
+        }
+    }
+
+    const logScrollBtn = document.getElementById('ml-log-scroll');
+    if (logScrollBtn) {
+        logScrollBtn.addEventListener('click', () => {
+            const logbook = document.getElementById('ml-logbook-card');
+            if (logbook) {
+                logbook.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    }
+
+    const mlLogToggle = document.getElementById('ml-log-toggle');
+    const mlLogContent = document.getElementById('ml-log-content');
+
+    if (mlLogToggle && mlLogContent) {
+        mlLogToggle.addEventListener('click', () => {
+            const isHidden = mlLogContent.classList.contains('hidden');
+            if (isHidden) {
+                mlLogContent.classList.remove('hidden');
+                mlLogToggle.textContent = 'Hide Logbook';
+                loadMlPredictionLogs();
+            } else {
+                mlLogContent.classList.add('hidden');
+                mlLogToggle.textContent = 'Show Logbook';
+            }
+        });
+    }
 
     // User form submission
     const userForm = document.getElementById('user-form');
