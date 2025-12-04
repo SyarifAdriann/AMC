@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apron Map Experiment - HLP Airport</title>
+    <title>Apron Stand Positioning Tool - 1920x1080</title>
     <style>
         * {
             box-sizing: border-box;
@@ -19,407 +19,392 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1960px;
             margin: 0 auto;
             background: rgba(249, 247, 247, 0.98);
             border-radius: 12px;
-            padding: 30px;
+            padding: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
         }
 
         h1 {
             text-align: center;
             color: #112D4E;
-            margin-bottom: 20px;
-            font-size: 2rem;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
         }
 
         .info {
             text-align: center;
             color: #555;
-            margin-bottom: 20px;
-            font-size: 14px;
+            margin-bottom: 15px;
+            font-size: 13px;
         }
 
-        /* Apron Map Container */
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #3F72AF, #112D4E);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+
+        .controls button:hover {
+            transform: translateY(-2px);
+        }
+
+        .controls button.danger {
+            background: #dc3545;
+        }
+
         #apron-wrapper {
-            width: 100%;
+            width: 1920px;
+            height: 1080px;
             margin: 0 auto;
             position: relative;
-            overflow: hidden;
-            border-radius: 12px;
+            border-radius: 8px;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            border: 3px solid #DBE2EF;
-            /* Checkerboard background */
-            background:
-                linear-gradient(45deg, #DBE2EF 25%, #F9F7F7 25%, #F9F7F7 50%, #DBE2EF 50%, #DBE2EF 75%, #F9F7F7 75%);
-            background-size: 28.28px 28.28px;
+            border: 3px solid #112D4E;
+            background: #f0f0f0;
         }
 
         #apron-container {
             width: 1920px;
             height: 1080px;
             position: relative;
-            transform-origin: top left;
+            background-image: url('APRON.png');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
         }
 
-        /* Infrastructure SVG Layer - behind stands */
-        #apron-infrastructure {
+        #grid-overlay {
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
+            width: 1920px;
+            height: 1080px;
             pointer-events: none;
+            z-index: 5;
+            opacity: 0.3;
         }
 
-        /* Stand boxes - above infrastructure */
+        #grid-overlay.hidden {
+            display: none;
+        }
+
+        .ruler-horizontal, .ruler-vertical {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            pointer-events: none;
+            z-index: 4;
+            font-size: 9px;
+            color: #333;
+        }
+
+        .ruler-horizontal {
+            top: 0;
+            left: 0;
+            width: 1920px;
+            height: 20px;
+            border-bottom: 2px solid #333;
+        }
+
+        .ruler-vertical {
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 1080px;
+            border-right: 2px solid #333;
+        }
+
         .stand {
             position: absolute;
-            z-index: 10;
             background: linear-gradient(135deg, rgba(63, 114, 175, 0.9), rgba(17, 45, 78, 0.9));
             border: 2px solid #112D4E;
-            border-radius: 8px;
-            padding: 8px 12px;
+            border-radius: 4px;
+            padding: 3px 5px;
             font-weight: 700;
-            cursor: pointer;
+            cursor: move;
             user-select: none;
-            font-size: 13px;
+            font-size: 10px;
             text-align: center;
             line-height: 1.2;
             color: white;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 10;
         }
 
         .stand:hover {
-            transform: translateY(-3px) scale(1.05);
             background: linear-gradient(135deg, rgba(219, 226, 239, 0.9), rgba(63, 114, 175, 0.9));
             border-color: #3F72AF;
             color: #112D4E;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            z-index: 100;
         }
 
-        .stand:active {
-            transform: translateY(-1px) scale(1.02);
+        .stand.dragging {
+            opacity: 0.7;
+            z-index: 1000;
         }
 
-        .stand.selected {
-            background: linear-gradient(135deg, #ffc107, #ff9800);
-            color: #000;
-            border-color: #ff9800;
-            box-shadow: 0 0 20px rgba(255, 193, 7, 0.6);
+        #output {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            overflow-y: auto;
         }
 
-        /* Zone labels */
-        .zone-label {
-            position: absolute;
-            font-size: 24px;
-            font-weight: 700;
+        #output.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #output-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+        }
+
+        #output-content h2 {
+            margin-bottom: 15px;
             color: #112D4E;
-            opacity: 0.17;
-            pointer-events: none;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            user-select: none;
-            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
-            transform: translateX(-50%);
-            z-index: 5;
         }
 
-        /* Info panel */
-        #info-panel {
-            margin-top: 20px;
+        #output-content pre {
+            background: #f5f5f5;
             padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 2px solid #DBE2EF;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 500px;
         }
 
-        #info-panel h3 {
-            color: #112D4E;
-            margin-bottom: 10px;
+        #output-content button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #3F72AF;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
         }
 
-        #selected-stand {
-            font-size: 16px;
-            color: #3F72AF;
+        .coords-display {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: monospace;
+            z-index: 1500;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🛫 HLP Airport - Apron Map with Infrastructure</h1>
-        <div class="info">Runway and taxiways aligned with adjusted stand positions. Click any stand to see details.</div>
+        <h1>🛫 Apron Stand Positioning Tool (1920x1080)</h1>
+        <div class="info">Drag stands to position them. Canvas is exactly 1920x1080px.</div>
 
-        <!-- Apron Map -->
-        <div id="apron-wrapper">
-            <div id="apron-container">
-                <!-- SVG Infrastructure Layer (created by JavaScript) -->
-            </div>
+        <div class="controls">
+            <button onclick="exportCoordinates()">📋 Export Coordinates</button>
+            <button onclick="resetPositions()" class="danger">🔄 Reset to Original</button>
+            <button onclick="toggleGrid()">📐 Toggle Grid</button>
         </div>
 
-        <!-- Info Panel -->
-        <div id="info-panel">
-            <h3>Selected Stand Info:</h3>
-            <div id="selected-stand">Click a stand to see details</div>
+        <div id="apron-wrapper">
+            <div id="apron-container">
+                <div class="ruler-horizontal" id="ruler-h"></div>
+                <div class="ruler-vertical" id="ruler-v"></div>
+                <canvas id="grid-overlay" width="1920" height="1080"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div id="coords-display" class="coords-display" style="display: none;"></div>
+
+    <div id="output">
+        <div id="output-content">
+            <h2>Stand Coordinates</h2>
+            <p>Copy this code and paste it into your script:</p>
+            <pre id="output-code"></pre>
+            <button onclick="copyToClipboard()">Copy to Clipboard</button>
+            <button onclick="closeOutput()">Close</button>
         </div>
     </div>
 
     <script>
-        // Stand positions from experimental HTML (source of truth)
-        const stands = {
-            // MAIN APRON - Bottom section
-            'A0': [1785, 950], 'A1': [1712, 950], 'A2': [1621, 950], 'A3': [1518, 950],
-            'B1': [1414, 950], 'B2': [1321, 950], 'B3': [1229, 950], 'B4': [1136, 950],
-            'B5': [1043, 950], 'B6': [950, 950], 'B7': [859, 950], 'B8': [768, 950],
-            'B9': [673, 950], 'B10': [577, 950], 'B11': [483, 950], 'B12': [394, 950], 'B13': [306, 950],
-
-            // SOUTH APRON - Top section
-            'SA01': [152, 90], 'SA02': [365, 90], 'SA03': [578, 90], 'SA04': [791, 90],
-            'SA05': [1004, 90], 'SA06': [1218, 90], 'SA07': [87, 190], 'SA08': [210, 190],
-            'SA09': [300, 190], 'SA10': [423, 190], 'SA11': [514, 190], 'SA12': [635, 190],
-            'SA13': [726, 190], 'SA14': [849, 190], 'SA15': [940, 190], 'SA16': [1062, 190],
-            'SA17': [1153, 190], 'SA18': [1275, 190], 'SA19': [87, 290], 'SA20': [208, 290],
-            'SA21': [300, 290], 'SA22': [421, 290], 'SA23': [513, 290], 'SA24': [635, 290],
-            'SA25': [726, 290], 'SA26': [848, 290], 'SA27': [939, 290], 'SA28': [1061, 290],
-            'SA29': [1153, 290], 'SA30': [1275, 290],
-
-            // NEW SOUTH APRON
-            'NSA01': [1460, 90], 'NSA02': [1520, 90], 'NSA03': [1584, 90], 'NSA04': [1643, 90],
-            'NSA05': [1702, 90], 'NSA06': [1761, 90], 'NSA07': [1819, 90], 'NSA08': [1883, 124],
-            'NSA09': [1883, 237], 'NSA10': [1520, 272], 'NSA11': [1584, 272], 'NSA12': [1643, 272],
-            'NSA13': [1702, 272], 'NSA14': [1761, 272], 'NSA15': [1819, 272],
-
-            // REMOTE EAST
-            'RE01': [703, 780], 'RE02': [637, 780], 'RE03': [568, 780], 'RE04': [499, 780],
-            'RE05': [431, 780], 'RE06': [363, 780], 'RE07': [296, 780],
+        // Initial stand positions
+        const initialStands = {
+            // MAIN APRON - A and B series
+            'A0': [1875, 903], 'A1': [1818, 903], 'A2': [1761, 903], 'A3': [1704, 903],
+            'B1': [1647, 903], 'B2': [1590, 903], 'B3': [1533, 903], 'B4': [1476, 903],
+            'B5': [1419, 903], 'B6': [1362, 903], 'B7': [1305, 903], 'B8': [1248, 903],
+            'B9': [1191, 903], 'B10': [1134, 903], 'B11': [1077, 903], 'B12': [1020, 903],
+            'B13': [963, 903],
 
             // REMOTE WEST
-            'RW01': [1647, 780], 'RW02': [1580, 780], 'RW03': [1513, 780], 'RW04': [1446, 780],
-            'RW05': [1379, 780], 'RW06': [1307, 780], 'RW07': [1241, 780], 'RW08': [1173, 780],
-            'RW09': [1107, 780], 'RW10': [1039, 780], 'RW11': [970, 780],
+            'RW01': [1760, 773], 'RW02': [1715, 773], 'RW03': [1670, 773], 'RW04': [1625, 773],
+            'RW05': [1580, 773], 'RW06': [1535, 773], 'RW07': [1490, 773], 'RW08': [1445, 773],
+            'RW09': [1400, 773], 'RW10': [1355, 773], 'RW11': [1310, 773],
 
-            // WEST REMOTE (aligned with other stands)
-            'WR01': [115, 780],
-            'WR02': [115, 865],
-            'WR03': [115, 950]
+            // REMOTE EAST
+            'RE01': [1205, 773], 'RE02': [1162, 773], 'RE03': [1119, 773], 'RE04': [1076, 773],
+            'RE05': [1033, 773], 'RE06': [990, 773], 'RE07': [947, 773],
+
+            // SOUTH APRON
+            'SA01': [83, 93], 'SA02': [186, 93], 'SA03': [289, 93], 'SA04': [392, 93],
+            'SA05': [495, 93], 'SA06': [598, 93], 'SA07': [67, 134], 'SA08': [99, 134],
+            'SA09': [170, 134], 'SA10': [202, 134], 'SA11': [273, 134], 'SA12': [305, 134],
+            'SA13': [376, 134], 'SA14': [408, 134], 'SA15': [479, 134], 'SA16': [511, 134],
+            'SA17': [582, 134], 'SA18': [614, 134], 'SA19': [67, 176], 'SA20': [99, 176],
+            'SA21': [170, 176], 'SA22': [202, 176], 'SA23': [273, 176], 'SA24': [305, 176],
+            'SA25': [376, 176], 'SA26': [408, 176], 'SA27': [479, 176], 'SA28': [511, 176],
+            'SA29': [582, 176], 'SA30': [614, 176],
+
+            // NEW SOUTH APRON
+            'NSA01': [875, 160], 'NSA02': [905, 160], 'NSA03': [935, 160], 'NSA04': [965, 160],
+            'NSA05': [995, 160], 'NSA06': [1025, 160], 'NSA07': [1055, 160], 'NSA08': [1085, 190],
+            'NSA09': [1085, 240], 'NSA10': [905, 240], 'NSA11': [935, 240], 'NSA12': [965, 240],
+            'NSA13': [995, 240], 'NSA14': [1025, 240], 'NSA15': [1055, 240],
+
+            // WEST REMOTE
+            'WR01': [917, 843], 'WR02': [917, 869], 'WR03': [917, 895]
         };
 
         const container = document.getElementById('apron-container');
-        const infoPanel = document.getElementById('selected-stand');
-        let selectedStand = null;
+        const coordsDisplay = document.getElementById('coords-display');
+        const gridCanvas = document.getElementById('grid-overlay');
+        const gridCtx = gridCanvas.getContext('2d');
+        const stands = JSON.parse(JSON.stringify(initialStands)); // Deep copy
+        let draggedElement = null;
+        let offsetX = 0;
+        let offsetY = 0;
+        let showGrid = true;
 
-        // Create infrastructure SVG layer
-        function createInfrastructure() {
-            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            svg.id = 'apron-infrastructure';
-            svg.setAttribute('viewBox', '0 0 1920 1080');
-            svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        // Draw grid and rulers
+        function drawGrid() {
+            const smallGrid = 10;  // Small grid every 10px
+            const largeGrid = 50;  // Bold grid every 50px
 
-            // === OLD RUNWAY (now taxiway) - Light blue outline only ===
-            const oldRunway = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            oldRunway.setAttribute('x', '40');
-            oldRunway.setAttribute('y', '350');
-            oldRunway.setAttribute('width', '1840');
-            oldRunway.setAttribute('height', '70');
-            oldRunway.setAttribute('fill', 'none');
-            oldRunway.setAttribute('stroke', '#5a7fa8');
-            oldRunway.setAttribute('stroke-width', '6');
-            svg.appendChild(oldRunway);
+            // Clear canvas
+            gridCtx.clearRect(0, 0, 1920, 1080);
 
-            // Old runway text label (low opacity)
-            const oldRunwayText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            oldRunwayText.setAttribute('x', '960');
-            oldRunwayText.setAttribute('y', '392');
-            oldRunwayText.setAttribute('text-anchor', 'middle');
-            oldRunwayText.setAttribute('font-size', '32');
-            oldRunwayText.setAttribute('font-weight', 'bold');
-            oldRunwayText.setAttribute('fill', '#5a7fa8');
-            oldRunwayText.setAttribute('opacity', '0.4');
-            oldRunwayText.setAttribute('font-family', 'Segoe UI, sans-serif');
-            oldRunwayText.textContent = 'OLD RUNWAY';
-            svg.appendChild(oldRunwayText);
+            if (!showGrid) return;
 
-            // Old runway centerline (white dashed)
-            const oldCenterline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            oldCenterline.setAttribute('x1', '960');
-            oldCenterline.setAttribute('y1', '355');
-            oldCenterline.setAttribute('x2', '960');
-            oldCenterline.setAttribute('y2', '415');
-            oldCenterline.setAttribute('stroke', '#5a7fa8');
-            oldCenterline.setAttribute('stroke-width', '2');
-            oldCenterline.setAttribute('stroke-dasharray', '30 40');
-            svg.appendChild(oldCenterline);
+            // Draw small grid lines (10px)
+            gridCtx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+            gridCtx.lineWidth = 0.5;
+            for (let x = 0; x <= 1920; x += smallGrid) {
+                gridCtx.beginPath();
+                gridCtx.moveTo(x, 0);
+                gridCtx.lineTo(x, 1080);
+                gridCtx.stroke();
+            }
+            for (let y = 0; y <= 1080; y += smallGrid) {
+                gridCtx.beginPath();
+                gridCtx.moveTo(0, y);
+                gridCtx.lineTo(1920, y);
+                gridCtx.stroke();
+            }
 
-            // === MAIN RUNWAY - Dark blue outline only ===
-            const mainRunway = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            mainRunway.setAttribute('x', '40');
-            mainRunway.setAttribute('y', '460');
-            mainRunway.setAttribute('width', '1840');
-            mainRunway.setAttribute('height', '110');
-            mainRunway.setAttribute('fill', 'none');
-            mainRunway.setAttribute('stroke', '#112D4E');
-            mainRunway.setAttribute('stroke-width', '8');
-            svg.appendChild(mainRunway);
+            // Draw thicker lines every 50px
+            gridCtx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
+            gridCtx.lineWidth = 1.5;
+            for (let x = 0; x <= 1920; x += largeGrid) {
+                gridCtx.beginPath();
+                gridCtx.moveTo(x, 0);
+                gridCtx.lineTo(x, 1080);
+                gridCtx.stroke();
+            }
+            for (let y = 0; y <= 1080; y += largeGrid) {
+                gridCtx.beginPath();
+                gridCtx.moveTo(0, y);
+                gridCtx.lineTo(1920, y);
+                gridCtx.stroke();
+            }
 
-            // Main runway text label (low opacity)
-            const mainRunwayText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            mainRunwayText.setAttribute('x', '960');
-            mainRunwayText.setAttribute('y', '525');
-            mainRunwayText.setAttribute('text-anchor', 'middle');
-            mainRunwayText.setAttribute('font-size', '38');
-            mainRunwayText.setAttribute('font-weight', 'bold');
-            mainRunwayText.setAttribute('fill', '#112D4E');
-            mainRunwayText.setAttribute('opacity', '0.4');
-            mainRunwayText.setAttribute('font-family', 'Segoe UI, sans-serif');
-            mainRunwayText.textContent = 'RUNWAY';
-            svg.appendChild(mainRunwayText);
-
-            // Main runway centerline (dashed)
-            const mainCenterline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            mainCenterline.setAttribute('x1', '960');
-            mainCenterline.setAttribute('y1', '465');
-            mainCenterline.setAttribute('x2', '960');
-            mainCenterline.setAttribute('y2', '565');
-            mainCenterline.setAttribute('stroke', '#112D4E');
-            mainCenterline.setAttribute('stroke-width', '3');
-            mainCenterline.setAttribute('stroke-dasharray', '40 60');
-            svg.appendChild(mainCenterline);
-
-            // === TAXIWAY ALPHA (directly above A0 - vertical) ===
-            const twyAlpha = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            twyAlpha.setAttribute('x', '1765');
-            twyAlpha.setAttribute('y', '570');
-            twyAlpha.setAttribute('width', '40');
-            twyAlpha.setAttribute('height', '330');
-            twyAlpha.setAttribute('fill', 'none');
-            twyAlpha.setAttribute('stroke', '#3F72AF');
-            twyAlpha.setAttribute('stroke-width', '5');
-            svg.appendChild(twyAlpha);
-
-            const alphaCenterline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            alphaCenterline.setAttribute('x1', '1785');
-            alphaCenterline.setAttribute('y1', '575');
-            alphaCenterline.setAttribute('x2', '1785');
-            alphaCenterline.setAttribute('y2', '895');
-            alphaCenterline.setAttribute('stroke', '#3F72AF');
-            alphaCenterline.setAttribute('stroke-width', '2');
-            alphaCenterline.setAttribute('stroke-dasharray', '30 40');
-            svg.appendChild(alphaCenterline);
-
-            // === TAXIWAY BRAVO (perfectly centered between RE01 and RW11 - vertical) ===
-            const twyBravo = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            twyBravo.setAttribute('x', '816');
-            twyBravo.setAttribute('y', '570');
-            twyBravo.setAttribute('width', '40');
-            twyBravo.setAttribute('height', '180');
-            twyBravo.setAttribute('fill', 'none');
-            twyBravo.setAttribute('stroke', '#3F72AF');
-            twyBravo.setAttribute('stroke-width', '5');
-            svg.appendChild(twyBravo);
-
-            const bravoCenterline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            bravoCenterline.setAttribute('x1', '836');
-            bravoCenterline.setAttribute('y1', '575');
-            bravoCenterline.setAttribute('x2', '836');
-            bravoCenterline.setAttribute('y2', '745');
-            bravoCenterline.setAttribute('stroke', '#3F72AF');
-            bravoCenterline.setAttribute('stroke-width', '2');
-            bravoCenterline.setAttribute('stroke-dasharray', '30 40');
-            svg.appendChild(bravoCenterline);
-
-            // === TAXIWAY CHARLIE (angular - bottom edge between WR01 and RE07) ===
-            const twyCharlie = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            twyCharlie.setAttribute('d', 'M 115 570 L 115 680 L 205 750');
-            twyCharlie.setAttribute('fill', 'none');
-            twyCharlie.setAttribute('stroke', '#3F72AF');
-            twyCharlie.setAttribute('stroke-width', '5');
-            twyCharlie.setAttribute('stroke-linecap', 'square');
-            twyCharlie.setAttribute('stroke-linejoin', 'miter');
-            svg.appendChild(twyCharlie);
-
-            const charlieCenterline = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            charlieCenterline.setAttribute('d', 'M 115 580 L 115 685 L 205 745');
-            charlieCenterline.setAttribute('fill', 'none');
-            charlieCenterline.setAttribute('stroke', '#3F72AF');
-            charlieCenterline.setAttribute('stroke-width', '2');
-            charlieCenterline.setAttribute('stroke-dasharray', '20 30');
-            svg.appendChild(charlieCenterline);
-
-            // === TAXIWAY DELTA (New South - aligned with NSA01, to left of NSA10) ===
-            const twyDelta = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            twyDelta.setAttribute('x', '1445');
-            twyDelta.setAttribute('y', '240');
-            twyDelta.setAttribute('width', '30');
-            twyDelta.setAttribute('height', '110');
-            twyDelta.setAttribute('fill', 'none');
-            twyDelta.setAttribute('stroke', '#3F72AF');
-            twyDelta.setAttribute('stroke-width', '4');
-            svg.appendChild(twyDelta);
-
-            const deltaCenterline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            deltaCenterline.setAttribute('x1', '1460');
-            deltaCenterline.setAttribute('y1', '245');
-            deltaCenterline.setAttribute('x2', '1460');
-            deltaCenterline.setAttribute('y2', '345');
-            deltaCenterline.setAttribute('stroke', '#3F72AF');
-            deltaCenterline.setAttribute('stroke-width', '1.5');
-            deltaCenterline.setAttribute('stroke-dasharray', '20 30');
-            svg.appendChild(deltaCenterline);
-
-            // === TAXIWAY ECHO (South Apron - aligned next to Delta taxiway) ===
-            const twyEcho = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            twyEcho.setAttribute('x', '1475');
-            twyEcho.setAttribute('y', '350');
-            twyEcho.setAttribute('width', '40');
-            twyEcho.setAttribute('height', '110');
-            twyEcho.setAttribute('fill', 'none');
-            twyEcho.setAttribute('stroke', '#3F72AF');
-            twyEcho.setAttribute('stroke-width', '5');
-            svg.appendChild(twyEcho);
-
-            const echoCenterline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            echoCenterline.setAttribute('x1', '1495');
-            echoCenterline.setAttribute('y1', '355');
-            echoCenterline.setAttribute('x2', '1495');
-            echoCenterline.setAttribute('y2', '455');
-            echoCenterline.setAttribute('stroke', '#3F72AF');
-            echoCenterline.setAttribute('stroke-width', '2');
-            echoCenterline.setAttribute('stroke-dasharray', '30 40');
-            svg.appendChild(echoCenterline);
-
-            // Insert SVG as first child (behind everything)
-            container.insertBefore(svg, container.firstChild);
+            // Draw even thicker lines every 100px
+            gridCtx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
+            gridCtx.lineWidth = 2;
+            for (let x = 0; x <= 1920; x += 100) {
+                gridCtx.beginPath();
+                gridCtx.moveTo(x, 0);
+                gridCtx.lineTo(x, 1080);
+                gridCtx.stroke();
+            }
+            for (let y = 0; y <= 1080; y += 100) {
+                gridCtx.beginPath();
+                gridCtx.moveTo(0, y);
+                gridCtx.lineTo(1920, y);
+                gridCtx.stroke();
+            }
         }
 
-        // Create zone labels
-        function createZoneLabels() {
-            const zones = [
-                { text: 'SOUTH APRON', x: 681, y: 35 },
-                { text: 'NEW SOUTH APRON', x: 1672, y: 35 },
-                { text: 'MAIN APRON', x: 950, y: 910 },
-                { text: 'REMOTE EAST', x: 500, y: 740 },
-                { text: 'REMOTE WEST', x: 1309, y: 740 }
-            ];
+        // Draw rulers
+        function drawRulers() {
+            const rulerH = document.getElementById('ruler-h');
+            const rulerV = document.getElementById('ruler-v');
 
-            zones.forEach(zone => {
-                const label = document.createElement('div');
-                label.className = 'zone-label';
-                label.textContent = zone.text;
-                label.style.left = `${zone.x}px`;
-                label.style.top = `${zone.y}px`;
-                container.appendChild(label);
-            });
+            // Horizontal ruler
+            rulerH.innerHTML = '';
+            for (let x = 0; x <= 1920; x += 100) {
+                const mark = document.createElement('span');
+                mark.style.position = 'absolute';
+                mark.style.left = `${x}px`;
+                mark.style.top = '2px';
+                mark.style.fontSize = '9px';
+                mark.style.fontWeight = 'bold';
+                mark.textContent = x;
+                rulerH.appendChild(mark);
+            }
+
+            // Vertical ruler
+            rulerV.innerHTML = '';
+            for (let y = 0; y <= 1080; y += 100) {
+                const mark = document.createElement('span');
+                mark.style.position = 'absolute';
+                mark.style.top = `${y}px`;
+                mark.style.left = '2px';
+                mark.style.fontSize = '9px';
+                mark.style.fontWeight = 'bold';
+                mark.style.writingMode = 'vertical-rl';
+                mark.textContent = y;
+                rulerV.appendChild(mark);
+            }
         }
 
-        // Create infrastructure first
-        createInfrastructure();
-
-        // Create zone labels
-        createZoneLabels();
+        // Initialize grid and rulers
+        drawGrid();
+        drawRulers();
 
         // Create stand elements
         Object.entries(stands).forEach(([code, [x, y]]) => {
@@ -430,46 +415,138 @@
             standDiv.style.top = `${y}px`;
             standDiv.dataset.stand = code;
 
-            standDiv.addEventListener('click', function() {
-                if (selectedStand) {
-                    selectedStand.classList.remove('selected');
-                }
-                this.classList.add('selected');
-                selectedStand = this;
-
-                infoPanel.innerHTML = `
-                    <strong>Stand:</strong> ${code}<br>
-                    <strong>Position:</strong> X=${x}px, Y=${y}px<br>
-                    <strong>Zone:</strong> ${getStandType(code)}
-                `;
-            });
-
+            standDiv.addEventListener('mousedown', startDrag);
             container.appendChild(standDiv);
         });
 
-        function getStandType(code) {
-            if (code.startsWith('A')) return 'Main Apron - A Series';
-            if (code.startsWith('B')) return 'Main Apron - B Series';
-            if (code.startsWith('SA')) return 'South Apron';
-            if (code.startsWith('NSA')) return 'New South Apron';
-            if (code.startsWith('WR')) return 'West Remote';
-            if (code.startsWith('RE')) return 'Remote East';
-            if (code.startsWith('RW')) return 'Remote West';
-            return 'Unknown';
+        function startDrag(e) {
+            draggedElement = e.target;
+            const rect = draggedElement.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+
+            draggedElement.classList.add('dragging');
+            coordsDisplay.style.display = 'block';
+
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
+            e.preventDefault();
         }
 
-        // Responsive scaling
-        function resizeApron() {
-            const wrapper = document.getElementById('apron-wrapper');
-            const container = document.getElementById('apron-container');
-            const wrapperWidth = wrapper.clientWidth;
-            let scale = (wrapperWidth / 1920) * 0.95;
-            container.style.transform = `scale(${scale})`;
-            wrapper.style.height = `${1080 * scale}px`;
+        function drag(e) {
+            if (!draggedElement) return;
+
+            const containerRect = container.getBoundingClientRect();
+            let x = e.clientX - containerRect.left - offsetX;
+            let y = e.clientY - containerRect.top - offsetY;
+
+            // Constrain to container
+            x = Math.max(0, Math.min(1920 - draggedElement.offsetWidth, x));
+            y = Math.max(0, Math.min(1080 - draggedElement.offsetHeight, y));
+
+            draggedElement.style.left = `${x}px`;
+            draggedElement.style.top = `${y}px`;
+
+            // Update coordinates display
+            coordsDisplay.textContent = `${draggedElement.dataset.stand}: [${Math.round(x)}, ${Math.round(y)}]`;
         }
 
-        window.addEventListener('load', resizeApron);
-        window.addEventListener('resize', resizeApron);
+        function stopDrag(e) {
+            if (!draggedElement) return;
+
+            const x = parseInt(draggedElement.style.left);
+            const y = parseInt(draggedElement.style.top);
+            const standCode = draggedElement.dataset.stand;
+
+            stands[standCode] = [x, y];
+
+            draggedElement.classList.remove('dragging');
+            draggedElement = null;
+
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDrag);
+
+            setTimeout(() => {
+                coordsDisplay.style.display = 'none';
+            }, 2000);
+        }
+
+        function exportCoordinates() {
+            let output = "const stands = {\n";
+
+            // Group by category
+            const categories = {
+                'Main Apron A': ['A0', 'A1', 'A2', 'A3'],
+                'Main Apron B': ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10', 'B11', 'B12', 'B13'],
+                'Remote West': ['RW01', 'RW02', 'RW03', 'RW04', 'RW05', 'RW06', 'RW07', 'RW08', 'RW09', 'RW10', 'RW11'],
+                'Remote East': ['RE01', 'RE02', 'RE03', 'RE04', 'RE05', 'RE06', 'RE07'],
+                'South Apron': ['SA01', 'SA02', 'SA03', 'SA04', 'SA05', 'SA06', 'SA07', 'SA08', 'SA09', 'SA10', 'SA11', 'SA12', 'SA13', 'SA14', 'SA15', 'SA16', 'SA17', 'SA18', 'SA19', 'SA20', 'SA21', 'SA22', 'SA23', 'SA24', 'SA25', 'SA26', 'SA27', 'SA28', 'SA29', 'SA30'],
+                'New South Apron': ['NSA01', 'NSA02', 'NSA03', 'NSA04', 'NSA05', 'NSA06', 'NSA07', 'NSA08', 'NSA09', 'NSA10', 'NSA11', 'NSA12', 'NSA13', 'NSA14', 'NSA15'],
+                'West Remote': ['WR01', 'WR02', 'WR03']
+            };
+
+            Object.entries(categories).forEach(([category, codes]) => {
+                output += `    // ${category.toUpperCase()}\n`;
+                codes.forEach((code, idx) => {
+                    if (stands[code]) {
+                        const [x, y] = stands[code];
+                        output += `    '${code}': [${x}, ${y}]`;
+                        if (idx < codes.length - 1 || category !== 'West Remote') {
+                            output += ',';
+                        }
+                        output += '\n';
+                    }
+                });
+                if (category !== 'West Remote') output += '\n';
+            });
+
+            output += "};";
+
+            document.getElementById('output-code').textContent = output;
+            document.getElementById('output').classList.add('show');
+        }
+
+        function copyToClipboard() {
+            const text = document.getElementById('output-code').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Coordinates copied to clipboard!');
+            });
+        }
+
+        function closeOutput() {
+            document.getElementById('output').classList.remove('show');
+        }
+
+        function resetPositions() {
+            if (confirm('Reset all stands to original positions?')) {
+                Object.entries(initialStands).forEach(([code, [x, y]]) => {
+                    stands[code] = [x, y];
+                    const standDiv = container.querySelector(`[data-stand="${code}"]`);
+                    if (standDiv) {
+                        standDiv.style.left = `${x}px`;
+                        standDiv.style.top = `${y}px`;
+                    }
+                });
+            }
+        }
+
+        function toggleGrid() {
+            showGrid = !showGrid;
+            drawGrid();
+
+            const rulerH = document.getElementById('ruler-h');
+            const rulerV = document.getElementById('ruler-v');
+
+            if (showGrid) {
+                rulerH.style.display = 'block';
+                rulerV.style.display = 'block';
+            } else {
+                rulerH.style.display = 'none';
+                rulerV.style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html>

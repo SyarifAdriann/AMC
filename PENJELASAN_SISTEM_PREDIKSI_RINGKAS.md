@@ -48,7 +48,6 @@ Data yang Dikumpulkan (4,152 pergerakan):
    (8 dari 10 prediksi, stand yang benar ada di top-3)
 
 ✅ Training Samples: 4,152 pergerakan
-✅ Peningkatan dari model lama: +18.58%
 ```
 
 ---
@@ -83,7 +82,7 @@ Data yang Dikumpulkan (4,152 pergerakan):
 │      • B2: 86.4%                                        │
 │      • B1: 78.2%                                        │
 │      • B3: 65.8%                                        │
-│    - Waktu proses: ~400-500ms                           │
+│    - Waktu proses:                                      │
 └────────────────────┬────────────────────────────────────┘
                      │
                      ▼

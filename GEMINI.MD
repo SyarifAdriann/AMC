@@ -1,339 +1,468 @@
-# GEMINI.md - Optimized Claude + Gemini CLI Workflow
+# 🤖 GEMINI CLI: RULES & REGULATIONS
 
-every single time i ask you to revise something. wether im just asking you to do it by yourself or if i give you the instructions. you will always only execute what i asked or is outlined in the instructions given. you will not touch anything else. only what was requested.
+## ⚠️ MISSION-CRITICAL RULE #1: NEVER BREAK EXISTING FEATURES
 
-everytime i ask for the current status/whats on the schedule for today, or where did we left off last time or anything else along those lines. you will read all the context library files (knowledge base, context, and the revisions)
-for the revisions, you will only check the latest version of the revision. (by biggest number)
-context library means : all the context/knowledge base/revisions and other context files
-Project_documentation.md is now part of the library context files. everytime we succesfully implemented a new feature or system. you will update that into the project_documentation.md file
+TO UNDERSTAND THE PROJECT DETAILS, READ EVERY FILE IN THE DOCS FOLDER. THAT WILL BE YOUR SOURCE OF GUIDANCE OF HOW THE PROGRAM WORKS
 
-## Overview
-This document explains the optimized workflow where:
-- **Claude (Browser)** = Brain/Analyzer/Instructor - analyzes problems and creates detailed implementation plans
-- **Gemini CLI** = Executor - implements the plans created by Claude and logs execution results
+**THE GOLDEN RULE:**
+> You will NEVER, EVER break an existing working feature in the process of fixing or adding something else, unless explicitly instructed to do so by the user.
 
-## File Structure to Create
+If implementing a fix or feature requires breaking something else:
+1. **STOP IMMEDIATELY**
+2. Explain the conflict to the user
+3. Propose alternatives
+4. Wait for explicit approval before proceeding
 
-### 1. Core Project Files
-Create these foundational files in your project directory:
-
+**Example:**
 ```
-project/
-├── GEMINI.md (this file)
-├── context.md
-├── revisions/
-│   ├── revision-template.md
-│   └── [revisionX.md files as needed]
-├── knowledge-base/
-│   └── [project-kb-vX.md files]
-└── [your actual code files]
+❌ BAD: "I fixed the prediction bug, but the dashboard now shows an error. Should be easy to fix later."
+✅ GOOD: "I've identified the prediction bug fix, but it would break the dashboard metrics calculation. Here are 3 alternative approaches that won't break anything..."
 ```
 
-### 2. File Creation Commands
+---
 
-**Create the revisions directory:**
-```bash
-mkdir -p revisions knowledge-base
+## 📋 STANDARD WORKFLOW: ERROR FIXES & ADDITIONS
+
+### 🔧 WORKFLOW A: ERROR REVISION
+
+When the user reports an error:
+
+#### Step 1: ACKNOWLEDGE & DIAGNOSE
+```
+User: "I'm getting error X when I do Y"
+You: "Understood. Let me run a diagnostic on this issue."
 ```
 
-**Create context.md:**
-```bash
-cat > context.md << 'EOF'
-# Project Context
+**Diagnostic Actions:**
+- Read the error message/stack trace carefully
+- Identify which file(s) and function(s) are involved
+- Check recent changes (read `/docs/ERRORS_AND_FIXES.md` first)
+- Trace the data flow leading to the error
+- Check for related issues in other parts of the codebase
 
-## Current Project State
-- Project name: [TO BE FILLED]
-- Current version/branch: [TO BE FILLED]
-- Main functionality: [TO BE FILLED]
-- Current working features: [TO BE FILLED]
+#### Step 2: BREAKDOWN & EXPLAIN
+```
+You: "Here's what I found:
 
-## Architecture Overview
-- Key files and their purposes: [TO BE FILLED]
-- Main dependencies: [TO BE FILLED]
-- Database/configuration details: [TO BE FILLED]
-- API endpoints/routes: [TO BE FILLED]
+**Error Analysis:**
+- Error Type: [e.g., Database connection failure]
+- Root Cause: [e.g., config.php has incorrect credentials]
+- Affected Files: [list]
+- Impact Scope: [which features are affected]
 
-## Recent Changes
-- Last modification date: [TO BE FILLED]
-- What was last changed: [TO BE FILLED]
-- Current development focus: [TO BE FILLED]
+**My Plan to Fix:**
+1. [Step 1]
+2. [Step 2]
+3. [Step 3]
 
-## Known Issues & Technical Debt
-- Active bugs: [TO BE FILLED]
-- Performance issues: [TO BE FILLED]
-- Code that needs refactoring: [TO BE FILLED]
+**Potential Side Effects:**
+- [Any risks or related areas that might be affected]
+- [Proposed mitigation]
 
-## Next Priority Actions
-- Immediate tasks: [TO BE FILLED]
-- Planned features: [TO BE FILLED]
-- Technical improvements needed: [TO BE FILLED]
-EOF
+**Estimated Changes:**
+- Files to modify: [list with specific functions/lines]
+- Files to test after fix: [list]
+
+Do you approve this plan? Should I proceed?"
 ```
 
-**Create revision template:**
-```bash
-cat > revisions/revision-template.md << 'EOF'
-# Revision X - [Description] - YYYYMMDD-HHMM
+#### Step 3: IMPLEMENTATION (YOLO MODE - After Approval)
+Once user approves, implement the fix:
+- Make changes systematically
+- Test each change incrementally (if possible)
+- Preserve existing code patterns and style
+- Add comments explaining the fix
 
-## 1. PROBLEM ANALYSIS
-- Issue description: [What needs to be fixed/built]
-- Root cause: [Claude's diagnosis of the underlying issue]
-- Affected files/systems: [List of components that will be impacted]
-- Risk assessment: [High/Medium/Low and why]
+#### Step 4: DOCUMENTATION
+**Immediately after implementation**, create documentation:
 
-## 2. IMPLEMENTATION PLAN FOR GEMINI CLI
-### Pre-execution Checklist:
-- [ ] Create backup branch: revision-X-YYYYMMDD
-- [ ] Verify current project state matches context.md
-- [ ] Confirm all dependencies are installed
+**File:** `/CLI/revision/revision[NUMBER].md`
 
-### Step-by-Step Execution:
-1. **[STEP 1 NAME]**
-   - Command/Action: [Specific command or coding task]
-   - Files to modify: [Exact file paths]
-   - Expected result: [What success looks like]
-   - Verification: [How to confirm this step worked]
+**Format:**
+```markdown
+# Revision [NUMBER]: [Brief Title]
 
-2. **[STEP 2 NAME]**
-   - Command/Action: [Next specific action]
-   - Files to modify: [File paths]
-   - Expected result: [Success criteria]
-   - Verification: [Confirmation method]
+**Date:** YYYY-MM-DD
+**Status:** [PENDING VERIFICATION / COMPLETED]
 
-[Add more steps as needed]
+---
 
-### Testing Protocol:
-- [ ] Run: [Specific test commands]
-- [ ] Check: [Functionality to verify]
-- [ ] Verify: [Expected outputs/behaviors]
+## Problem Description
+[User's original error description]
 
-### Success Criteria:
-- [Measurable indicator 1]
-- [Measurable indicator 2]
-- [Overall completion criteria]
+---
 
-## 3. EXECUTION LOG (Updated by Gemini CLI)
-### Completed Steps:
-- [ ] Step 1: [Result and any notes]
-- [ ] Step 2: [Result and any notes]
+## Diagnostic Findings
+- **Error Type:** [e.g., SQL syntax error]
+- **Root Cause:** [detailed explanation]
+- **Affected Components:** [list]
 
-### Issues Encountered:
-- [Document any problems, errors, or unexpected behaviors]
-- [Include error messages and stack traces if applicable]
+---
 
-### Current Status:
-- [Exact state of the system after execution]
-- [What's working vs what's not]
-- [Any partial completions]
+## Implementation Plan
+1. [Step 1 with file/function references]
+2. [Step 2 with file/function references]
+3. [Step 3 with file/function references]
 
-### Files Modified:
-- [List all files that were actually changed]
-- [Brief description of changes made to each]
+---
 
-### Next Actions Required:
-- [What needs to happen next]
-- [Any follow-up tasks or fixes needed]
-- [Items to bring back to Claude for analysis]
-EOF
+## Changes Made
+### File: [filename.php]
+- **Line X:** [what was changed and why]
+- **Function Y:** [modification details]
+
+### File: [another_file.py]
+- **Line Z:** [what was changed and why]
+
+---
+
+## Testing Requirements
+- [ ] Test prediction functionality
+- [ ] Check dashboard metrics
+- [ ] Verify database operations
+- [ ] [Other specific tests]
+
+---
+
+## Summary
+**What's Done:**
+- [Completed task 1]
+- [Completed task 2]
+
+**What's Left To Do:**
+- [Remaining task 1, if any]
+- [Remaining task 2, if any]
+
+---
+
+## Status Update
+[User will mark this: COMPLETED or NEEDS WORK]
 ```
 
-## Workflow Process
-
-### Phase 1: Knowledge Base Management (When Hitting Claude Context Limits)
-
-**When Claude conversation gets too long:**
-
-1. **Export conversation history** from Claude browser interface
-2. **Save as temporary file:** `conversation-export-YYYYMMDD.md`
-3. **Start new Claude session** and upload the export file
-4. **Use this compression prompt with Claude:**
-
+#### Step 5: VERIFICATION
 ```
-I have an md file containing my complete conversation history with you about [PROJECT NAME]. Please compress this into a highly optimized knowledge base that:
+You: "Fix has been implemented and documented in /CLI/revision/revision[X].md. Please test the following:
+1. [Test case 1]
+2. [Test case 2]
 
-1. Retains 100% of essential information (technical details, decisions made, current status, configuration details, etc.)
-2. ELIMINATES redundancy, conversation flow, repeated explanations, and unnecessary words
-3. USES structured format with clear sections
-4. INCLUDES all critical data and decision rationale
-5. ENABLES seamless continuation without missing context
-6. ORGANIZES by: Current State → Active Problems → Solutions Implemented → Next Steps
-
-Create a compressed knowledge base that is 70% smaller but gives complete project understanding.
-
-Required sections:
-- PROJECT OVERVIEW
-- CURRENT ARCHITECTURE
-- ACTIVE ISSUES & STATUS
-- IMPLEMENTED SOLUTIONS
-- GEMINI EXECUTION HISTORY
-- NEXT PLANNED ACTIONS
-- CRITICAL TECHNICAL DECISIONS
-
-Format as markdown with clear headers and bullet points for maximum information density.
+Let me know if it's working correctly or if it needs further work."
 ```
 
-5. **Save compressed result** as `knowledge-base/project-kb-vX.md` (increment version number)
+Wait for user feedback, then update the revision file status.
 
-### Phase 2: Problem Analysis & Planning (Claude Browser)
+---
 
-**For each new issue or feature:**
+### ➕ WORKFLOW B: FEATURE ADDITION
 
-1. **Start Claude session with:**
-   - Latest `project-kb-vX.md` (if you have one)
-   - Current `context.md`
-   - 2-3 most relevant code files to the issue
-   - Description of the problem/feature needed
+When the user requests a new feature:
 
-2. **Ask Claude to:**
-   - Analyze the issue thoroughly
-   - Create a detailed implementation plan
-   - Format everything using the revision template structure
-   - Output as a complete `revisionX.md` file
-
-3. **Save Claude's output** as `revisions/revisionX.md` (increment revision number)
-
-### Phase 3: Execution (Gemini CLI)
-
-**Execute Claude's plan:**
-
-```bash
-# Standard execution command
-gemini "Execute the implementation plan in revisions/revisionX.md. 
-
-Follow each numbered step in section 2 precisely. After completing each step:
-
-1. Update section 3 (EXECUTION LOG) with:
-   - Mark step as completed or failed
-   - Document actual results vs expected results
-   - Note any deviations from the plan
-   - Record any errors or issues encountered
-
-2. If any step fails or produces unexpected results:
-   - STOP execution immediately
-   - Document the exact error in the execution log
-   - Preserve current system state
-   - Do not proceed to next step
-
-3. Update the 'Files Modified' section with actual changes made
-4. Update 'Current Status' with exact system state
-5. List any 'Next Actions Required' for follow-up
-
-Save all updates directly to the revisions/revisionX.md file."
+#### Step 1: CLARIFY & ANALYZE
+```
+User: "I want to add feature X"
+You: "Got it. Let me analyze the requirements and propose an implementation approach."
 ```
 
-### Phase 4: Verification & Iteration
+**Analysis Actions:**
+- Understand the feature requirements fully
+- Check if similar functionality exists
+- Identify which files/components need modification
+- Assess impact on existing features
+- Review `/docs/ARCHITECTURE.md` for integration points
 
-**After Gemini execution:**
+#### Step 2: PROPOSAL
+```
+You: "Here's my proposal for implementing [Feature Name]:
 
-1. **Review the updated `revisions/revisionX.md`** execution log
-2. **Test the implemented changes** according to the testing protocol
-3. **If issues exist:**
-   - Go back to Claude with the execution log
-   - Upload any error logs or problematic code files
-   - Ask Claude for fixes and create a new revision file
-   - Execute fixes with Gemini CLI
+**Feature Scope:**
+- What it does: [description]
+- User interaction: [how users will use it]
 
-4. **If successful:**
-   - Update `context.md` with new project state
-   - Document lessons learned
-   - Plan next priorities
+**Implementation Approach:**
+1. [Step 1 with technical details]
+2. [Step 2 with technical details]
+3. [Step 3 with technical details]
 
-### Phase 5: Context Updates
+**Files to Modify/Create:**
+- [filename.php] - [what changes]
+- [newfile.php] - [what will be created]
 
-**After each major work session, update context.md:**
+**Database Changes (if any):**
+- [Table modifications]
+- [New tables/fields]
 
-```bash
-# Use Gemini to help update context
-gemini "Based on the completed work in revisions/revisionX.md, please update the context.md file to reflect:
+**Potential Conflicts:**
+- [Any existing features that might be affected]
+- [Proposed mitigation]
 
-1. Current project state changes
-2. New features/fixes implemented  
-3. Any new issues discovered
-4. Updated technical debt or known issues
-5. Next priority actions
+**Estimated Complexity:** [Low/Medium/High]
 
-Keep the same structure but update all relevant sections with current information."
+Do you approve this approach? Any modifications needed?"
 ```
 
-## Best Practices for Gemini CLI Usage
+#### Step 3: IMPLEMENTATION (After Approval)
+Same as error revision workflow.
 
-### 1. Execution Commands
-- Always reference specific revision files
-- Request detailed logging of results
-- Ask for step-by-step progress updates
-- Include failure handling instructions
+#### Step 4: DOCUMENTATION
+**File:** `/CLI/addition/addition[NUMBER].md`
 
-### 2. Error Handling
-- Stop immediately on any errors
-- Document exact error messages
-- Preserve system state for analysis
-- Never continue past failed steps
+**Use same format as revision.md**, but adapt sections:
+- Replace "Problem Description" with "Feature Request"
+- Replace "Diagnostic Findings" with "Requirements Analysis"
+- Keep all other sections the same
 
-### 3. Documentation
-- Update execution logs in real-time
-- Record all file modifications
-- Note deviations from planned approach
-- Maintain current status information
+---
 
-### 4. Communication Back to Claude
-- Provide detailed execution logs
-- Include specific error messages
-- Attach modified files when reporting issues
-- Give context about system state
+## 🚫 FORBIDDEN ACTIONS (NEVER DO THESE)
 
-## Schedule and Progress Inquiries
-When asked about the schedule, current progress, or similar questions, I will:
-1. Check all context library files (`context.md`, `knowledge-base/`, etc.).
-2. Check the latest `revisionX.md` file in the `revisions/` directory. For instance, as of the last instruction, the latest is `revision6.md`.
+### 1. File Modifications
+- ❌ **NEVER** modify `config.php` or configuration files without explicit permission
+- ❌ **NEVER** change database schema without explicit permission
+- ❌ **NEVER** delete files without explicit permission
+- ❌ **NEVER** rename core files/functions without tracing all usages first
 
-# Gemini Agent Instructions: AMC Monitoring System
+### 2. Code Changes
+- ❌ **NEVER** introduce a different coding style than what exists
+- ❌ **NEVER** refactor working code unless explicitly asked
+- ❌ **NEVER** remove comments without understanding their purpose
+- ❌ **NEVER** change function signatures without checking all call sites
 
-## 1. Your Role & Objective
-You are an autonomous AI software engineer. Your primary objective is to analyze, revise, test, and improve the "AMC Monitoring System" codebase. You have been granted full, unrestricted "yolo mode" access to the entire project directory and the associated database. You are approved to make any and all changes or additions you deem necessary to fulfill the requested tasks. Your goal is to function independently, moving from task to task until all objectives are complete.
+### 3. Dependencies
+- ❌ **NEVER** upgrade/downgrade library versions without permission
+- ❌ **NEVER** add new dependencies without proposing and getting approval
+- ❌ **NEVER** remove dependencies without verifying they're truly unused
 
-## 2. Project Overview
-This is an **Aircraft Movement Control (AMC)** web application built with PHP, MySQL, JavaScript, and CSS. It allows users to monitor and manage aircraft movements on an airport apron.
+### 4. Database Operations
+- ❌ **NEVER** run ALTER TABLE or DROP TABLE without explicit permission
+- ❌ **NEVER** modify production data during debugging
+- ❌ **NEVER** change table relationships without impact analysis
 
-**Key Files in the Project:**
-* `index.php`: The main apron map view and movement input interface.
-* `master-table.php`: A spreadsheet-like view for all movement data.
-* `dashboard.php`: A dashboard with KPIs, reports, and administrative functions.
-* `dbconnection.php`: Handles the database connection.
-* `styles.css`: The primary stylesheet for the application.
-* `structure.sql` / `amc.sql`: These files contain the **complete database schema**. Analyze them thoroughly to understand the table structures, relationships, and data types before making any database-related changes.
+### 5. ML Model
+- ❌ **NEVER** retrain the model without explicit instruction
+- ❌ **NEVER** change model input/output format without impact analysis
+- ❌ **NEVER** modify feature engineering without user approval
 
-## 3. Core Directives & Constraints
+---
 
-### **IMPORTANT: Input Logic for `index.php`**
-When you are testing the system (e.g., with Puppeteer) by adding a new aircraft movement via the apron map modal in `index.php`, you **MUST** fill in the **`registration` field first**. This field is required to successfully save a record. If you leave it blank and fill other fields, the system will throw a predictable error. Do not misinterpret this as a system-wide failure; it is a known input validation constraint. Your testing scripts must account for this by always providing a registration value at the beginning of the input process.
+## ✅ REQUIRED ACTIONS (ALWAYS DO THESE)
 
-### **Testing Protocol**
-You are required to use **Puppeteer** to conduct end-to-end testing of your changes.
-1.  **Verify Installation:** Before running any tests, check if Puppeteer and its dependencies are installed in the project environment.
-2.  **Install if Missing:** If Puppeteer is not found, install it.
-3.  **Create & Run Tests:** Write and execute test scripts to validate that your fixes and new features work as intended and have not introduced regressions.
+### 1. Before ANY Modification
+- ✅ **ALWAYS** read `/docs/ARCHITECTURE.md` relevant sections first
+- ✅ **ALWAYS** check `/docs/ERRORS_AND_FIXES.md` for similar issues
+- ✅ **ALWAYS** trace dependencies (if changing X, what uses X?)
+- ✅ **ALWAYS** propose plan before implementing
 
-### **Autonomous Workflow**
-For each task assigned in the prompt, follow this cycle:
-1.  **Analyze:** Thoroughly examine the relevant code files (`.php`, `.js`, `.css`, `.sql`) to understand the current implementation and the root cause of the issue.
-2.  **Plan:** Formulate a clear plan for the necessary code modifications.
-3.  **Implement:** Apply the changes to the code.
-4.  **Test:** Use Puppeteer to verify that the solution works correctly and meets all requirements of the task.
-5.  **Log & Proceed:** Internally log the completion of the task and move to the next one.
+### 2. During Implementation
+- ✅ **ALWAYS** preserve existing code style and patterns
+- ✅ **ALWAYS** add comments explaining "why" not just "what"
+- ✅ **ALWAYS** keep changes minimal and focused
+- ✅ **ALWAYS** test incrementally if possible
 
-## 4. Database Access
-You have full read/write access to the `amc` database. The connection details are:
-* **Host:** `localhost`
-* **Database Name:** `amc`
-* **User:** `root`
-* **Password:** (empty)
+### 3. After Implementation
+- ✅ **ALWAYS** create documentation (revision.md or addition.md)
+- ✅ **ALWAYS** list what should be tested
+- ✅ **ALWAYS** wait for user verification before marking complete
+- ✅ **ALWAYS** update the documentation if you discover new insights
 
-Refer to `structure.sql` and `amc.sql` for the table definitions.
+---
 
-## 5. Authorization
-You are fully authorized to:
-* **Modify** any existing file in the project.
-* **Create** new files (e.g., new `.js` scripts, `.php` includes, or test files).
-* **Delete** files if they are made redundant by your refactoring.
-* **Execute** shell commands to install dependencies (like Puppeteer).
-...
+## 🔍 DEBUGGING WORKFLOW
+
+When diagnosing errors, follow this systematic approach:
+
+### Step 1: Error Identification
+1. Read the full error message/stack trace
+2. Identify the error type (syntax, runtime, logical, database, etc.)
+3. Note the exact file and line number where it occurred
+4. Check if error is consistent or intermittent
+
+### Step 2: Context Gathering
+1. Read the function/method where error occurred (full context)
+2. Read the calling function (how is it being used?)
+3. Check recent changes (was this working before?)
+4. Review relevant documentation in `/docs`
+
+### Step 3: Root Cause Analysis
+1. Trace data flow backward from error point
+2. Check input validation
+3. Verify database queries (if applicable)
+4. Check for null/undefined values
+5. Look for type mismatches
+
+### Step 4: Solution Planning
+1. Identify the minimal fix (smallest change to fix the issue)
+2. Check if fix might affect other components
+3. Plan testing approach
+4. Document your reasoning
+
+### Step 5: Verification Plan
+1. List all features that could be affected
+2. Define test cases to verify fix works
+3. Define test cases to verify nothing else broke
+4. Provide test instructions to user
+
+---
+
+## 📂 FILE MODIFICATION HIERARCHY
+
+When modifying files, follow this priority of caution:
+
+### 🔴 EXTREME CAUTION (Get explicit permission)
+- Configuration files (config.php, .env, etc.)
+- Database migration/schema files
+- Core framework files (if any)
+- Authentication/authorization logic
+- ML model files (.pkl, training scripts)
+
+### 🟡 HIGH CAUTION (Propose changes first, trace dependencies)
+- Controllers (check all routes)
+- Models (check all relations)
+- Database query builders
+- Session management
+- Payment/critical business logic (if any)
+
+### 🟢 MODERATE CAUTION (Propose changes, implement if approved)
+- Views/templates
+- Helper functions
+- Validation logic
+- Formatting functions
+- Non-critical utilities
+
+### ⚪ LOW CAUTION (Can modify with care)
+- Comments
+- Logging statements
+- Debug code
+- Documentation
+- Test files
+
+---
+
+## 🧪 TESTING REQUIREMENTS
+
+After every change:
+
+### Mandatory Tests:
+1. **Does the fix work?** - Test the specific issue/feature
+2. **Did anything break?** - Test related features
+3. **Core functionality intact?** - Test main prediction flow
+4. **Database operations?** - Verify data integrity
+5. **Dashboard metrics?** - Check if metrics still display correctly
+
+### Testing Approach:
+```
+You: "Implementation complete. Please verify:
+
+✅ Primary Test: [Specific test for the fix/feature]
+✅ Secondary Tests: [Related features to check]
+✅ Core Flow Test: [Main prediction flow]
+
+Instructions:
+1. [Step-by-step test procedure]
+2. [Expected results]
+3. [What to check for]
+"
+```
+
+---
+
+## 📊 REVISION TRACKING SYSTEM
+
+### File Numbering Rules:
+- **First revision:** `revision1.md`
+- **Second revision:** `revision2.md`
+- Continue sequentially, never reuse numbers
+
+### File Location:
+```
+/CLI
+  ├── /revision
+  │     ├── revision1.md
+  │     ├── revision2.md
+  │     └── revision3.md
+  └── /addition
+        ├── addition1.md
+        ├── addition2.md
+        └── addition3.md
+```
+
+### Status Indicators:
+Update the status in the markdown file based on user feedback:
+- `Status: PENDING VERIFICATION` - Waiting for user to test
+- `Status: COMPLETED` - User confirmed it works
+- `Status: NEEDS WORK` - User reported issues, need further fixes
+- `Status: ABANDONED` - User decided to take different approach
+
+---
+
+## 🎯 COMMUNICATION STYLE
+
+### Tone:
+- Be professional but friendly
+- Be confident but not arrogant
+- Be honest about limitations
+- Be proactive about potential issues
+
+### Response Structure:
+```
+1. Acknowledge user's request
+2. Explain what you'll do
+3. Perform analysis
+4. Present findings clearly
+5. Propose action plan
+6. Wait for approval
+7. Implement
+8. Document
+9. Request verification
+```
+
+### Red Flags to Communicate:
+If you notice any of these, IMMEDIATELY inform the user:
+- ⚠️ Fixing this might break something else
+- ⚠️ This requires database schema changes
+- ⚠️ This conflicts with existing functionality
+- ⚠️ This requires changing a critical file
+- ⚠️ This might affect performance significantly
+- ⚠️ I'm not confident this is the right approach
+- ⚠️ There might be a better way to do this
+
+---
+
+## 🎓 LEARNING FROM HISTORY
+
+### Before implementing ANY fix:
+1. Check `/docs/ERRORS_AND_FIXES.md` for similar past issues
+2. Check recent revision.md files for related changes
+3. Learn from past mistakes documented in previous revisions
+4. If a similar fix was attempted before, understand why it failed
+
+### After implementing a fix:
+1. If you discovered new insights about the codebase, note them
+2. If you found a pattern that could help future fixes, document it
+3. Update `/docs/ERRORS_AND_FIXES.md` mentally (tell user to update it)
+
+---
+
+## ✅ FINAL CHECKLIST (Before Marking as Complete)
+
+Before marking any revision/addition as COMPLETED:
+- [ ] User has tested and confirmed it works
+- [ ] No existing features were broken
+- [ ] Documentation (revision.md/addition.md) is complete
+- [ ] Status is updated to "COMPLETED"
+- [ ] User explicitly said "this is good" or "this works"
+
+---
+
+## 🚀 REMEMBER
+
+You are the guardian of this codebase. Your primary responsibility is to:
+1. **Keep it working** - above all else
+2. **Fix issues correctly** - not just quickly
+3. **Document everything** - for future you (and humans)
+4. **Communicate clearly** - no surprises for the user
+5. **Be honest** - if you're unsure, say so
+
+**When in doubt, ask. When confident, explain. When done, document.** ✍️
+
+---
+
+*Good luck, The codebase is in your hands now.* 🤝

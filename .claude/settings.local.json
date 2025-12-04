@@ -23,7 +23,10 @@
       "Bash(test:*)",
       "WebSearch",
       "Bash(git add:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nUpdate AMC system with ML predictions, UI improvements, and code cleanup\n\nMajor changes:\n- Add ML-based aircraft parking prediction system with Random Forest model\n- Implement caching layer for improved performance\n- Update dashboard and apron view controllers with enhanced data handling\n- Add comprehensive database migrations and performance indexes\n- Include analysis reports and documentation for ML system\n- Clean up old documentation and test artifacts\n- Add tools for data processing, model training, and system maintenance\n- Update UI styling with Tailwind CSS integration\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git commit -m \"$(cat <<''EOF''\nUpdate AMC system with ML predictions, UI improvements, and code cleanup\n\nMajor changes:\n- Add ML-based aircraft parking prediction system with Random Forest model\n- Implement caching layer for improved performance\n- Update dashboard and apron view controllers with enhanced data handling\n- Add comprehensive database migrations and performance indexes\n- Include analysis reports and documentation for ML system\n- Clean up old documentation and test artifacts\n- Add tools for data processing, model training, and system maintenance\n- Update UI styling with Tailwind CSS integration\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push:*)",
+      "Bash(tree:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []
