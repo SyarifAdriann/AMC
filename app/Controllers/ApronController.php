@@ -393,6 +393,7 @@ class ApronController extends Controller
 
 
         $result = $this->movements->saveMovement($payload, $userId);
+        $validation = $this->movements->evaluateInputWarnings($payload);
 
         if ($predictionLogId && $payload['parking_stand'] !== '') {
             $this->markPredictionOutcome($predictionLogId, $payload['parking_stand'], $userId);
@@ -423,6 +424,10 @@ class ApronController extends Controller
             'is_new' => $result['is_new'],
 
             'prediction_log_id' => $predictionLogId,
+
+            'warnings' => $validation['warnings'] ?? [],
+
+            'duplicate_flights' => $validation['duplicate_flights'] ?? [],
 
         ];
 
@@ -1489,11 +1494,41 @@ class ApronController extends Controller
 
             return Response::json([
 
-                'success' => false,
+                'success' => true,
 
-                'message' => 'Unable to fetch ML metrics at this time.',
+                'model' => [
 
-            ], 500);
+                    'version' => null,
+
+                    'training_date' => null,
+
+                    'training_samples' => null,
+
+                    'top3_accuracy_expected' => null,
+
+                    'notes' => null,
+
+                ],
+
+                'observed' => [
+
+                    'window_days' => $windowDays,
+
+                    'total_predictions' => 0,
+
+                    'correct_predictions' => 0,
+
+                    'observed_top3_accuracy' => null,
+
+                    'last_prediction_at' => null,
+
+                ],
+
+                'recent' => [],
+
+                'message' => 'ML metrics are unavailable right now.',
+
+            ]);
 
         }
 
@@ -1600,9 +1635,10 @@ class ApronController extends Controller
         } catch (Throwable $e) {
             error_log('ApronController::mlPredictionLog error: ' . $e->getMessage());
             return Response::json([
-                'success' => false,
-                'message' => 'Unable to fetch prediction logs.',
-            ], 500);
+                'success' => true,
+                'logs' => [],
+                'message' => 'Prediction log is unavailable right now.',
+            ]);
         }
     }
 
@@ -2119,8 +2155,6 @@ class ApronController extends Controller
     }
 
 }
-
-
 
 
 

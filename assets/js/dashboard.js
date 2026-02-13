@@ -32,21 +32,57 @@
         return div.innerHTML;
     }
 
+    function normaliseJsonResponse(text) {
+        if (typeof text !== 'string') {
+            return '';
+        }
+
+        let cleaned = text.replace(/^\uFEFF/, '').trim();
+        const firstBrace = cleaned.indexOf('{');
+        const firstBracket = cleaned.indexOf('[');
+        let firstJsonIndex = -1;
+
+        if (firstBrace !== -1 && firstBracket !== -1) {
+            firstJsonIndex = Math.min(firstBrace, firstBracket);
+        } else if (firstBrace !== -1) {
+            firstJsonIndex = firstBrace;
+        } else if (firstBracket !== -1) {
+            firstJsonIndex = firstBracket;
+        }
+
+        if (firstJsonIndex > 0) {
+            cleaned = cleaned.slice(firstJsonIndex);
+        }
+
+        const firstChar = cleaned.charAt(0);
+        const secondChar = cleaned.charAt(1);
+        if ((firstChar === '"' || firstChar === "'") && (secondChar === '{' || secondChar === '[')) {
+            cleaned = cleaned.slice(1);
+            const lastChar = cleaned.charAt(cleaned.length - 1);
+            if (lastChar === firstChar) {
+                cleaned = cleaned.slice(0, -1);
+            }
+        }
+
+        return cleaned.trim();
+    }
+
     function fetchJson(url, options = {}) {
         const fetchOptions = { credentials: 'same-origin', ...options };
         return fetch(url, fetchOptions).then(async response => {
             const raw = await response.text();
+            const cleaned = normaliseJsonResponse(raw);
             if (!response.ok) {
-                const message = raw || response.statusText || `HTTP ${response.status}`;
+                const message = cleaned || response.statusText || `HTTP ${response.status}`;
                 throw new Error(message);
             }
-            if (!raw) {
+            if (!cleaned) {
                 return {};
             }
             try {
-                return JSON.parse(raw);
+                return JSON.parse(cleaned);
             } catch (error) {
-                throw new Error('Invalid JSON response');
+                throw new Error(`Invalid JSON response: ${error.message}`);
             }
         });
     }
@@ -126,8 +162,7 @@ function refreshDashboardMetrics() {
 
 // Auto-refresh apron status every 30 seconds (starts immediately)
 setInterval(() => {
-    fetch(refreshApronEndpoint)
-        .then(response => response.json())
+    fetchJson(refreshApronEndpoint)
         .then(data => {
             const total = document.querySelector('#apron-total');
             const available = document.querySelector('#apron-available');
@@ -449,10 +484,7 @@ class ModalManager {
             per_page: 25
         });
 
-        fetch(`${this.userEndpoint}?${params}`)
-            .then(response => response.json().catch(() => {
-                throw new Error('Invalid JSON response from server');
-            }))
+        fetchJson(`${this.userEndpoint}?${params}`)
             .then(data => {
                 if (data.success) {
                     this.renderUsersTable(data.data);
@@ -522,10 +554,7 @@ class ModalManager {
 
     editUser(userId) {
         // Fetch user data and populate form
-        fetch(`${this.userEndpoint}?action=list`)
-            .then(response => response.json().catch(() => {
-                throw new Error('Invalid JSON response from server');
-            }))
+        fetchJson(`${this.userEndpoint}?action=list`)
             .then(data => {
                 if (!data.success) {
                     this.showToast(data.message || 'Unable to load user details.', 'error');
@@ -572,13 +601,10 @@ class ModalManager {
             formData.append('status', newStatus);
             formData.append('csrf_token', document.querySelector('input[name="csrf_token"]').value);
 
-            fetch(this.userEndpoint, {
+            fetchJson(this.userEndpoint, {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json().catch(() => {
-                throw new Error('Invalid JSON response from server');
-            }))
             .then(data => {
                 if (data.success) {
                     this.showToast(data.message, 'success');
@@ -603,13 +629,10 @@ class ModalManager {
         formData.append('id', userId);
         formData.append('csrf_token', document.querySelector('input[name="csrf_token"]').value);
 
-        fetch(this.userEndpoint, {
+        fetchJson(this.userEndpoint, {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json().catch(() => {
-            throw new Error('Invalid JSON response from server');
-        }))
         .then(data => {
             if (data.success) {
                 this.showToast(data.message, 'success');
@@ -674,8 +697,7 @@ const SnapshotManager = {
             per_page: 20
         });
 
-        fetch(`${snapshotEndpoint}?${params}`)
-            .then(response => response.json())
+        fetchJson(`${snapshotEndpoint}?${params}`)
             .then(data => {
                 if (loading) loading.style.display = 'none';
                 
@@ -744,8 +766,7 @@ const SnapshotManager = {
     },
 
     viewSnapshot: function(snapshotId) {
-        fetch(`${snapshotEndpoint}?action=view&id=${snapshotId}`)
-            .then(response => response.json())
+        fetchJson(`${snapshotEndpoint}?action=view&id=${snapshotId}`)
             .then(data => {
                 if (data.success) {
                     this.renderSnapshotView(data.data, false);
@@ -760,16 +781,61 @@ const SnapshotManager = {
     },
 
     printSnapshot: function(snapshotId) {
-        fetch(`${snapshotEndpoint}?action=view&id=${snapshotId}`)
-            .then(response => response.json())
+        fetchJson(`${snapshotEndpoint}?action=view&id=${snapshotId}`)
             .then(data => {
                 if (data.success) {
-                    this.renderSnapshotView(data.data, true);
+                    this.renderSnapshotView(data.data, false);
                     document.title = `AMCReport(${data.data.snapshot_date})`;
-                    
-                    document.body.classList.add('is-printing');
-                    window.print();
-                    document.body.classList.remove('is-printing');
+                    const titleEl = document.getElementById('snapshot-title');
+                    const contentEl = document.getElementById('snapshot-content');
+                    const snapshotTitle = titleEl ? titleEl.textContent : 'Daily Snapshot';
+                    const snapshotHtml = contentEl ? contentEl.innerHTML : '';
+
+                    if (!snapshotHtml.trim()) {
+                        modalManager.showToast('Snapshot content is empty. Please open View first.', 'error');
+                        return;
+                    }
+
+                    const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+                        .map(link => `<link rel="stylesheet" href="${link.href}">`)
+                        .join('');
+
+                    const printWindow = window.open('', '_blank', 'width=1200,height=900');
+                    if (!printWindow) {
+                        modalManager.showToast('Popup blocked. Allow popups to print snapshots.', 'error');
+                        return;
+                    }
+
+                    printWindow.document.open();
+                    printWindow.document.write(`<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>${snapshotTitle}</title>
+    ${styles}
+    <style>
+        body { background: #fff; color: #111; margin: 0; padding: 24px; }
+        .snapshot-print-title { font-size: 24px; font-weight: 700; margin-bottom: 16px; color: #111; }
+        @page { margin: 12mm; }
+    </style>
+</head>
+<body>
+    <div class="snapshot-print-title">${snapshotTitle}</div>
+    <div id="snapshot-content">${snapshotHtml}</div>
+</body>
+</html>`);
+                    printWindow.document.close();
+                    printWindow.focus();
+
+                    setTimeout(() => {
+                        printWindow.print();
+                        setTimeout(() => {
+                            if (!printWindow.closed) {
+                                printWindow.close();
+                            }
+                        }, 800);
+                    }, 300);
 
                 } else {
                     modalManager.showToast(data.message, 'error');
@@ -1064,11 +1130,10 @@ const SnapshotManager = {
         formData.append('id', snapshotId);
         formData.append('csrf_token', document.querySelector('input[name="csrf_token"]').value);
 
-        fetch(snapshotEndpoint, {
+        fetchJson(snapshotEndpoint, {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
         .then(data => {
             if (data.success) {
                 modalManager.showToast(data.message, 'success');
@@ -1085,6 +1150,8 @@ const SnapshotManager = {
 
 // Initialize modal manager
 const modalManager = new ModalManager();
+window.modalManager = modalManager;
+window.SnapshotManager = SnapshotManager;
 
 // Form submissions
 document.addEventListener('DOMContentLoaded', function() {
@@ -1154,13 +1221,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             formData.append('action', isEdit ? 'update' : 'create');
 
-            fetch(modalManager.userEndpoint, {
+            fetchJson(modalManager.userEndpoint, {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json().catch(() => {
-                throw new Error('Invalid JSON response from server');
-            }))
             .then(data => {
                 if (data.success) {
                     modalManager.showToast(data.message, 'success');
@@ -1248,13 +1312,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData(this);
             formData.append('action', 'reset_password');
 
-            fetch(modalManager.userEndpoint, {
+            fetchJson(modalManager.userEndpoint, {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json().catch(() => {
-                throw new Error('Invalid JSON response from server');
-            }))
             .then(data => {
                 if (data.success) {
                     modalManager.showToast(data.message, 'success');
@@ -1277,11 +1338,10 @@ document.addEventListener('DOMContentLoaded', function() {
            const formData = new FormData(this);
            formData.append('action', 'create');
 
-           fetch(snapshotEndpoint, {
+           fetchJson(snapshotEndpoint, {
                method: 'POST',
                body: formData
            })
-           .then(response => response.json())
            .then(data => {
                if (data.success) {
                    modalManager.showToast(data.message, 'success');

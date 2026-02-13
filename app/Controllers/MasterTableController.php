@@ -160,11 +160,42 @@ class MasterTableController extends Controller
             return ['success' => false, 'message' => 'No changes to save'];
         }
 
+        $affectedIds = [];
+        foreach ($changes as $change) {
+            $id = (int) ($change['id'] ?? 0);
+            if ($id > 0) {
+                $affectedIds[$id] = true;
+            }
+        }
+
         $this->movements->bulkUpdate($changes, $userId);
+
+        $warnings = [];
+        $duplicateFlights = [];
+
+        foreach (array_keys($affectedIds) as $id) {
+            $row = $this->movements->findById((int) $id);
+            if (!$row) {
+                continue;
+            }
+
+            $evaluation = $this->movements->evaluateInputWarnings($row);
+            foreach (($evaluation['warnings'] ?? []) as $warning) {
+                $warnings[] = "Row {$id}: {$warning}";
+            }
+            foreach (($evaluation['duplicate_flights'] ?? []) as $flightNo) {
+                $duplicateFlights[] = $flightNo;
+            }
+        }
+
+        $warnings = array_values(array_unique($warnings));
+        $duplicateFlights = array_values(array_unique($duplicateFlights));
 
         return [
             'success' => true,
             'message' => 'All changes saved successfully',
+            'warnings' => $warnings,
+            'duplicate_flights' => $duplicateFlights,
         ];
     }
 
@@ -192,11 +223,14 @@ class MasterTableController extends Controller
         ];
 
         $result = $this->movements->saveMovement($movementData, $userId);
+        $validation = $this->movements->evaluateInputWarnings($movementData);
 
         return [
             'success' => true,
             'message' => 'Movement created successfully.',
             'id' => $result['id'],
+            'warnings' => $validation['warnings'] ?? [],
+            'duplicate_flights' => $validation['duplicate_flights'] ?? [],
         ];
     }
     protected function fetchMasterMovements(array $filters, int $page): array

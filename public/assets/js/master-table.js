@@ -6,6 +6,7 @@
     const resetUrl = config.resetUrl || null;
     const userRole = config.userRole || 'viewer';
     const isViewer = userRole === 'viewer';
+    const warningStorageKey = 'amc_master_warning_seen';
 
     document.addEventListener('DOMContentLoaded', initialise);
 
@@ -149,12 +150,162 @@
         if (masterTableBody && !isViewer) {
             masterTableBody.addEventListener('change', handleAutofillTriggers);
             masterTableBody.addEventListener('blur', handleAutofillTriggers, true);
+            masterTableBody.addEventListener('input', event => {
+                const field = event.target && event.target.dataset ? event.target.dataset.field : '';
+                if (field === 'flight_no_arr' || field === 'flight_no_dep') {
+                    applyDuplicateFlightHighlighting();
+                    return;
+                }
+                if (field === 'on_block_time' || field === 'off_block_time') {
+                    applyTimeOrderHighlighting();
+                }
+            });
         }
 
         const ronTableBody = document.querySelector('#ron-data-table tbody');
         if (ronTableBody && !isViewer) {
             ronTableBody.addEventListener('change', handleAutofillTriggers);
             ronTableBody.addEventListener('blur', handleAutofillTriggers, true);
+        }
+
+        applyDuplicateFlightHighlighting();
+        applyTimeOrderHighlighting();
+    }
+
+    function extractTimeToMinutes(value) {
+        if (typeof value !== 'string') {
+            return null;
+        }
+
+        const match = value.match(/(\d{1,2}):(\d{2})/);
+        if (!match) {
+            return null;
+        }
+
+        const hour = Number.parseInt(match[1], 10);
+        const minute = Number.parseInt(match[2], 10);
+        if (Number.isNaN(hour) || Number.isNaN(minute) || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+            return null;
+        }
+
+        return (hour * 60) + minute;
+    }
+
+    function getRowWarningKey(row, rowIndex) {
+        const id = row.getAttribute('data-id');
+        if (id && id !== 'new') {
+            return `id:${id}`;
+        }
+        const newIndex = row.getAttribute('data-new-index');
+        if (newIndex) {
+            return `new:${newIndex}`;
+        }
+        return `row:${rowIndex}`;
+    }
+
+    function getSeenWarningKeys() {
+        try {
+            const parsed = JSON.parse(sessionStorage.getItem(warningStorageKey) || '[]');
+            return new Set(Array.isArray(parsed) ? parsed : []);
+        } catch (error) {
+            return new Set();
+        }
+    }
+
+    function setSeenWarningKeys(keys) {
+        sessionStorage.setItem(warningStorageKey, JSON.stringify(Array.from(keys)));
+    }
+
+    function collectClientWarnings() {
+        const warnings = [];
+        const flightFrequency = new Map();
+        const warningKeys = [];
+
+        document.querySelectorAll('#master-movements-table tbody tr[data-id]').forEach((row, rowIndex) => {
+            const onBlock = row.querySelector('input[data-field="on_block_time"]')?.value || '';
+            const offBlock = row.querySelector('input[data-field="off_block_time"]')?.value || '';
+            const onMinutes = extractTimeToMinutes(onBlock);
+            const offMinutes = extractTimeToMinutes(offBlock);
+            const rowKey = getRowWarningKey(row, rowIndex);
+
+            if (onMinutes !== null && offMinutes !== null && offMinutes < onMinutes) {
+                warnings.push(`Row ${rowIndex + 1}: off block time is earlier than on block time.`);
+                warningKeys.push(`time:${rowKey}`);
+            }
+
+            ['flight_no_arr', 'flight_no_dep'].forEach(field => {
+                const value = (row.querySelector(`input[data-field="${field}"]`)?.value || '').trim().toUpperCase();
+                if (!value) {
+                    return;
+                }
+                flightFrequency.set(value, (flightFrequency.get(value) || 0) + 1);
+            });
+        });
+
+        const duplicates = Array.from(flightFrequency.entries())
+            .filter(([, count]) => count > 1)
+            .map(([flight]) => flight);
+
+        if (duplicates.length > 0) {
+            warnings.push(`Duplicate flight number detected on this date: ${duplicates.join(', ')}.`);
+        }
+
+        duplicates.forEach(flight => warningKeys.push(`dup:${flight}`));
+
+        return { warnings, duplicateFlights: duplicates, warningKeys: Array.from(new Set(warningKeys)) };
+    }
+
+    function applyDuplicateFlightHighlighting(explicitDuplicateFlights = null) {
+        const duplicateSet = new Set(
+            Array.isArray(explicitDuplicateFlights)
+                ? explicitDuplicateFlights.map(value => String(value || '').trim().toUpperCase()).filter(Boolean)
+                : collectClientWarnings().duplicateFlights
+        );
+
+        document.querySelectorAll('#master-movements-table tbody input[data-field="flight_no_arr"], #master-movements-table tbody input[data-field="flight_no_dep"]').forEach(input => {
+            const value = String(input.value || '').trim().toUpperCase();
+            const isDuplicate = value !== '' && duplicateSet.has(value);
+            input.classList.toggle('duplicate-flight-warning', isDuplicate);
+        });
+    }
+
+    function applyTimeOrderHighlighting() {
+        document.querySelectorAll('#master-movements-table tbody tr[data-id]').forEach(row => {
+            const onInput = row.querySelector('input[data-field="on_block_time"]');
+            const offInput = row.querySelector('input[data-field="off_block_time"]');
+            if (!onInput || !offInput) {
+                return;
+            }
+
+            const onMinutes = extractTimeToMinutes(onInput.value || '');
+            const offMinutes = extractTimeToMinutes(offInput.value || '');
+            const invalidOrder = onMinutes !== null && offMinutes !== null && offMinutes < onMinutes;
+
+            onInput.classList.toggle('time-order-warning', invalidOrder);
+            offInput.classList.toggle('time-order-warning', invalidOrder);
+        });
+    }
+
+    function alertOnlyNewWarnings(messages, issueKeys) {
+        if (!Array.isArray(messages) || !Array.isArray(issueKeys)) {
+            return;
+        }
+
+        const activeKeys = new Set(issueKeys.filter(Boolean));
+        const seenKeys = getSeenWarningKeys();
+        let hasNewIssue = false;
+        activeKeys.forEach(key => {
+            if (!seenKeys.has(key)) {
+                hasNewIssue = true;
+                seenKeys.add(key);
+            }
+        });
+
+        const prunedSeen = new Set(Array.from(seenKeys).filter(key => !key.startsWith('time:') && !key.startsWith('dup:') || activeKeys.has(key)));
+        setSeenWarningKeys(prunedSeen);
+
+        if (hasNewIssue && messages.length > 0) {
+            alert(messages.join('\n') + '\n\nThe system will still process your input.');
         }
     }
 
@@ -308,6 +459,11 @@
             return;
         }
 
+        const clientCheck = collectClientWarnings();
+        alertOnlyNewWarnings([...clientCheck.warnings], [...clientCheck.warningKeys]);
+        applyDuplicateFlightHighlighting(clientCheck.duplicateFlights);
+        applyTimeOrderHighlighting();
+
         const saveButton = document.querySelector('[data-action="save-table"]');
         if (saveButton) {
             saveButton.dataset.originalText = saveButton.textContent;
@@ -316,21 +472,31 @@
         }
 
         try {
+            const serverWarnings = [];
+            const serverDuplicates = new Set(clientCheck.duplicateFlights);
+
             if (changes.length) {
-                await fetchJson(masterEndpoint, {
+                const saveResponse = await fetchJson(masterEndpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'save_all_changes', changes })
                 });
+                (saveResponse.warnings || []).forEach(message => serverWarnings.push(message));
+                (saveResponse.duplicate_flights || []).forEach(flight => serverDuplicates.add(String(flight || '').toUpperCase()));
             }
 
             for (const movement of newMovements) {
-                await fetchJson(masterEndpoint, {
+                const createResponse = await fetchJson(masterEndpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'create_new_movement', ...movement })
                 });
+                (createResponse.warnings || []).forEach(message => serverWarnings.push(message));
+                (createResponse.duplicate_flights || []).forEach(flight => serverDuplicates.add(String(flight || '').toUpperCase()));
             }
+
+            applyDuplicateFlightHighlighting(Array.from(serverDuplicates));
+            applyTimeOrderHighlighting();
 
             window.location.reload();
         } catch (error) {

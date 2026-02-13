@@ -426,6 +426,82 @@ class AircraftMovementRepository extends Repository
         return array_values(array_unique(array_merge($arrivals, $departures)));
     }
 
+    public function findById(int $id): ?array
+    {
+        if ($id <= 0) {
+            return null;
+        }
+
+        $stmt = $this->pdo->prepare('SELECT * FROM aircraft_movements WHERE id = :id LIMIT 1');
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row ?: null;
+    }
+
+    public function evaluateInputWarnings(array $movement, ?int $excludeId = null, ?string $movementDate = null): array
+    {
+        $warnings = [];
+        $duplicateFlights = [];
+
+        $onBlock = trim((string) ($movement['on_block_time'] ?? ''));
+        $offBlock = trim((string) ($movement['off_block_time'] ?? ''));
+
+        if ($this->isOffBlockEarlierThanOnBlock($onBlock, $offBlock)) {
+            $warnings[] = 'Off block timestamp is earlier than on block timestamp for the same date. Please verify.';
+        }
+
+        $movementDate = $movementDate ?: date('Y-m-d');
+        $duplicates = array_map('strtoupper', $this->findDuplicateFlights($movementDate));
+        $arr = strtoupper(trim((string) ($movement['flight_no_arr'] ?? '')));
+        $dep = strtoupper(trim((string) ($movement['flight_no_dep'] ?? '')));
+
+        if ($arr !== '' && in_array($arr, $duplicates, true)) {
+            $duplicateFlights[] = $arr;
+        }
+        if ($dep !== '' && in_array($dep, $duplicates, true)) {
+            $duplicateFlights[] = $dep;
+        }
+
+        $duplicateFlights = array_values(array_unique($duplicateFlights));
+        if (!empty($duplicateFlights)) {
+            $warnings[] = 'Duplicate flight number detected on the same date: ' . implode(', ', $duplicateFlights) . '.';
+        }
+
+        return [
+            'warnings' => $warnings,
+            'duplicate_flights' => $duplicateFlights,
+        ];
+    }
+
+    private function isOffBlockEarlierThanOnBlock(string $onBlockTime, string $offBlockTime): bool
+    {
+        $onMinutes = $this->extractTimeToMinutes($onBlockTime);
+        $offMinutes = $this->extractTimeToMinutes($offBlockTime);
+
+        if ($onMinutes === null || $offMinutes === null) {
+            return false;
+        }
+
+        return $offMinutes < $onMinutes;
+    }
+
+    private function extractTimeToMinutes(string $value): ?int
+    {
+        if (!preg_match('/(\d{1,2}):(\d{2})/', $value, $matches)) {
+            return null;
+        }
+
+        $hour = (int) $matches[1];
+        $minute = (int) $matches[2];
+
+        if ($hour < 0 || $hour > 23 || $minute < 0 || $minute > 59) {
+            return null;
+        }
+
+        return ($hour * 60) + $minute;
+    }
+
     public function countOccupiedStands(): int
     {
         $stmt = $this->pdo->query(

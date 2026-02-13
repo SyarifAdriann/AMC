@@ -543,8 +543,22 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!wrapper || !container) return;
             
             const wrapperWidth = wrapper.clientWidth;
-            let scale = wrapperWidth / 1920;
-            scale = scale * 0.95; // shrink by additional 5%
+            let requiredWidth = 1920;
+            const stands = container.querySelectorAll('.stand-gradient');
+            stands.forEach(stand => {
+                const left = parseFloat(stand.style.left || '0');
+                const width = stand.offsetWidth || 0;
+                const rightEdge = left + width + 20;
+                if (rightEdge > requiredWidth) {
+                    requiredWidth = rightEdge;
+                }
+            });
+
+            let scale = wrapperWidth / requiredWidth;
+            scale = scale * 0.98;
+            if (scale > 1) {
+                scale = 1;
+            }
             
             container.style.transform = `scale(${scale})`;
             container.style.transformOrigin = 'top left';
@@ -904,6 +918,34 @@ if (sr) sr.addEventListener('click', () => {
             }
             
             // ===== Save Stand (Movement) =====
+            const extractTimeToMinutes = value => {
+                if (typeof value !== 'string') {
+                    return null;
+                }
+                const match = value.match(/(\d{1,2}):(\d{2})/);
+                if (!match) {
+                    return null;
+                }
+                const hour = Number.parseInt(match[1], 10);
+                const minute = Number.parseInt(match[2], 10);
+                if (Number.isNaN(hour) || Number.isNaN(minute) || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+                    return null;
+                }
+                return (hour * 60) + minute;
+            };
+
+            const setDuplicateFlightHighlight = duplicateFlights => {
+                const duplicateSet = new Set((duplicateFlights || []).map(f => String(f || '').trim().toUpperCase()));
+                ['f-arr', 'f-dep'].forEach(id => {
+                    const input = document.getElementById(id);
+                    if (!input) {
+                        return;
+                    }
+                    const value = String(input.value || '').trim().toUpperCase();
+                    input.classList.toggle('duplicate-flight-warning', value !== '' && duplicateSet.has(value));
+                });
+            };
+
             const ss = document.getElementById('save-stand');
             if (ss) ss.addEventListener('click', () => {
                 const standCode = document.getElementById('f-stand').value;
@@ -939,6 +981,12 @@ if (sr) sr.addEventListener('click', () => {
                     payload.id = editingId;
                 }
 
+                const onMinutes = extractTimeToMinutes(movementData.on_block_time || '');
+                const offMinutes = extractTimeToMinutes(movementData.off_block_time || '');
+                if (onMinutes !== null && offMinutes !== null && offMinutes < onMinutes) {
+                    alert('Off block timestamp is earlier than on block timestamp for the same date. Please verify. The input will still be processed.');
+                }
+
                 fetchJson(apronEndpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -946,6 +994,11 @@ if (sr) sr.addEventListener('click', () => {
                 })
                 .then(res => {
                     if (res.success) {
+                        setDuplicateFlightHighlight(res.duplicate_flights || []);
+                        if (Array.isArray(res.warnings) && res.warnings.length > 0) {
+                            alert(res.warnings.join('\n') + '\n\nThe system processed your input.');
+                        }
+
                         const match = findRecommendationMeta(standCode);
                         showAssignmentToast({
                             standCode: (standCode || '').toUpperCase(),

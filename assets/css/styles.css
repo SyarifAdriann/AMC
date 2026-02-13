@@ -440,8 +440,21 @@ button[data-target]:hover {
     top: 0;
     left: 0;
 }
+
+/* Infrastructure SVG Layer */
+#apron-infrastructure {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
 .stand {
     position: absolute;
+    z-index: 10;
     background: linear-gradient(135deg, rgba(63, 114, 175, 0.9), rgba(17, 45, 78, 0.9));
     border: 2px solid #112D4E;
     border-radius: 8px;
@@ -1920,6 +1933,44 @@ label {
     .hour-bar-group {
         font-size: 9px;
     }
+
+    /* Force snapshot modal content to be the only printable output. */
+    body.is-printing * {
+        visibility: hidden !important;
+    }
+
+    body.is-printing #viewSnapshotModalBg,
+    body.is-printing #viewSnapshotModalBg * {
+        visibility: visible !important;
+    }
+
+    body.is-printing #viewSnapshotModalBg {
+        display: block !important;
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        background: #fff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        z-index: 2147483647 !important;
+    }
+
+    body.is-printing #viewSnapshotModalBg > div {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+    }
+
+    body.is-printing #viewSnapshotModalBg #snapshot-content {
+        max-height: none !important;
+        overflow: visible !important;
+    }
 }
 /* Daily Snapshot Archive Styles */
 .snapshot-modal {
@@ -2048,3 +2099,13 @@ label {
     font-style: italic;
     padding: 20px;
 }
+
+.duplicate-flight-warning {
+    background-color: #fef08a !important;
+}
+
+
+.time-order-warning {
+    background-color: #fecaca !important;
+}
+

@@ -1,4 +1,4 @@
-<div id="viewSnapshotModalBg" class="modal-backdrop fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-50 hidden justify-center items-start pt-6 overflow-y-auto">
+<div id="viewSnapshotModalBg" class="modal-backdrop printable-snapshot fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-50 hidden justify-center items-start pt-6 overflow-y-auto">
     <div class="bg-white text-slate-800 rounded-xl shadow-2xl w-full max-w-5xl mx-4 my-8">
         <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
             <h2 id="snapshot-title" class="text-xl font-semibold">Daily Snapshot</h2>

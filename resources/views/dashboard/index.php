@@ -89,39 +89,37 @@ $hasRole = function ($roles) use ($user_role) {
                             Movements Snapshot (Today)
                         </div>
                         <div class="p-4 lg:p-5 space-y-4">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="bg-white rounded-lg p-4 border border-gray-100 shadow-inner">
-                                    <p class="text-xs font-semibold text-gray-500 uppercase">Arrivals</p>
-                                    <div class="grid grid-cols-3 gap-3 mt-3 text-center">
-                                        <div>
-                                            <p class="text-2xl font-bold text-blue-600" data-category="commercial" data-metric="arrivals"><?= htmlspecialchars($movementsToday['commercial']['arrivals']) ?></p>
-                                            <p class="text-xxs text-gray-500 mt-1">Commercial</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-2xl font-bold text-teal-600" data-category="cargo" data-metric="arrivals"><?= htmlspecialchars($movementsToday['cargo']['arrivals']) ?></p>
-                                            <p class="text-xxs text-gray-500 mt-1">Cargo</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-2xl font-bold text-purple-600" data-category="charter" data-metric="arrivals"><?= htmlspecialchars($movementsToday['charter']['arrivals']) ?></p>
-                                            <p class="text-xxs text-gray-500 mt-1">Charter</p>
-                                        </div>
+                            <div class="bg-white rounded-lg p-4 border border-gray-100 shadow-inner">
+                                <p class="text-xs font-semibold text-gray-500 uppercase text-center">Arrivals</p>
+                                <div class="grid grid-cols-3 gap-3 mt-3 text-center max-w-md mx-auto">
+                                    <div>
+                                        <p class="text-2xl font-bold text-blue-600" data-category="commercial" data-metric="arrivals"><?= htmlspecialchars($movementsToday['commercial']['arrivals']) ?></p>
+                                        <p class="text-xxs text-gray-500 mt-1">Commercial</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-2xl font-bold text-teal-600" data-category="cargo" data-metric="arrivals"><?= htmlspecialchars($movementsToday['cargo']['arrivals']) ?></p>
+                                        <p class="text-xxs text-gray-500 mt-1">Cargo</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-2xl font-bold text-purple-600" data-category="charter" data-metric="arrivals"><?= htmlspecialchars($movementsToday['charter']['arrivals']) ?></p>
+                                        <p class="text-xxs text-gray-500 mt-1">Charter</p>
                                     </div>
                                 </div>
-                                <div class="bg-white rounded-lg p-4 border border-gray-100 shadow-inner">
-                                    <p class="text-xs font-semibold text-gray-500 uppercase">Departures</p>
-                                    <div class="grid grid-cols-3 gap-3 mt-3 text-center">
-                                        <div>
-                                            <p class="text-2xl font-bold text-blue-600" data-category="commercial" data-metric="departures"><?= htmlspecialchars($movementsToday['commercial']['departures']) ?></p>
-                                            <p class="text-xxs text-gray-500 mt-1">Commercial</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-2xl font-bold text-teal-600" data-category="cargo" data-metric="departures"><?= htmlspecialchars($movementsToday['cargo']['departures']) ?></p>
-                                            <p class="text-xxs text-gray-500 mt-1">Cargo</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-2xl font-bold text-purple-600" data-category="charter" data-metric="departures"><?= htmlspecialchars($movementsToday['charter']['departures']) ?></p>
-                                            <p class="text-xxs text-gray-500 mt-1">Charter</p>
-                                        </div>
+                            </div>
+                            <div class="bg-white rounded-lg p-4 border border-gray-100 shadow-inner">
+                                <p class="text-xs font-semibold text-gray-500 uppercase text-center">Departures</p>
+                                <div class="grid grid-cols-3 gap-3 mt-3 text-center max-w-md mx-auto">
+                                    <div>
+                                        <p class="text-2xl font-bold text-blue-600" data-category="commercial" data-metric="departures"><?= htmlspecialchars($movementsToday['commercial']['departures']) ?></p>
+                                        <p class="text-xxs text-gray-500 mt-1">Commercial</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-2xl font-bold text-teal-600" data-category="cargo" data-metric="departures"><?= htmlspecialchars($movementsToday['cargo']['departures']) ?></p>
+                                        <p class="text-xxs text-gray-500 mt-1">Cargo</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-2xl font-bold text-purple-600" data-category="charter" data-metric="departures"><?= htmlspecialchars($movementsToday['charter']['departures']) ?></p>
+                                        <p class="text-xxs text-gray-500 mt-1">Charter</p>
                                     </div>
                                 </div>
                             </div>
@@ -222,12 +220,10 @@ $hasRole = function ($roles) use ($user_role) {
                     </div>
                     <div class="p-4 lg:p-5">
                         <form method="POST" class="space-y-4">
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
                                 <div class="flex flex-col gap-2">
                                     <label for="report-type" class="text-sm font-semibold text-amc-dark-blue">Report Type</label>
                                     <select id="report-type" name="report_type" class="text-sm border border-gray-300 rounded-md px-3 py-2 focus:border-amc-blue focus:shadow-sm transition-all duration-300">
-                                        <option value="daily_log_am">Daily Log (AM Shift)</option>
-                                        <option value="daily_log_pm">Daily Log (PM Shift)</option>
                                         <option value="charter_log">Charter/VVIP Flight Log</option>
                                         <option value="ron_report">Daily RON Report</option>
                                         <option value="monthly_summary">Monthly Movement Summary</option>
@@ -243,9 +239,9 @@ $hasRole = function ($roles) use ($user_role) {
                                     <input type="date" id="report-date-to" name="date_to" value="<?= htmlspecialchars($today) ?>" class="text-sm border border-gray-300 rounded-md px-3 py-2 focus:border-amc-blue focus:shadow-sm transition-all duration-300">
                                 </div>
                                 <div class="flex flex-col gap-2 lg:col-span-2">
-                                    <div class="flex flex-wrap gap-2 mt-6 lg:mt-0">
-                                        <button type="submit" name="action" value="generate" class="flex-1 lg:flex-initial bg-amc-blue hover:bg-amc-dark-blue text-white px-4 py-2 text-sm font-semibold rounded-md transition-colors duration-300">Generate Report</button>
-                                        <button type="submit" name="action" value="export_csv" class="flex-1 lg:flex-initial bg-green-600 hover:bg-green-700 text-white px-4 py-2 text-sm font-semibold rounded-md transition-colors duration-300">Export to CSV</button>
+                                    <div class="flex flex-wrap gap-2 w-full lg:justify-start">
+                                        <button type="submit" name="action" value="generate" class="bg-amc-blue hover:bg-amc-dark-blue text-white px-4 py-2 text-sm font-semibold rounded-md transition-colors duration-300">Generate Report</button>
+                                        <button type="submit" name="action" value="export_csv" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 text-sm font-semibold rounded-md transition-colors duration-300">Export to CSV</button>
                                     </div>
                                 </div>
                             </div>
