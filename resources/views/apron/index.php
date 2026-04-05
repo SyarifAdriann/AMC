@@ -125,9 +125,19 @@ ob_start();
 
             <!-- APRON MAP -->
             <div class="w-full mx-auto mb-8 lg:mb-10 relative overflow-hidden rounded-xl shadow-lg border-2 border-amc-light apron-checkerboard" id="apron-wrapper">
+
+                <!-- VIEW TOGGLE -->
+                <div style="position:absolute; top:10px; right:10px; z-index:50; display:flex; gap:6px; background:rgba(255,255,255,0.92); border-radius:8px; padding:5px 8px; box-shadow:0 2px 10px rgba(0,0,0,0.18); pointer-events:auto;">
+                    <button id="toggle-view-a" onclick="switchApronView('a')" style="padding:4px 14px; font-size:11px; font-weight:700; border-radius:5px; border:none; cursor:pointer; background:#112D4E; color:white; transition:all 0.2s;">View A</button>
+                    <button id="toggle-view-b" onclick="switchApronView('b')" style="padding:4px 14px; font-size:11px; font-weight:700; border-radius:5px; border:1px solid #ccc; cursor:pointer; background:white; color:#112D4E; transition:all 0.2s;">View B</button>
+                </div>
+
                 <div class="relative" id="apron-container" style="width: 1920px; height: 1080px;">
                     <?php
-                    $stands = [
+                    $baseStandClass = "stand-gradient absolute border-2 border-amc-dark-blue rounded-lg px-2 py-1 lg:px-3 lg:py-2 font-bold cursor-pointer select-none text-xs lg:text-sm text-center leading-tight text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:bg-gradient-to-br hover:from-amc-light hover:to-amc-blue hover:text-amc-dark-blue hover:shadow-xl active:translate-y-0 active:scale-100";
+
+                    // ── VIEW A: Current stylized layout ──────────────────────────────────
+                    $standsViewA = [
                         'A0'=>[1785,923],'A1'=>[1712,923],'A2'=>[1621,923],'A3'=>[1518,923],
                         'B1'=>[1414,923],'B2'=>[1321,923],'B3'=>[1229,923],'B4'=>[1136,923],
                         'B5'=>[1043,923],'B6'=>[950,923],'B7'=>[859,923],'B8'=>[768,923],
@@ -151,8 +161,44 @@ ob_start();
                         'RW05'=>[1379,700],'RW06'=>[1307,700],'RW07'=>[1241,700],'RW08'=>[1173,700],
                         'RW09'=>[1107,700],'RW10'=>[1039,700],'RW11'=>[970,700]
                     ];
-                    foreach($stands as $code => $pos) {
-                        echo "<div class=\"stand-gradient absolute border-2 border-amc-dark-blue rounded-lg px-2 py-1 lg:px-3 lg:py-2 font-bold cursor-pointer select-none text-xs lg:text-sm text-center leading-tight text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:bg-gradient-to-br hover:from-amc-light hover:to-amc-blue hover:text-amc-dark-blue hover:shadow-xl active:translate-y-0 active:scale-100\" data-stand=\"$code\" style=\"left:{$pos[0]}px; top:{$pos[1]}px;\" title=\"Click to edit $code\">$code</div>";
+                    foreach($standsViewA as $code => $pos) {
+                        echo "<div class=\"{$baseStandClass} apron-view apron-view--a\" data-stand=\"$code\" style=\"left:{$pos[0]}px; top:{$pos[1]}px;\" title=\"Click to edit $code\">$code</div>";
+                    }
+
+                    // ── VIEW B: Real Halim Perdanakusuma layout ──────────────────────────
+                    $standsViewB = [
+                        // MAIN APRON
+                        'A0'=>[1875,903],'A1'=>[1818,903],'A2'=>[1761,903],'A3'=>[1704,903],
+                        'B1'=>[1647,903],'B2'=>[1590,903],'B3'=>[1533,903],'B4'=>[1476,903],
+                        'B5'=>[1419,903],'B6'=>[1362,903],'B7'=>[1305,903],'B8'=>[1248,903],
+                        'B9'=>[1191,903],'B10'=>[1134,903],'B11'=>[1077,903],'B12'=>[1020,903],'B13'=>[963,903],
+                        // REMOTE WEST
+                        'RW01'=>[1760,773],'RW02'=>[1705,773],'RW03'=>[1650,773],'RW04'=>[1595,773],
+                        'RW05'=>[1540,773],'RW06'=>[1485,773],'RW07'=>[1430,773],'RW08'=>[1375,773],
+                        'RW09'=>[1320,773],'RW10'=>[1265,773],'RW11'=>[1210,773],
+                        // REMOTE EAST
+                        'RE01'=>[1150,773],'RE02'=>[1100,773],'RE03'=>[1050,773],'RE04'=>[1000,773],
+                        'RE05'=>[950,773],'RE06'=>[900,773],'RE07'=>[850,773],
+                        // SOUTH APRON
+                        'SA01'=>[42,93],'SA02'=>[185,93],'SA03'=>[328,93],'SA04'=>[463,93],
+                        'SA05'=>[600,93],'SA06'=>[731,93],
+                        'SA07'=>[0,195],'SA08'=>[80,195],'SA09'=>[141,195],'SA10'=>[228,195],
+                        'SA11'=>[289,195],'SA12'=>[366,195],'SA13'=>[427,195],'SA14'=>[504,195],
+                        'SA15'=>[565,195],'SA16'=>[642,195],'SA17'=>[703,195],'SA18'=>[777,195],
+                        'SA19'=>[0,297],'SA20'=>[80,297],'SA21'=>[141,297],'SA22'=>[228,297],
+                        'SA23'=>[289,297],'SA24'=>[366,297],'SA25'=>[427,297],'SA26'=>[504,297],
+                        'SA27'=>[565,297],'SA28'=>[642,297],'SA29'=>[703,297],'SA30'=>[777,297],
+                        // NEW SOUTH APRON
+                        'NSA01'=>[943,195],'NSA02'=>[1015,195],'NSA03'=>[1087,195],'NSA04'=>[1159,195],
+                        'NSA05'=>[1231,195],'NSA06'=>[1303,195],'NSA07'=>[1376,195],
+                        'NSA08'=>[1448,231],'NSA09'=>[1448,307],
+                        'NSA10'=>[1015,343],'NSA11'=>[1087,343],'NSA12'=>[1159,343],
+                        'NSA13'=>[1231,343],'NSA14'=>[1303,343],'NSA15'=>[1376,343],
+                        // WEST REMOTE
+                        'WR01'=>[760,680],'WR02'=>[760,770],'WR03'=>[760,860]
+                    ];
+                    foreach($standsViewB as $code => $pos) {
+                        echo "<div class=\"{$baseStandClass} apron-view apron-view--b\" data-stand=\"$code\" style=\"left:{$pos[0]}px; top:{$pos[1]}px; display:none;\" title=\"Click to edit $code\">$code</div>";
                     }
                     ?>
                 </div>
@@ -178,6 +224,28 @@ ob_start();
                 recommend: 'api/apron/recommend'
             }
         };
+
+        // ── Apron View Toggle ────────────────────────────────────────────────
+        function switchApronView(view) {
+            document.querySelectorAll('.apron-view--a').forEach(function(el) {
+                el.style.display = view === 'a' ? '' : 'none';
+            });
+            document.querySelectorAll('.apron-view--b').forEach(function(el) {
+                el.style.display = view === 'b' ? '' : 'none';
+            });
+            var btnA = document.getElementById('toggle-view-a');
+            var btnB = document.getElementById('toggle-view-b');
+            if (view === 'a') {
+                btnA.style.background = '#112D4E'; btnA.style.color = 'white'; btnA.style.border = 'none';
+                btnB.style.background = 'white';   btnB.style.color = '#112D4E'; btnB.style.border = '1px solid #ccc';
+            } else {
+                btnB.style.background = '#112D4E'; btnB.style.color = 'white'; btnB.style.border = 'none';
+                btnA.style.background = 'white';   btnA.style.color = '#112D4E'; btnA.style.border = '1px solid #ccc';
+            }
+            // Re-render all movement icons so they follow the newly active view's positions.
+            // Dispatching a custom event keeps this decoupled from apron.js scope.
+            document.dispatchEvent(new CustomEvent('apronViewSwitch'));
+        }
     </script>
 
 <?php

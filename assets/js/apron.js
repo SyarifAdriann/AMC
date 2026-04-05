@@ -577,12 +577,20 @@ document.addEventListener('DOMContentLoaded', function() {
         // ===== Render airplane icons for a stand =====
         function renderStandIcons(standCode) {
             console.log(`renderStandIcons called for ${standCode}`);
-            const standEl = document.querySelector(`.stand-gradient[data-stand="${standCode}"]`);
+            // Find the currently visible stand div (works for both View A and View B)
+            const allStandEls = document.querySelectorAll(`.stand-gradient[data-stand="${standCode}"]`);
+            let standEl = null;
+            allStandEls.forEach(function(el) {
+                if (el.style.display !== 'none') {
+                    standEl = el;
+                }
+            });
+            if (!standEl) standEl = allStandEls[0]; // fallback if none visible
             if (!standEl) return;
 
             const standLeft = parseFloat(standEl.style.left);
             const standTop = parseFloat(standEl.style.top);
-            const standWidth = standEl.offsetWidth;
+            const standWidth = standEl.offsetWidth || 60;  // fallback if reflow not yet complete
 
             // Remove existing icons for this stand
             document.querySelectorAll(`.plane-icon[data-stand="${standCode}"]`).forEach(el => el.remove());
@@ -623,7 +631,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Position the icon and label
                 const leftPos = standLeft + standWidth / 2;
                 let iconTopPos, labelTopPos;
-                const standHeight = standEl.offsetHeight;
+                const standHeight = standEl.offsetHeight || 28; // fallback if reflow not yet complete
                 if (type === 'planned') {
                     iconTopPos = standTop - 24; // Icon touches top of stand
                     labelTopPos = iconTopPos - 40; // Label above icon
@@ -1211,5 +1219,18 @@ if (sr) sr.addEventListener('click', () => {
                     e.preventDefault();
                 }
             }
+        });
+        // Listen for view-switch events dispatched by switchApronView() in index.php.
+        // This keeps renderStandIcons and standData inside the closure — no scope leakage.
+        document.addEventListener('apronViewSwitch', function() {
+            // Force a synchronous reflow so newly-shown stands have computed dimensions
+            var apronCtr = document.getElementById('apron-container');
+            if (apronCtr) { void apronCtr.offsetHeight; }
+            // Use rAF to ensure the browser has painted the new layout before reading dimensions
+            requestAnimationFrame(function() {
+                Object.keys(standData).forEach(function(standCode) {
+                    renderStandIcons(standCode);
+                });
+            });
         });
 })();

@@ -1168,4 +1168,113 @@ Use [ ] to track, [x] when verified/tested.
 - AuthMiddleware             1 function
 - Models (7 classes)        ~55 methods
 
-GRAND TOTAL: ~300 functions
+GRAND TOTAL: ~301 functions (+ 1 new JS function from 2nd apron view feature)
+
+---
+
+## FEATURE: 2nd APRON VIEW (View B — Real Halim Layout)
+
+> Added to: `resources/views/apron/index.php`
+> No backend changes. Pure view-layer addition.
+
+---
+
+### What It Is
+
+A toggle inside the existing apron map container that switches between two stand
+position layouts. All data, modals, status panels, staff roster, scrolling, and
+resize behaviour are identical between both views.
+
+- View A — Original stylized layout (existing, always was the default)
+- View B — Real Halim Perdanakusuma airport coordinates
+
+---
+
+### PHP Stand Arrays (in index.php)
+
+- [ ] `$baseStandClass` — string variable
+  Holds the full Tailwind class string shared by all stand divs in both views.
+  Extracted to avoid repetition in both foreach loops.
+
+- [ ] `$standsViewA` — array
+  Existing stand coordinates (original stylized layout). Same positions as
+  before this feature was added. Keys are stand codes, values are [x, y] pairs.
+
+- [ ] `$standsViewB` — array
+  New real Halim Perdanakusuma airport coordinates. Same stand codes as View A.
+  Covers: A0, A1–A3, B1–B13, RW01–RW11, RE01–RE07, SA01–SA30, NSA01–NSA15, WR01–WR03.
+
+- [ ] View A foreach loop
+  Renders each stand in `$standsViewA` as a div with class `apron-view apron-view--a`.
+  No inline display style — visible by default.
+
+- [ ] View B foreach loop
+  Renders each stand in `$standsViewB` as a div with class `apron-view apron-view--b`.
+  Has `display:none` inline style — hidden by default until toggled.
+
+---
+
+### Toggle Button HTML (in index.php)
+
+- [ ] Toggle container div
+  Absolutely positioned at top:10px, right:10px of `#apron-wrapper`.
+  z-index:50 so it floats above the apron image. pointer-events:auto so it
+  remains clickable even when the apron map is scrolled horizontally.
+
+- [ ] `#toggle-view-a` button
+  Calls `switchApronView('a')` on click.
+  Active by default (dark navy background, white text).
+
+- [ ] `#toggle-view-b` button
+  Calls `switchApronView('b')` on click.
+  Inactive by default (white background, navy text, light border).
+
+---
+
+### JavaScript (in index.php inline script)
+
+- [ ] `switchApronView(view)` — function
+  Toggles visibility between View A and View B stand sets.
+  Selects all `.apron-view--a` and `.apron-view--b` elements and sets
+  `display:none` or `display:''` based on the `view` argument ('a' or 'b').
+  Also updates button active/inactive styles to reflect the current active view.
+  No API calls. No state variables. Purely a DOM visibility toggle.
+
+---
+
+### CSS Classes Used
+
+- [ ] `.apron-view` — shared marker class on all stand divs in both views
+- [ ] `.apron-view--a` — applied to all View A stand divs
+- [ ] `.apron-view--b` — applied to all View B stand divs (hidden by default)
+
+---
+
+### Stand Coverage (View B coordinates)
+
+All stands from View A are present in View B. No stands added or removed.
+
+- Main Apron:   A0, A1–A3, B1–B13
+- Remote West:  RW01–RW11
+- Remote East:  RE01–RE07
+- South Apron:  SA01–SA30
+- New S. Apron: NSA01–NSA15
+- West Remote:  WR01–WR03
+
+---
+
+### Files Modified
+
+- `resources/views/apron/index.php` — only file changed
+
+### Files NOT Modified
+
+- `app/Controllers/ApronController.php` — untouched
+- `assets/js/apron.js` — untouched
+- `resources/views/apron/partials/stand-modal.php` — untouched
+- `resources/views/apron/partials/hangar-modal.php` — untouched
+- All CSS files — untouched
+- All routes — untouched
+- All services and repositories — untouched
+
+GRAND TOTAL: ~301 functions

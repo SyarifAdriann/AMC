@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 use App\Controllers\ApronController;
 use App\Controllers\AuthController;

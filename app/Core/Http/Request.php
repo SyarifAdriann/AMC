@@ -109,7 +109,10 @@ class Request
     {
         $base = $this->determineBasePath();
 
-        if ($base !== '' && strpos($path, $base) === 0) {
+        // Use stripos for case-insensitive comparison — on Windows, Apache mod_rewrite
+        // may return SCRIPT_NAME with filesystem casing (e.g. /AMC/) while the URL
+        // uses different casing (e.g. /amc/), causing base path stripping to fail.
+        if ($base !== '' && stripos($path, $base) === 0) {
             $path = substr($path, strlen($base));
         }
 
