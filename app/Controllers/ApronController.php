@@ -802,7 +802,7 @@ class ApronController extends Controller
         $jsonPayload = json_encode($payload, JSON_THROW_ON_ERROR);
 
         $command = sprintf(
-            '%s %s 2>&1',
+            '%s %s',
             $python,
             escapeshellarg($scriptPath)
         );
@@ -822,13 +822,9 @@ class ApronController extends Controller
         fwrite($pipes[0], $jsonPayload);
         fclose($pipes[0]);
 
-        $stdout = stream_get_contents($pipes[1]);
-        fclose($pipes[1]);
-
-        $stderr = stream_get_contents($pipes[2]);
-        fclose($pipes[2]);
-
-        $returnVar = proc_close($process);
+        $stdout = '';
+        $stderr = '';
+        $returnVar = $this->collectProcessOutput($process, $pipes, $stdout, $stderr, $timeoutSeconds);
 
         if ($stdout === '' || $stdout === false) {
             $errorMsg = 'Predictor returned no output.';
@@ -854,6 +850,87 @@ class ApronController extends Controller
         }
 
         return $response;
+    }
+
+    protected function collectProcessOutput($process, array $pipes, string &$stdout, string &$stderr, int $timeoutSeconds): int
+    {
+        stream_set_blocking($pipes[1], false);
+        stream_set_blocking($pipes[2], false);
+
+        $stdoutOpen = true;
+        $stderrOpen = true;
+        $deadline = microtime(true) + max(1, $timeoutSeconds);
+
+        while ($stdoutOpen || $stderrOpen) {
+            $read = [];
+
+            if ($stdoutOpen) {
+                $read[] = $pipes[1];
+            }
+
+            if ($stderrOpen) {
+                $read[] = $pipes[2];
+            }
+
+            if ($read === []) {
+                break;
+            }
+
+            $secondsLeft = $deadline - microtime(true);
+            if ($secondsLeft <= 0) {
+                proc_terminate($process);
+                $this->closeOpenPipes($pipes);
+                proc_close($process);
+                throw new RuntimeException('Prediction process timed out after ' . $timeoutSeconds . ' seconds.');
+            }
+
+            $sec = (int) floor($secondsLeft);
+            $usec = (int) max(1, ($secondsLeft - $sec) * 1000000);
+            $write = null;
+            $except = null;
+            $ready = @stream_select($read, $write, $except, $sec, $usec);
+
+            if ($ready === false) {
+                break;
+            }
+
+            if ($ready === 0) {
+                continue;
+            }
+
+            foreach ($read as $stream) {
+                $chunk = stream_get_contents($stream);
+                if ($chunk !== false && $chunk !== '') {
+                    if ($stream === $pipes[1]) {
+                        $stdout .= $chunk;
+                    } else {
+                        $stderr .= $chunk;
+                    }
+                }
+
+                if (feof($stream)) {
+                    fclose($stream);
+                    if ($stream === $pipes[1]) {
+                        $stdoutOpen = false;
+                    } else {
+                        $stderrOpen = false;
+                    }
+                }
+            }
+        }
+
+        $this->closeOpenPipes($pipes);
+
+        return proc_close($process);
+    }
+
+    protected function closeOpenPipes(array $pipes): void
+    {
+        foreach ([1, 2] as $index) {
+            if (isset($pipes[$index]) && is_resource($pipes[$index])) {
+                fclose($pipes[$index]);
+            }
+        }
     }
 
 
@@ -2155,6 +2232,5 @@ class ApronController extends Controller
     }
 
 }
-
 
 

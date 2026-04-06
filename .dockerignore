@@ -1,0 +1,55 @@
+# =============================================================================
+# .dockerignore — Files excluded from Docker build context
+#
+# IMPORTANT: The docker/ folder is NOT excluded here.
+# Last time it was accidentally excluded, causing "entrypoint.sh: not found".
+# =============================================================================
+
+# Version control
+.git
+.gitignore
+
+# Node.js (not needed at runtime — CSS is pre-compiled)
+node_modules
+
+# Python cache (rebuilt inside the container)
+__pycache__
+**/__pycache__
+*.pyc
+*.pyo
+ml/__pycache__
+ml/archive
+
+# Editor / OS cruft
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# AI assistant configs (not needed in image)
+.claude/
+.gemini/
+GEMINI.MD
+CLAUDE.md
+
+# Documentation & reports (reduces image size)
+CLI/
+KDD SCREENSHOTS/
+
+# Log files
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak
+
+# Data archives (large CSVs not needed at runtime)
+data/archive/
+
+# Dev-only markdown files
+DOCKER_ERROR_REPORT.md
+final_checklist.md
+logic.md
+docs.md
+apron-experiment.html

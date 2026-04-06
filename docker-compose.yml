@@ -1,0 +1,87 @@
+version: '3.8'
+
+# =============================================================================
+# AMC - Apron Movement Control System
+# docker-compose.yml
+#
+# Usage:
+#   docker compose up --build        (first run, builds the image)
+#   docker compose up -d             (subsequent runs, detached)
+#   docker compose down              (stop containers, keep data)
+#   docker compose down -v           (stop + delete all data volumes)
+#
+# Application: http://localhost
+# DB (external): localhost:3307
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # app — PHP 8.3 + Apache + Python 3.11 (ML)
+  # ---------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: amc_app
+    ports:
+      - "80:80"
+    environment:
+      # Database — points to the 'db' service by container name
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: amc
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      # Application
+      APP_ENV: docker
+      APP_DEBUG: "true"
+      APP_URL: "http://localhost"
+      # Python binary inside the venv
+      PYTHON_PATH: /opt/venv/bin/python3
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      # Named volumes persist data across container restarts
+      - app_cache:/var/www/html/cache
+      - app_storage:/var/www/html/storage
+      - app_logs:/var/www/html/logs
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # db — MariaDB 10.4 (matches DEPENDENCIES.md requirement)
+  # ---------------------------------------------------------------------------
+  db:
+    image: mariadb:10.4
+    container_name: amc_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: amc
+      MYSQL_CHARACTER_SET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    ports:
+      # Exposed on 3307 to avoid conflicts with a local MySQL/MariaDB
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 10s
+    restart: unless-stopped
+
+# =============================================================================
+# Named Volumes
+# =============================================================================
+volumes:
+  db_data:
+    driver: local
+  app_cache:
+    driver: local
+  app_storage:
+    driver: local
+  app_logs:
+    driver: local

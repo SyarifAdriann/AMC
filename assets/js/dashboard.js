@@ -455,6 +455,16 @@ class ModalManager {
                     this.loadUsers();
                 } else if (modalId === 'snapshotModalBg') {
                     SnapshotManager.loadSnapshots();
+                } else if (modalId === 'userFormModalBg') {
+                    // Reset to create-user mode (undo any disabled state from editUser)
+                    const usernameField = document.getElementById('user-username');
+                    const userIdField = document.getElementById('user-id');
+                    const titleEl = document.getElementById('user-form-title');
+                    const passwordRow = document.getElementById('password-row');
+                    if (usernameField) usernameField.disabled = false;
+                    if (userIdField) userIdField.value = '';
+                    if (titleEl) titleEl.textContent = 'Create User';
+                    if (passwordRow) passwordRow.style.display = '';
                 }
             }, 300);
         }
@@ -1028,7 +1038,8 @@ const SnapshotManager = {
             const arrivalHeight = (parseInt(hour.Arrivals) / maxMovements) * 300;
             const departureHeight = (parseInt(hour.Departures) / maxMovements) * 300;
             const totalHeight = ((parseInt(hour.Arrivals) + parseInt(hour.Departures)) / maxMovements) * 300;
-            const shortLabel = hour.time_range.substring(0, 2) + '-' + hour.time_range.substring(6, 8);
+            const timeRange = hour.time_range || '00:00-01:59';
+            const shortLabel = timeRange.substring(0, 2) + '-' + timeRange.substring(6, 8);
 
             chartHTML += `
                 <div class="hour-bar-group" style="flex: 1; display: flex; flex-direction: column; align-items: center; position: relative;">
@@ -1067,6 +1078,7 @@ const SnapshotManager = {
     renderPeakHourSummary: function(peakHourData) {
         const dataWithTotals = peakHourData.map(h => ({ 
             ...h, 
+            time_range: h.time_range || '00:00-01:59', // guard against null from departure-only records
             Arrivals: parseInt(h.Arrivals) || 0,
             Departures: parseInt(h.Departures) || 0,
             total: (parseInt(h.Arrivals) || 0) + (parseInt(h.Departures) || 0)
@@ -1091,8 +1103,8 @@ const SnapshotManager = {
         let busiestStart = "00:00-01:59";
         let busiestEnd = "02:00-03:59";
         if (dataWithTotals.length > 1 && busiestPeriod.start < dataWithTotals.length - 1) {
-            busiestStart = dataWithTotals[busiestPeriod.start].time_range;
-            busiestEnd = dataWithTotals[busiestPeriod.start + 1].time_range;
+            busiestStart = dataWithTotals[busiestPeriod.start].time_range || '00:00-01:59';
+            busiestEnd = dataWithTotals[busiestPeriod.start + 1].time_range || '02:00-03:59';
         }
         
         return `

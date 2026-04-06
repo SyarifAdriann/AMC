@@ -25,6 +25,7 @@ import pandas as pd
 import pickle
 import warnings
 warnings.filterwarnings('ignore', message='X does not have valid feature names', category=UserWarning)
+warnings.filterwarnings('ignore', message='Trying to unpickle estimator .*', category=UserWarning)
 
 ROOT = Path(__file__).resolve().parents[1]
 MODEL_PATH = ROOT / 'ml' / 'parking_stand_model_rf_redo.pkl'

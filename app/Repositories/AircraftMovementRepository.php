@@ -86,8 +86,8 @@ class AircraftMovementRepository extends Repository
     {
         $stmt = $this->pdo->prepare(
             "SELECT
-                CONCAT(LPAD(FLOOR(HOUR(on_block_time)/2)*2,2,'0'), ':00-',
-                       LPAD(FLOOR(HOUR(on_block_time)/2)*2+1,2,'0'), ':59') AS time_range,
+                CONCAT(LPAD(FLOOR(HOUR(COALESCE(on_block_time, off_block_time))/2)*2,2,'0'), ':00-',
+                       LPAD(FLOOR(HOUR(COALESCE(on_block_time, off_block_time))/2)*2+1,2,'0'), ':59') AS time_range,
                 SUM(CASE WHEN on_block_time IS NOT NULL AND parking_stand IN (SELECT stand_name FROM stands WHERE capacity > 0)
                     THEN 1 ELSE 0 END) AS Arrivals,
                 SUM(CASE WHEN off_block_time IS NOT NULL AND parking_stand IN (SELECT stand_name FROM stands WHERE capacity > 0)
@@ -95,7 +95,7 @@ class AircraftMovementRepository extends Repository
              FROM aircraft_movements
              WHERE movement_date = ?
                AND (on_block_time IS NOT NULL OR off_block_time IS NOT NULL)
-             GROUP BY FLOOR(HOUR(on_block_time)/2)
+             GROUP BY FLOOR(HOUR(COALESCE(on_block_time, off_block_time))/2)
              ORDER BY time_range"
         );
         $stmt->execute([$date]);

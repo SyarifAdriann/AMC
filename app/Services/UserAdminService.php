@@ -74,7 +74,7 @@ class UserAdminService
             'must_change_password' => $mustChangePassword,
         ]);
 
-        $this->auditLogger->log('User Created', "User {$username} (ID: {$userId}) created by admin (ID: {$adminId}).", $adminId);
+        $this->auditLogger->log($adminId, 'CREATE_USER', 'users', $userId, ['username' => $username]);
 
         return [
             'id' => $userId,
@@ -137,11 +137,12 @@ class UserAdminService
             $this->userRepository->update($id, $attributesToUpdate);
             $newValues = array_merge($oldValues, $attributesToUpdate); // Merge updated values
             $this->auditLogger->log(
-                'User Updated',
-                "User {$user->username} (ID: {$id}) updated by admin (ID: {$adminId}).",
                 $adminId,
-                json_encode($oldValues), // Old values
-                json_encode($newValues)  // New values
+                'UPDATE_USER',
+                'users',
+                $id,
+                $newValues,  // new values
+                $oldValues   // old values
             );
         }
     }
@@ -167,7 +168,7 @@ class UserAdminService
 
         $this->userRepository->updatePassword($id, $passwordHash, true);
 
-        $this->auditLogger->log('User Password Reset', "Password for user {$user->username} (ID: {$id}) reset by admin (ID: {$adminId}).", $adminId);
+        $this->auditLogger->log($adminId, 'RESET_PASSWORD', 'users', $id);
 
         return $tempPassword;
     }
@@ -189,7 +190,7 @@ class UserAdminService
 
         $this->userRepository->updateStatus($id, $status);
 
-        $this->auditLogger->log('User Status Updated', "Status for user {$user->username} (ID: {$id}) changed to {$status} by admin (ID: {$adminId}).", $adminId);
+        $this->auditLogger->log($adminId, 'SET_STATUS', 'users', $id, ['status' => $status]);
     }
 
     public function delete(int $id, int $adminId): void
@@ -203,11 +204,11 @@ class UserAdminService
             throw new InvalidArgumentException('User not found.');
         }
 
-        $this->guardDelete($id, $adminId, $user->role);
+        $this->guardDelete($id, $adminId, $user->role());
 
         $this->userRepository->delete($id);
 
-        $this->auditLogger->log('User Deleted', "User {$user->username} (ID: {$id}) deleted by admin (ID: {$adminId}).", $adminId);
+        $this->auditLogger->log($adminId, 'DELETE_USER', 'users', $id, ['username' => $user->username()]);
     }
 
     protected function guardLastAdmin(int $id, string $currentRole, string $newRole, string $currentStatus, int $adminId): void
@@ -226,7 +227,7 @@ class UserAdminService
         }
 
         // If the role is changing from admin to something else, or status is changing to suspended
-        if ($newRole !== 'admin' || $newStatus === 'suspended') {
+        if ($newRole !== 'admin' || $currentStatus === 'suspended') {
             $activeAdmins = $this->userRepository->countActiveAdminsExcluding($id);
             if ($activeAdmins < 1) {
                 throw new InvalidArgumentException('Cannot modify the last active administrator account.');
