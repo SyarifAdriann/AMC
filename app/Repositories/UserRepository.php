@@ -192,8 +192,18 @@ class UserRepository extends Repository
 
     public function delete(int $id): void
     {
-        $stmt = $this->pdo->prepare('DELETE FROM users WHERE id = :id');
-        $stmt->execute([':id' => $id]);
+        // The audit_log table has a FK on user_id -> users.id (RESTRICT).
+        // We must clear the user's audit entries inside a transaction before
+        // deleting the user row, or MySQL will reject the delete.
+        $this->pdo->beginTransaction();
+        try {
+            $this->pdo->prepare('DELETE FROM audit_log WHERE user_id = ?')->execute([$id]);
+            $this->pdo->prepare('DELETE FROM users WHERE id = :id')->execute([':id' => $id]);
+            $this->pdo->commit();
+        } catch (\Throwable $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
     }
 
     public function countActiveAdminsExcluding(?int $excludeId = null): int

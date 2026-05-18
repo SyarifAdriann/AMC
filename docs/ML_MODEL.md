@@ -480,8 +480,8 @@ copy encoders_redo.pkl encoders_redo.pkl.backup
 ## How to Retrain the Model
 
 ### Prerequisites
-1. Python 3.13.5 installed
-2. scikit-learn, numpy, pandas installed
+1. Python 3.11 installed
+2. scikit-learn 1.4.2, numpy 1.26.4, pandas 2.2.2, and joblib 1.4.0 installed
 3. Training dataset prepared (`data/parking_history_encoded.csv`)
 4. Backup existing model files
 

@@ -38,11 +38,12 @@
 - **Storage**: InnoDB engine
 
 #### Python
-- **Version**: Python 3.13.5 or later
+- **Version**: Python 3.11
 - **Required Packages**:
-  - `numpy >= 1.26.0`
-  - `pandas >= 2.1.0`
-  - `scikit-learn >= 1.3.0`
+  - `numpy==1.26.4`
+  - `pandas==2.2.2`
+  - `scikit-learn==1.4.2`
+  - `joblib==1.4.0`
 
 #### Web Server
 - **Recommended**: Apache 2.4+ with `mod_rewrite`
@@ -213,7 +214,7 @@ mysql -u root -p amc < database\migrations\add_performance_indexes.sql
 ### Step 1: Install Python
 
 **Download**: https://www.python.org/downloads/
-**Version**: Python 3.13.5 or later
+**Version**: Python 3.11
 
 **Installation Options**:
 - ✅ Add Python to PATH (IMPORTANT!)
@@ -233,7 +234,7 @@ pip --version
 **Open Command Prompt**:
 ```bash
 cd C:\xampp\htdocs\amc
-pip install numpy pandas scikit-learn
+pip install -r ml/requirements.txt
 ```
 
 **Verify Installation**:

@@ -18,8 +18,8 @@ This system solves the critical problem of **efficient parking stand allocation*
 ### Backend
 - **PHP 8.3.25** - Custom MVC framework (no Laravel/Symfony)
 - **MariaDB 10.4.32** - Primary database
-- **Python 3.13.5** - Machine learning module
-- **scikit-learn** - ML model training and predictions
+- **Python 3.11** - Machine learning module
+- **scikit-learn 1.4.2** - ML model training and predictions
 
 ### Frontend
 - **HTML/CSS/JavaScript** - Vanilla JS, no frameworks
@@ -55,7 +55,7 @@ This system solves the critical problem of **efficient parking stand allocation*
 
 ### Prerequisites
 - XAMPP with PHP 8.3.25 and MariaDB 10.4.32
-- Python 3.13.5 with pip
+- Python 3.11 with pip
 - Windows OS (designed for Windows paths)
 
 ### Installation (Quick)
@@ -64,7 +64,7 @@ This system solves the critical problem of **efficient parking stand allocation*
 cd C:\xampp\htdocs\amc
 
 # 2. Install Python dependencies
-pip install numpy pandas scikit-learn
+pip install -r ml/requirements.txt
 
 # 3. Import database
 mysql -u root -p < amc.sql

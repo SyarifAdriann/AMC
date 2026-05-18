@@ -362,6 +362,7 @@ function handleRegistrationAutofill(registration) {
         if (data.success) {
             const typeField = document.getElementById('f-type');
             const opField = document.getElementById('f-op');
+            const catField = document.getElementById('f-category');
             
             // Only autofill if fields are empty
             if (typeField && !typeField.value && data.aircraft_type) {
@@ -369,6 +370,18 @@ function handleRegistrationAutofill(registration) {
             }
             if (opField && !opField.value && data.operator_airline) {
                 opField.value = data.operator_airline;
+            }
+            // Autofill category -- normalize DB variants to match select option values
+            // Note: do NOT guard with !catField.value — the select always has 'Komersial' as
+            // a default selected value (truthy), so that guard always blocks autofill.
+            if (catField && data.category) {
+                const catMap = {
+                    'komersial': 'Komersial', 'commercial': 'Komersial',
+                    'charter':   'Charter',   'private':   'Charter',
+                    'cargo':     'Cargo'
+                };
+                const normalized = catMap[(data.category || '').toLowerCase()] || data.category;
+                catField.value = normalized;
             }
         }
     })
@@ -614,7 +627,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const iconSpan = document.createElement('span');
                 iconSpan.className = 'icon';
                 const color = type === 'planned' ? 'yellow' : 'red';
-                iconSpan.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24">
+                iconSpan.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" style="transform:rotate(180deg)">
                     <path fill="${color}" d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67
                     10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
                 </svg>`;
@@ -991,7 +1004,13 @@ if (sr) sr.addEventListener('click', () => {
 
                 const onMinutes = extractTimeToMinutes(movementData.on_block_time || '');
                 const offMinutes = extractTimeToMinutes(movementData.off_block_time || '');
-                if (onMinutes !== null && offMinutes !== null && offMinutes < onMinutes) {
+                const offBlockVal = movementData.off_block_time || '';
+                // Skip warning if:
+                //   (a) off_block already contains a date suffix '(' -- RON record stored with date
+                //   (b) the RON checkbox is ticked -- new RON entry departing on a different day
+                const isRonChecked = !!(document.getElementById('f-ron') && document.getElementById('f-ron').checked);
+                if (onMinutes !== null && offMinutes !== null && offMinutes < onMinutes
+                        && !offBlockVal.includes('(') && !isRonChecked) {
                     alert('Off block timestamp is earlier than on block timestamp for the same date. Please verify. The input will still be processed.');
                 }
 

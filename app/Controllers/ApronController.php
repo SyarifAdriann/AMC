@@ -467,6 +467,8 @@ class ApronController extends Controller
 
             'operator_airline' => $detail->operatorAirline() ?? '',
 
+            'category' => $detail->category() ?? '', // Exposed so JS autofill can populate the category field
+
         ];
 
     }

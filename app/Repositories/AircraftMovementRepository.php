@@ -47,18 +47,23 @@ class AircraftMovementRepository extends Repository
 
     public function countArrivalsAndDepartures(string $date): array
     {
+        // Arrivals: counted on on_block_date (COALESCE fallback for legacy records without on_block_date)
+        // Departures: counted on off_block_date so RON departures appear on the correct day
+        // Note: capacity column does not exist on stands table; use status = 'active' instead
         $stmt = $this->pdo->prepare(
             "SELECT
-                SUM(CASE WHEN am.on_block_time IS NOT NULL AND am.on_block_time != '' AND am.on_block_time != 'EX RON'
+                SUM(CASE WHEN COALESCE(am.on_block_date, am.movement_date) = ?
+                         AND am.on_block_time IS NOT NULL AND am.on_block_time != '' AND am.on_block_time != 'EX RON'
                          AND am.parking_stand IN (SELECT stand_name FROM stands WHERE capacity > 0)
                     THEN 1 ELSE 0 END) AS total_arrivals,
-                SUM(CASE WHEN am.off_block_time IS NOT NULL AND am.off_block_time != ''
+                SUM(CASE WHEN am.off_block_date = ?
+                         AND am.off_block_time IS NOT NULL AND am.off_block_time != ''
                          AND am.parking_stand IN (SELECT stand_name FROM stands WHERE capacity > 0)
                     THEN 1 ELSE 0 END) AS total_departures
              FROM aircraft_movements am
-             WHERE am.movement_date = ?"
+             WHERE (COALESCE(am.on_block_date, am.movement_date) = ? OR am.off_block_date = ?)"
         );
-        $stmt->execute([$date]);
+        $stmt->execute([$date, $date, $date, $date]);
         $totals = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
         return [
@@ -84,48 +89,145 @@ class AircraftMovementRepository extends Repository
 
     public function hourlyBreakdown(string $date): array
     {
+        // UNION approach: arrivals and departures are bucketed by their OWN timestamp on their OWN date.
+        // SUBSTRING_INDEX extracts the hour part safely even when off_block_time contains a date
+        // string in parentheses (e.g. "06:00 (17/05/2026)").
         $stmt = $this->pdo->prepare(
             "SELECT
-                CONCAT(LPAD(FLOOR(HOUR(COALESCE(on_block_time, off_block_time))/2)*2,2,'0'), ':00-',
-                       LPAD(FLOOR(HOUR(COALESCE(on_block_time, off_block_time))/2)*2+1,2,'0'), ':59') AS time_range,
-                SUM(CASE WHEN on_block_time IS NOT NULL AND parking_stand IN (SELECT stand_name FROM stands WHERE capacity > 0)
-                    THEN 1 ELSE 0 END) AS Arrivals,
-                SUM(CASE WHEN off_block_time IS NOT NULL AND parking_stand IN (SELECT stand_name FROM stands WHERE capacity > 0)
-                    THEN 1 ELSE 0 END) AS Departures
-             FROM aircraft_movements
-             WHERE movement_date = ?
-               AND (on_block_time IS NOT NULL OR off_block_time IS NOT NULL)
-             GROUP BY FLOOR(HOUR(COALESCE(on_block_time, off_block_time))/2)
+                CONCAT(LPAD(FLOOR(hour_val/2)*2,2,'0'), ':00-',
+                       LPAD(FLOOR(hour_val/2)*2+1,2,'0'), ':59') AS time_range,
+                SUM(is_arrival) AS Arrivals,
+                SUM(is_departure) AS Departures
+             FROM (
+                 SELECT
+                     CAST(SUBSTRING_INDEX(on_block_time, ':', 1) AS UNSIGNED) AS hour_val,
+                     1 AS is_arrival, 0 AS is_departure
+                 FROM aircraft_movements
+                 WHERE COALESCE(on_block_date, movement_date) = ?
+                   AND on_block_time IS NOT NULL AND on_block_time != '' AND on_block_time != 'EX RON'
+                   AND parking_stand IN (SELECT stand_name FROM stands WHERE capacity > 0)
+                 UNION ALL
+                 SELECT
+                     CAST(SUBSTRING_INDEX(off_block_time, ':', 1) AS UNSIGNED) AS hour_val,
+                     0 AS is_arrival, 1 AS is_departure
+                 FROM aircraft_movements
+                 WHERE off_block_date = ?
+                   AND off_block_time IS NOT NULL AND off_block_time != ''
+                   AND parking_stand IN (SELECT stand_name FROM stands WHERE capacity > 0)
+             ) combined
+             GROUP BY FLOOR(hour_val/2)
              ORDER BY time_range"
         );
-        $stmt->execute([$date]);
+        $stmt->execute([$date, $date]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 
     public function categoryBreakdown(string $date): array
     {
+        // Arrivals counted on on_block_date, departures on off_block_date.
+        // WHERE clause is broadened to catch records for either event on the queried date.
         $stmt = $this->pdo->prepare(
             "SELECT
                 COALESCE(ad.category, 'charter') AS category,
-                SUM(CASE WHEN am.on_block_time IS NOT NULL AND am.on_block_time != '' AND am.on_block_time != 'EX RON'
+                SUM(CASE WHEN COALESCE(am.on_block_date, am.movement_date) = ?
+                         AND am.on_block_time IS NOT NULL AND am.on_block_time != '' AND am.on_block_time != 'EX RON'
                          AND am.parking_stand IN (SELECT stand_name FROM stands WHERE capacity > 0)
                     THEN 1 ELSE 0 END) AS arrivals,
-                SUM(CASE WHEN am.off_block_time IS NOT NULL AND am.off_block_time != ''
+                SUM(CASE WHEN am.off_block_date = ?
+                         AND am.off_block_time IS NOT NULL AND am.off_block_time != ''
                          AND am.parking_stand IN (SELECT stand_name FROM stands WHERE capacity > 0)
                     THEN 1 ELSE 0 END) AS departures
              FROM aircraft_movements am
              LEFT JOIN aircraft_details ad ON am.registration = ad.registration
-             WHERE am.movement_date = ?
+             WHERE (COALESCE(am.on_block_date, am.movement_date) = ? OR am.off_block_date = ?)
              GROUP BY category"
         );
-        $stmt->execute([$date]);
+        $stmt->execute([$date, $date, $date, $date]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 
+    /**
+     * Stand Usage Gantt data for a given date.
+     *
+     * Returns one row per movement that was active on $date, with start and
+     * end times converted to minutes-since-midnight (0–1440) so the frontend
+     * can render proportional bars on a 24-hour timeline.
+     *
+     * - Same-day movements: start = on_block, end = off_block
+     * - RON arrivals (no departure yet):  start = on_block, end = 1440
+     * - RON departures (arrived prev day): start = 0,        end = off_block
+     */
+    public function standUsage(string $date): array
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT
+                am.parking_stand,
+                am.registration,
+                am.operator_airline,
+                COALESCE(ad.category, 'charter') AS category,
+                am.on_block_time,
+                am.off_block_time,
+                am.is_ron,
+                -- start_minutes: on_block on this date, or 0 for RON departures from previous day
+                CASE
+                    WHEN COALESCE(am.on_block_date, am.movement_date) = ?
+                         AND am.on_block_time IS NOT NULL
+                         AND am.on_block_time != ''
+                         AND am.on_block_time != 'EX RON'
+                    THEN (CAST(SUBSTRING_INDEX(am.on_block_time, ':', 1) AS UNSIGNED) * 60
+                         + CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(am.on_block_time, ':', 2), ':', -1) AS UNSIGNED))
+                    ELSE 0
+                END AS start_minutes,
+                -- end_minutes: off_block on this date, or 1440 (end of day) if still parked
+                CASE
+                    WHEN am.off_block_date = ? AND am.off_block_time IS NOT NULL AND am.off_block_time != ''
+                    THEN (CAST(SUBSTRING_INDEX(am.off_block_time, ':', 1) AS UNSIGNED) * 60
+                         + CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(am.off_block_time, ':', 2), ':', -1) AS UNSIGNED))
+                    ELSE 1440
+                END AS end_minutes
+             FROM aircraft_movements am
+             LEFT JOIN aircraft_details ad ON am.registration = ad.registration
+             WHERE
+                 -- Condition 1: Arrived on this date
+                 (COALESCE(am.on_block_date, am.movement_date) = ?
+                  AND am.on_block_time IS NOT NULL AND am.on_block_time != '' AND am.on_block_time != 'EX RON')
+                 OR
+                 -- Condition 2: Departed on this date
+                 (am.off_block_date = ?
+                  AND am.off_block_time IS NOT NULL AND am.off_block_time != '')
+                 OR
+                 -- Condition 3: Arrived before this date and still occupying the stand on this date
+                 -- (no off_block recorded yet, or off_block is after this date)
+                 (COALESCE(am.on_block_date, am.movement_date) < ?
+                  AND am.on_block_time IS NOT NULL AND am.on_block_time != '' AND am.on_block_time != 'EX RON'
+                  AND (am.off_block_date IS NULL OR am.off_block_date = '' OR am.off_block_date > ?
+                       OR am.off_block_time IS NULL OR am.off_block_time = ''))
+             ORDER BY am.parking_stand, start_minutes"
+        );
+        $stmt->execute([$date, $date, $date, $date, $date, $date]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    /**
+     * Returns every distinct parking_stand ever used, sorted naturally.
+     * Used by the Gantt chart "Show All Stands" toggle.
+     */
+    public function getAllStands(): array
+    {
+        $stmt = $this->pdo->query(
+            "SELECT DISTINCT parking_stand FROM aircraft_movements
+             WHERE parking_stand IS NOT NULL AND parking_stand != ''
+             ORDER BY parking_stand"
+        );
+        return array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'parking_stand');
+    }
+
     public function findCurrentApronMovements(): array
     {
+
         $stmt = $this->pdo->prepare(
             "SELECT am.registration, am.aircraft_type, am.on_block_time, am.off_block_time, am.parking_stand,
                     am.from_location, am.to_location, am.flight_no_arr, am.flight_no_dep, am.operator_airline,
@@ -447,7 +549,10 @@ class AircraftMovementRepository extends Repository
         $onBlock = trim((string) ($movement['on_block_time'] ?? ''));
         $offBlock = trim((string) ($movement['off_block_time'] ?? ''));
 
-        if ($this->isOffBlockEarlierThanOnBlock($onBlock, $offBlock)) {
+        // RON records depart on a later calendar day -- the time comparison across midnight
+        // is meaningless, so skip the warning entirely for RON movements.
+        $isRon = !empty($movement['is_ron']);
+        if (!$isRon && $this->isOffBlockEarlierThanOnBlock($onBlock, $offBlock)) {
             $warnings[] = 'Off block timestamp is earlier than on block timestamp for the same date. Please verify.';
         }
 
@@ -476,6 +581,13 @@ class AircraftMovementRepository extends Repository
 
     private function isOffBlockEarlierThanOnBlock(string $onBlockTime, string $offBlockTime): bool
     {
+        // If off_block_time contains a parenthesised date (e.g. "06:00 (17/05/2026)"),
+        // it was recorded on a later calendar day (RON departure). The comparison is
+        // meaningless across day boundaries, so skip it to avoid false-positive warnings.
+        if (strpos($offBlockTime, '(') !== false) {
+            return false;
+        }
+
         $onMinutes = $this->extractTimeToMinutes($onBlockTime);
         $offMinutes = $this->extractTimeToMinutes($offBlockTime);
 

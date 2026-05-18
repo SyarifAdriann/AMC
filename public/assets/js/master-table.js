@@ -228,7 +228,8 @@
             const offMinutes = extractTimeToMinutes(offBlock);
             const rowKey = getRowWarningKey(row, rowIndex);
 
-            if (onMinutes !== null && offMinutes !== null && offMinutes < onMinutes) {
+            const offContainsDate = offBlock.includes('(');
+            if (onMinutes !== null && offMinutes !== null && offMinutes < onMinutes && !offContainsDate) {
                 warnings.push(`Row ${rowIndex + 1}: off block time is earlier than on block time.`);
                 warningKeys.push(`time:${rowKey}`);
             }
@@ -277,9 +278,12 @@
                 return;
             }
 
-            const onMinutes = extractTimeToMinutes(onInput.value || '');
-            const offMinutes = extractTimeToMinutes(offInput.value || '');
-            const invalidOrder = onMinutes !== null && offMinutes !== null && offMinutes < onMinutes;
+            const onVal = onInput.value || '';
+            const offVal = offInput.value || '';
+            const onMinutes = extractTimeToMinutes(onVal);
+            const offMinutes = extractTimeToMinutes(offVal);
+            // Skip warning if off_block contains a date in parentheses (RON departure from a later day)
+            const invalidOrder = onMinutes !== null && offMinutes !== null && offMinutes < onMinutes && !offVal.includes('(');
 
             onInput.classList.toggle('time-order-warning', invalidOrder);
             offInput.classList.toggle('time-order-warning', invalidOrder);
@@ -353,6 +357,7 @@
 
             const typeField = row.querySelector('input[data-field="aircraft_type"]');
             const opField = row.querySelector('input[data-field="operator_airline"]');
+            const catField = row.querySelector('select[data-field="category"]');
 
             if (typeField && !typeField.value && data.aircraft_type) {
                 typeField.value = data.aircraft_type;
@@ -360,6 +365,19 @@
 
             if (opField && !opField.value && data.operator_airline) {
                 opField.value = data.operator_airline;
+            }
+
+            // Autofill category -- normalize DB variants to match select option values
+            // Note: do NOT guard with !catField.value — the select may have a default selected
+            // value (truthy), blocking autofill. Always apply the DB value.
+            if (catField && data.category) {
+                const catMap = {
+                    'komersial': 'Komersial', 'commercial': 'Komersial',
+                    'charter':   'Charter',   'private':   'Charter',
+                    'cargo':     'Cargo'
+                };
+                const normalized = catMap[(data.category || '').toLowerCase()] || data.category;
+                catField.value = normalized;
             }
         } catch (error) {
             console.log('Registration autofill lookup failed:', error);

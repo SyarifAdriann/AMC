@@ -115,7 +115,7 @@ error_reporting = E_ALL
 ## Python Dependencies
 
 ### Python Version
-**Required**: Python 3.13.5 or later
+**Required**: Python 3.11
 **⚠️ CRITICAL**: Python must be in system PATH
 
 **Verify**:
@@ -126,7 +126,7 @@ python --version
 ### Required Python Packages
 
 #### 1. NumPy
-**Version**: >= 1.26.0
+**Version**: 1.26.4
 **Purpose**: Numerical computing for ML model
 **Install**:
 ```bash
@@ -139,7 +139,7 @@ python -c "import numpy; print(numpy.__version__)"
 ```
 
 #### 2. Pandas
-**Version**: >= 2.1.0
+**Version**: 2.2.2
 **Purpose**: Data manipulation for ML training
 **Install**:
 ```bash
@@ -152,7 +152,7 @@ python -c "import pandas; print(pandas.__version__)"
 ```
 
 #### 3. scikit-learn
-**Version**: >= 1.3.0
+**Version**: 1.4.2
 **Purpose**: Machine learning model (Random Forest)
 **Install**:
 ```bash
@@ -168,9 +168,10 @@ python -c "import sklearn; print(sklearn.__version__)"
 
 **requirements.txt**:
 ```txt
-numpy>=1.26.0
-pandas>=2.1.0
-scikit-learn>=1.3.0
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.4.2
+joblib==1.4.0
 ```
 
 **Install All**:
@@ -181,11 +182,10 @@ pip install -r requirements.txt
 ### Python Package Compatibility
 
 **⚠️ IMPORTANT**: Specific version combinations tested:
-- Python 3.13.5 + NumPy 1.26.2 + Pandas 2.1.4 + scikit-learn 1.3.2 = ✅ Works
+- Python 3.11 + NumPy 1.26.4 + Pandas 2.2.2 + scikit-learn 1.4.2 + joblib 1.4.0 = ✅ Works
 - Python 3.12.x + (any compatible versions) = ⚠️ Not tested
-- Python 3.11.x + (any compatible versions) = ⚠️ Not tested
 
-**⚠️ DO NOT MIX**: scikit-learn 1.3.x requires NumPy >= 1.21.0
+**⚠️ DO NOT MIX**: scikit-learn 1.4.x requires NumPy >= 1.21.0
 
 ---
 
@@ -362,14 +362,14 @@ RewriteRule ^(.*)$ index.php [QSA,L]
 
 | PHP       | Python    | MariaDB   | Apache  | OS           |
 |-----------|-----------|-----------|---------|--------------|
-| 8.3.25    | 3.13.5    | 10.4.32   | 2.4.58  | Windows 11   |
-| 8.2.12    | 3.13.5    | 10.4.32   | 2.4.58  | Windows 10   |
+| 8.3.25    | 3.11      | 10.4.32   | 2.4.58  | Windows 11   |
+| 8.2.12    | 3.11      | 10.4.32   | 2.4.58  | Windows 10   |
 
 ### Compatible Versions (⚠️ Not Tested)
 
 | PHP       | Python    | MariaDB   | MySQL    | Apache  |
 |-----------|-----------|-----------|----------|---------|
-| 8.3.x     | 3.13.x    | 10.4.x    | 8.0.x    | 2.4.x   |
+| 8.3.x     | 3.11.x    | 10.4.x    | 8.0.x    | 2.4.x   |
 | 8.2.x     | 3.12.x    | 10.5.x    | 8.1.x    | 2.4.x   |
 
 ### Incompatible Versions (❌ Will Not Work)
@@ -377,7 +377,7 @@ RewriteRule ^(.*)$ index.php [QSA,L]
 | Component | Version   | Reason                          |
 |-----------|-----------|---------------------------------|
 | PHP       | < 8.0     | Uses PHP 8.0+ features          |
-| Python    | < 3.9     | scikit-learn requires 3.9+      |
+| Python    | < 3.11    | Project is pinned to Python 3.11 |
 | MariaDB   | < 10.2    | Missing utf8mb4 full support    |
 | MySQL     | < 5.7     | Missing JSON functions          |
 
@@ -395,8 +395,8 @@ RewriteRule ^(.*)$ index.php [QSA,L]
 **Downgrading to PHP 7.x will break the system.**
 
 ### ⚠️ Python Version
-**MUST BE 3.9 or later** for:
-- scikit-learn 1.3.0 compatibility
+**MUST BE 3.11** for:
+- scikit-learn 1.4.2 compatibility
 - Type hints support
 - Match-case statements (if used)
 
@@ -423,13 +423,13 @@ RewriteRule ^(.*)$ index.php [QSA,L]
 
 **Minor Updates**: Test before applying
 - PHP 8.3.25 → 8.3.26 (patch version)
-- Python 3.13.5 → 3.13.6 (patch version)
-- NumPy 1.26.2 → 1.26.3 (patch version)
+- Python 3.11.x → 3.11.y (patch version)
+- NumPy 1.26.4 → 1.26.5 (patch version)
 
 **Major Updates**: Test extensively before applying
 - PHP 8.3.x → 8.4.x (minor version)
-- Python 3.13.x → 3.14.x (minor version)
-- scikit-learn 1.3.x → 1.4.x (minor version)
+- Python 3.11.x → 3.12.x (minor version)
+- scikit-learn 1.4.x → 1.5.x (minor version)
 
 ### Update Testing Checklist
 - [ ] Backup database
@@ -451,12 +451,12 @@ RewriteRule ^(.*)$ index.php [QSA,L]
 # 1. Install XAMPP (includes PHP 8.3.25, MariaDB 10.4.32, Apache 2.4.58)
 # Download from https://www.apachefriends.org/
 
-# 2. Install Python 3.13.5
+# 2. Install Python 3.11
 # Download from https://www.python.org/downloads/
 # ✅ Check "Add Python to PATH"
 
 # 3. Install Python packages
-pip install numpy pandas scikit-learn
+pip install -r ml/requirements.txt
 
 # 4. Verify installations
 php --version
@@ -502,8 +502,8 @@ pip install numpy pandas scikit-learn --upgrade
 
 **Critical Dependencies** (System will NOT work without):
 1. PHP 8.3.25+
-2. Python 3.13.5+
-3. NumPy, Pandas, scikit-learn
+2. Python 3.11+
+3. NumPy, Pandas, scikit-learn, joblib
 4. MariaDB 10.4.32+ or MySQL 8.0+
 5. Apache 2.4+ with mod_rewrite
 

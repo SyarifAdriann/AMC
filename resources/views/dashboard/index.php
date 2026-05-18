@@ -213,6 +213,38 @@ $hasRole = function ($roles) use ($user_role) {
                     </div>
                 </div>
 
+                <!-- Stand Usage Gantt Chart -->
+                <div class="bg-amc-bg rounded-xl shadow-lg border border-amc-light overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-50 to-blue-100 text-amc-dark-blue px-4 py-3 lg:px-5 lg:py-4 font-bold text-sm lg:text-base border-b border-amc-light flex items-center justify-between flex-wrap gap-2">
+                        <span>Metrik Penggunaan Stand <span class="text-xs font-normal text-slate-500">(Stand Usage per Hour)</span></span>
+                        <div class="flex items-center gap-2">
+                            <button id="gantt-toggle-all"
+                                class="text-xs border border-amc-light px-3 py-1 rounded font-semibold transition-colors bg-white text-slate-500 hover:bg-slate-50"
+                                title="Toggle between showing occupied stands only or all stands">
+                                Show All Stands
+                            </button>
+                            <input type="date" id="gantt-date" value="<?= htmlspecialchars($today) ?>"
+                                class="text-xs border border-slate-300 rounded px-2 py-1 focus:border-amc-blue focus:ring-1 focus:ring-amc-blue focus:ring-opacity-20 bg-white">
+                            <button id="gantt-refresh" class="text-xs bg-white border border-amc-light text-amc-blue px-3 py-1 rounded hover:bg-blue-50 transition-colors font-semibold">Load</button>
+                        </div>
+                    </div>
+                    <!-- Legend -->
+                    <div class="flex flex-wrap gap-3 px-4 pt-3 pb-1 text-xs">
+                        <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm" style="background:#3b82f6"></span>Komersial</span>
+                        <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm" style="background:#14b8a6"></span>Cargo</span>
+                        <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm" style="background:#a855f7"></span>Charter</span>
+                        <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm" style="background:#f59e0b"></span>RON (overnight still parked)</span>
+                        <span class="ml-auto text-slate-400 italic" id="gantt-status">Loading…</span>
+                    </div>
+                    <!-- Chart area -->
+                    <div class="p-4 overflow-x-auto">
+                        <div id="gantt-container" style="min-width:700px;position:relative;">
+                            <!-- Hour grid header rendered by JS -->
+                        </div>
+                    </div>
+                </div>
+
+
                 <!-- Automated Reporting Suite -->
                 <div class="bg-amc-bg rounded-xl shadow-lg border border-amc-light overflow-hidden">
                     <div class="bg-gradient-to-r from-blue-50 to-blue-100 text-amc-dark-blue px-4 py-3 lg:px-5 lg:py-4 font-bold text-sm lg:text-base border-b border-amc-light">

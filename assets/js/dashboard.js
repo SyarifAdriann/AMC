@@ -112,7 +112,7 @@ function updateMovementSnapshots(snapshots) {
     if (charterArr) charterArr.textContent = snapshots.charter?.arrivals || 0;
     if (charterDep) charterDep.textContent = snapshots.charter?.departures || 0;
 
-    console.log('✓ Movement snapshots updated:', {
+    console.log('âœ“ Movement snapshots updated:', {
         commercial: `${snapshots.commercial?.arrivals}/${snapshots.commercial?.departures}`,
         cargo: `${snapshots.cargo?.arrivals}/${snapshots.cargo?.departures}`,
         charter: `${snapshots.charter?.arrivals}/${snapshots.charter?.departures}`
@@ -144,19 +144,19 @@ function updateHourlyBreakdown(hourly) {
 
 // Function to refresh dashboard metrics
 function refreshDashboardMetrics() {
-    console.log('⟳ Refreshing dashboard metrics...');
+    console.log('âŸ³ Refreshing dashboard metrics...');
     fetchJson(dashboardMovementsEndpoint)
         .then(data => {
             if (data.success) {
                 updateMovementSnapshots(data.snapshots);
                 updateHourlyBreakdown(data.hourly);
-                console.log('✓ Dashboard fully refreshed at', data.timestamp);
+                console.log('âœ“ Dashboard fully refreshed at', data.timestamp);
             } else {
                 console.warn('Dashboard API returned success=false');
             }
         })
         .catch(error => {
-            console.error('✗ Failed to refresh dashboard metrics:', error);
+            console.error('âœ— Failed to refresh dashboard metrics:', error);
         });
 }
 
@@ -313,7 +313,7 @@ function updatePeakHoursSummary() {
                                     <span class="font-semibold text-amc-dark-blue">${item.operator_airline || 'UNKNOWN'}</span>
                                     ${statusBadge}
                                 </div>
-                                <div class="text-xxs text-slate-500">${item.aircraft_type || ''} • Cat ${item.category || 'N/A'} • ${item.model_version || '–'}</div>
+                                <div class="text-xxs text-slate-500">${item.aircraft_type || ''} â€¢ Cat ${item.category || 'N/A'} â€¢ ${item.model_version || 'â€“'}</div>
                                 <div class="text-xxs text-slate-500">Logged ${displayDate}</div>
                             </div>
                         `;
@@ -359,7 +359,7 @@ function updatePeakHoursSummary() {
                     <td class="border border-gray-200 px-3 py-2">${sanitizeText(log.aircraft_type || 'N/A')}</td>
                     <td class="border border-gray-200 px-3 py-2">${sanitizeText(log.operator_airline || 'N/A')}</td>
                     <td class="border border-gray-200 px-3 py-2">${sanitizeText(log.category || 'N/A')}</td>
-                    <td class="border border-gray-200 px-3 py-2">${sanitizeText(log.model_version || '—')}</td>
+                    <td class="border border-gray-200 px-3 py-2">${sanitizeText(log.model_version || 'â€”')}</td>
                     <td class="border border-gray-200 px-3 py-2 space-y-1">${predictions}</td>
                     <td class="border border-gray-200 px-3 py-2">${assigned}</td>
                     <td class="border border-gray-200 px-3 py-2">${resultBadge}</td>
@@ -378,7 +378,7 @@ function updatePeakHoursSummary() {
             limit: logControls.limit ? logControls.limit.value : 50
         });
         if (logControls.status) {
-            logControls.status.textContent = 'Loading prediction entries…';
+            logControls.status.textContent = 'Loading prediction entriesâ€¦';
         }
 
         fetchJson(`${mlLogsEndpoint}?${params.toString()}`)
@@ -547,7 +547,7 @@ class ModalManager {
         let paginationHTML = '<div class="pagination">';
         
         if (data.page > 1) {
-            paginationHTML += `<button onclick="modalManager.loadUsers(${data.page - 1})" class="page-btn">Â&laquo; Previous</button>`;
+            paginationHTML += `<button onclick="modalManager.loadUsers(${data.page - 1})" class="page-btn">Ã‚&laquo; Previous</button>`;
         }
         
         for (let i = Math.max(1, data.page - 2); i <= Math.min(totalPages, data.page + 2); i++) {
@@ -555,7 +555,7 @@ class ModalManager {
         }
         
         if (data.page < totalPages) {
-            paginationHTML += `<button onclick="modalManager.loadUsers(${data.page + 1})" class="page-btn">Next Â&raquo;</button>`;
+            paginationHTML += `<button onclick="modalManager.loadUsers(${data.page + 1})" class="page-btn">Next Ã‚&raquo;</button>`;
         }
         
         paginationHTML += '</div>';
@@ -760,7 +760,7 @@ const SnapshotManager = {
         let paginationHTML = '<div class="pagination">';
         
         if (data.page > 1) {
-            paginationHTML += `<button onclick="SnapshotManager.loadSnapshots(${data.page - 1})" class="page-btn">Â&laquo; Previous</button>`;
+            paginationHTML += `<button onclick="SnapshotManager.loadSnapshots(${data.page - 1})" class="page-btn">Ã‚&laquo; Previous</button>`;
         }
         
         for (let i = Math.max(1, data.page - 2); i <= Math.min(totalPages, data.page + 2); i++) {
@@ -768,7 +768,7 @@ const SnapshotManager = {
         }
         
         if (data.page < totalPages) {
-            paginationHTML += `<button onclick="SnapshotManager.loadSnapshots(${data.page + 1})" class="page-btn">Next Â&raquo;</button>`;
+            paginationHTML += `<button onclick="SnapshotManager.loadSnapshots(${data.page + 1})" class="page-btn">Next Ã‚&raquo;</button>`;
         }
         
         paginationHTML += '</div>';
@@ -1368,6 +1368,12 @@ document.addEventListener('DOMContentLoaded', function() {
            });
        });
     }
+
+    // ===== Gantt init via this confirmed-working DCL listener =====
+    if (typeof window._initGantt === 'function') {
+        window._initGantt();
+        window._initGantt = null;
+    }
 });
 
 // Add role checking function for JavaScript
@@ -1377,4 +1383,184 @@ function hasRole(role) {
    }
    return userRole === role;
 }
+
+
+
+// ===== Stand Usage Gantt Chart =====
+(function() {
+    var CAT_COLORS = {
+        komersial: '#3b82f6', commercial: '#3b82f6',
+        cargo: '#14b8a6',
+        charter: '#a855f7', private: '#a855f7'
+    };
+    var RON_COLOR   = '#f59e0b';
+    var OTHER_COLOR = '#94a3b8';
+    var _lastMovements = [];
+    var _allStands     = [];
+    var _showAll       = false;
+
+    function minutesToHHMM(min) {
+        var h = Math.floor(min / 60) % 24;
+        var m = min % 60;
+        return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+    }
+
+    function getBarColor(row) {
+        if (parseInt(row.is_ron)===1 && parseInt(row.end_minutes)===1440) return RON_COLOR;
+        return CAT_COLORS[(row.category||'').toLowerCase()] || OTHER_COLOR;
+    }
+
+    function renderGantt(container, movements, standsToShow) {
+        var byStand = {};
+        (movements||[]).forEach(function(row) {
+            var s = row.parking_stand||'N/A';
+            if (!byStand[s]) byStand[s]=[];
+            byStand[s].push(row);
+        });
+        var stands;
+        if (standsToShow && standsToShow.length>0) {
+            var ss={};
+            standsToShow.forEach(function(s){ss[s]=true;});
+            Object.keys(byStand).forEach(function(s){ss[s]=true;});
+            stands=Object.keys(ss).sort();
+        } else {
+            stands=Object.keys(byStand).sort();
+        }
+        if (stands.length===0) {
+            container.innerHTML='<p style="color:#94a3b8;text-align:center;padding:24px 0;font-size:12px;">No movements recorded for this date.</p>';
+            return;
+        }
+        var LW=64, RH=26, TH=22;
+        var h='<div style="display:flex;font-size:11px;font-family:monospace;min-width:700px;">';
+        h+='<div style="width:'+LW+'px;flex-shrink:0;">';
+        h+='<div style="height:'+TH+'px;"></div>';
+        stands.forEach(function(s){
+            var hd=byStand[s]&&byStand[s].length>0;
+            h+='<div style="height:'+RH+'px;display:flex;align-items:center;padding-right:6px;font-weight:600;color:'+(hd?'#1e3a5f':'#94a3b8')+';justify-content:flex-end;border-top:1px solid #e2e8f0;font-size:10px;">'+s+'</div>';
+        });
+        h+='</div>';
+        h+='<div style="flex:1;min-width:0;overflow:hidden;">';
+        h+='<div style="display:flex;height:'+TH+'px;border-bottom:2px solid #94a3b8;">';
+        for (var hh=0;hh<=24;hh+=2) {
+            var isMajor=(hh%6===0);
+            h+='<div style="flex:1;font-size:'+(isMajor?'10':'9')+'px;color:'+(isMajor?'#1e3a5f':'#94a3b8')+';padding-left:3px;font-weight:'+(isMajor?'700':'400')+';border-left:'+(isMajor&&hh>0?'1px solid #94a3b8':'none')+';">'+(isMajor?String(hh).padStart(2,'0'):String(hh).padStart(2,'0'))+'</div>';
+        }
+        h+='</div>';
+        stands.forEach(function(s,idx){
+            var hd=byStand[s]&&byStand[s].length>0;
+            var bg=hd?(idx%2===0?'#f0f7ff':'#f8fafc'):(idx%2===0?'#fafafa':'#ffffff');
+            h+='<div style="position:relative;height:'+RH+'px;background:'+bg+';border-top:1px solid #e2e8f0;">';
+            // 6-hour zone shading (00-06 slate, 06-12 sky, 12-18 slate, 18-24 sky alternating)
+            var zones=[
+                {s:0,   w:25,  c:'rgba(241,245,249,0.55)'},
+                {s:25,  w:25,  c:'rgba(239,246,255,0.45)'},
+                {s:50,  w:25,  c:'rgba(241,245,249,0.55)'},
+                {s:75,  w:25,  c:'rgba(239,246,255,0.45)'}
+            ];
+            zones.forEach(function(z){h+='<div style="position:absolute;top:0;bottom:0;left:'+z.s+'%;width:'+z.w+'%;background:'+z.c+';pointer-events:none;"></div>';});
+            // Minor grid lines — every 2 hours, faint
+            for (var gh=2;gh<=22;gh+=2) {
+                if (gh%6!==0) {
+                    var gp=(gh/24*100).toFixed(2);
+                    h+='<div style="position:absolute;top:0;bottom:0;left:'+gp+'%;width:1px;background:rgba(203,213,225,0.5);pointer-events:none;"></div>';
+                }
+            }
+            // Major grid lines — every 6 hours, clearly visible
+            for (var gh=6;gh<=18;gh+=6) {
+                var gp=(gh/24*100).toFixed(2);
+                h+='<div style="position:absolute;top:0;bottom:0;left:'+gp+'%;width:1px;background:rgba(71,85,105,0.4);pointer-events:none;"></div>';
+            }
+            if (byStand[s]) {
+                byStand[s].forEach(function(row){
+                    var st=Math.max(0,Math.min(1440,parseInt(row.start_minutes)||0));
+                    var en=Math.max(0,Math.min(1440,parseInt(row.end_minutes)||1440));
+                    if (en<=st) return;
+                    var lp=(st/1440*100).toFixed(3);
+                    var wp=((en-st)/1440*100).toFixed(3);
+                    var col=getBarColor(row);
+                    var lbl=(parseFloat(wp)>4&&row.registration)?row.registration:'';
+                    var tip=[row.registration||'',row.operator_airline||'',row.category||'',minutesToHHMM(st)+'-'+(en===1440?'24:00':minutesToHHMM(en))].filter(Boolean).join(' | ').replace(/"/g,'&quot;');
+                    h+='<div title="'+tip+'" style="position:absolute;top:3px;bottom:3px;left:'+lp+'%;width:'+wp+'%;background:'+col+';border-radius:3px;opacity:0.88;overflow:hidden;display:flex;align-items:center;padding:0 3px;font-size:9px;color:#fff;white-space:nowrap;">'+lbl+'</div>';
+                });
+            }
+            h+='</div>';
+        });
+        h+='</div></div>';
+        container.innerHTML=h;
+    }
+
+    function applyRender(container) {
+        renderGantt(container, _lastMovements, _showAll?_allStands:[]);
+    }
+
+    function updateToggleBtn(btn) {
+        if (!btn) return;
+        if (_showAll) {
+            btn.textContent='Occupied Only';
+            btn.style.cssText='font-size:0.75rem;border:1px solid #1e3a5f;padding:4px 12px;border-radius:4px;font-weight:600;cursor:pointer;background:#1e3a5f;color:#fff;';
+        } else {
+            btn.textContent='Show All Stands';
+            btn.style.cssText='font-size:0.75rem;border:1px solid #e2e8f0;padding:4px 12px;border-radius:4px;font-weight:600;cursor:pointer;background:#fff;color:#64748b;';
+        }
+    }
+
+    function loadGantt(date, container, statusEl, toggleBtn) {
+        if (!container) return;
+        if (statusEl) statusEl.textContent='Loading...';
+        container.innerHTML='';
+        var cfg=window.dashboardConfig&&window.dashboardConfig.endpoints;
+        var base=(cfg&&cfg.dashboardMovements)?cfg.dashboardMovements:'api/dashboard/movements';
+        var url=base+'?action=stand_usage&date='+encodeURIComponent(date);
+        fetch(url,{credentials:'same-origin'})
+            .then(function(r){return r.json();})
+            .then(function(resp){
+                if (resp&&resp.success) {
+                    _lastMovements=resp.data||[];
+                    _allStands=resp.allStands||[];
+                    applyRender(container);
+                    var occ=_lastMovements.length, total=_allStands.length;
+                    var mode=_showAll?'all '+total+' stands':occ+' occupied stand(s)';
+                    if (statusEl) statusEl.textContent='Showing '+mode+' - '+date;
+                } else {
+                    container.innerHTML='<p style="color:#ef4444;padding:16px;font-size:12px;">Failed to load data.</p>';
+                    if (statusEl) statusEl.textContent='Error.';
+                }
+            })
+            .catch(function(err){
+                console.error('[Gantt]',err);
+                container.innerHTML='<p style="color:#ef4444;padding:16px;font-size:12px;">'+err.message+'</p>';
+                if (statusEl) statusEl.textContent='Network error.';
+            });
+    }
+
+    function initGantt() {
+        var container  = document.getElementById('gantt-container');
+        var dateInput  = document.getElementById('gantt-date');
+        var refreshBtn = document.getElementById('gantt-refresh');
+        var toggleBtn  = document.getElementById('gantt-toggle-all');
+        var statusEl   = document.getElementById('gantt-status');
+        if (!container || !dateInput) { console.warn('[Gantt] required elements missing'); return; }
+
+        loadGantt(dateInput.value, container, statusEl, toggleBtn);
+
+        dateInput.addEventListener('change', function(){
+            loadGantt(dateInput.value, container, statusEl, toggleBtn);
+        });
+        if (refreshBtn) refreshBtn.addEventListener('click', function(){
+            loadGantt(dateInput.value, container, statusEl, toggleBtn);
+        });
+        if (toggleBtn) toggleBtn.addEventListener('click', function(){
+            _showAll=!_showAll;
+            updateToggleBtn(toggleBtn);
+            applyRender(container);
+            var occ=_lastMovements.length, total=_allStands.length;
+            var mode=_showAll?'all '+total+' stands':occ+' occupied stand(s)';
+            if (statusEl) statusEl.textContent='Showing '+mode+' - '+dateInput.value;
+        });
+    }
+
+    // Expose initGantt so the main DOMContentLoaded listener can call it
+    window._initGantt = initGantt;
+})();
+
 })();

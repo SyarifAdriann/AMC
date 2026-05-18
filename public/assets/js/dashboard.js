@@ -87,131 +87,131 @@
         });
     }
 
-    // Update movement snapshots (category breakdown)
-    function updateMovementSnapshots(snapshots) {
-        if (!snapshots) {
-            console.warn('Dashboard: No snapshot data to update');
-            return;
-        }
-
-        // Update commercial
-        const commercialArr = document.querySelector('[data-category="commercial"][data-metric="arrivals"]');
-        const commercialDep = document.querySelector('[data-category="commercial"][data-metric="departures"]');
-        if (commercialArr) commercialArr.textContent = snapshots.commercial?.arrivals || 0;
-        if (commercialDep) commercialDep.textContent = snapshots.commercial?.departures || 0;
-
-        // Update cargo
-        const cargoArr = document.querySelector('[data-category="cargo"][data-metric="arrivals"]');
-        const cargoDep = document.querySelector('[data-category="cargo"][data-metric="departures"]');
-        if (cargoArr) cargoArr.textContent = snapshots.cargo?.arrivals || 0;
-        if (cargoDep) cargoDep.textContent = snapshots.cargo?.departures || 0;
-
-        // Update charter
-        const charterArr = document.querySelector('[data-category="charter"][data-metric="arrivals"]');
-        const charterDep = document.querySelector('[data-category="charter"][data-metric="departures"]');
-        if (charterArr) charterArr.textContent = snapshots.charter?.arrivals || 0;
-        if (charterDep) charterDep.textContent = snapshots.charter?.departures || 0;
-
-        console.log('✓ Movement snapshots updated:', {
-            commercial: `${snapshots.commercial?.arrivals}/${snapshots.commercial?.departures}`,
-            cargo: `${snapshots.cargo?.arrivals}/${snapshots.cargo?.departures}`,
-            charter: `${snapshots.charter?.arrivals}/${snapshots.charter?.departures}`
-        });
+// Update movement snapshots (category breakdown)
+function updateMovementSnapshots(snapshots) {
+    if (!snapshots) {
+        console.warn('Dashboard: No snapshot data to update');
+        return;
     }
 
-    // Update hourly breakdown table
-    function updateHourlyBreakdown(hourly) {
-        if (!hourly || !Array.isArray(hourly)) return;
+    // Update commercial
+    const commercialArr = document.querySelector('[data-category="commercial"][data-metric="arrivals"]');
+    const commercialDep = document.querySelector('[data-category="commercial"][data-metric="departures"]');
+    if (commercialArr) commercialArr.textContent = snapshots.commercial?.arrivals || 0;
+    if (commercialDep) commercialDep.textContent = snapshots.commercial?.departures || 0;
 
-        hourly.forEach(row => {
-            const timeRange = row.time_range;
-            const rowElement = document.querySelector(`[data-time-range="${timeRange}"]`);
-            if (rowElement) {
-                const arrivals = row.Arrivals || 0;
-                const departures = row.Departures || 0;
-                const total = arrivals + departures;
+    // Update cargo
+    const cargoArr = document.querySelector('[data-category="cargo"][data-metric="arrivals"]');
+    const cargoDep = document.querySelector('[data-category="cargo"][data-metric="departures"]');
+    if (cargoArr) cargoArr.textContent = snapshots.cargo?.arrivals || 0;
+    if (cargoDep) cargoDep.textContent = snapshots.cargo?.departures || 0;
 
-                const arrivalsCell = rowElement.querySelector('[data-metric="arrivals"]');
-                const departuresCell = rowElement.querySelector('[data-metric="departures"]');
-                const totalCell = rowElement.querySelector('[data-metric="total"]');
+    // Update charter
+    const charterArr = document.querySelector('[data-category="charter"][data-metric="arrivals"]');
+    const charterDep = document.querySelector('[data-category="charter"][data-metric="departures"]');
+    if (charterArr) charterArr.textContent = snapshots.charter?.arrivals || 0;
+    if (charterDep) charterDep.textContent = snapshots.charter?.departures || 0;
 
-                if (arrivalsCell) arrivalsCell.textContent = arrivals;
-                if (departuresCell) departuresCell.textContent = departures;
-                if (totalCell) totalCell.textContent = total;
+    console.log('âœ“ Movement snapshots updated:', {
+        commercial: `${snapshots.commercial?.arrivals}/${snapshots.commercial?.departures}`,
+        cargo: `${snapshots.cargo?.arrivals}/${snapshots.cargo?.departures}`,
+        charter: `${snapshots.charter?.arrivals}/${snapshots.charter?.departures}`
+    });
+}
+
+// Update hourly breakdown table
+function updateHourlyBreakdown(hourly) {
+    if (!hourly || !Array.isArray(hourly)) return;
+
+    hourly.forEach(row => {
+        const timeRange = row.time_range;
+        const rowElement = document.querySelector(`[data-time-range="${timeRange}"]`);
+        if (rowElement) {
+            const arrivals = row.Arrivals || 0;
+            const departures = row.Departures || 0;
+            const total = arrivals + departures;
+
+            const arrivalsCell = rowElement.querySelector('[data-metric="arrivals"]');
+            const departuresCell = rowElement.querySelector('[data-metric="departures"]');
+            const totalCell = rowElement.querySelector('[data-metric="total"]');
+
+            if (arrivalsCell) arrivalsCell.textContent = arrivals;
+            if (departuresCell) departuresCell.textContent = departures;
+            if (totalCell) totalCell.textContent = total;
+        }
+    });
+}
+
+// Function to refresh dashboard metrics
+function refreshDashboardMetrics() {
+    console.log('âŸ³ Refreshing dashboard metrics...');
+    fetchJson(dashboardMovementsEndpoint)
+        .then(data => {
+            if (data.success) {
+                updateMovementSnapshots(data.snapshots);
+                updateHourlyBreakdown(data.hourly);
+                console.log('âœ“ Dashboard fully refreshed at', data.timestamp);
+            } else {
+                console.warn('Dashboard API returned success=false');
             }
+        })
+        .catch(error => {
+            console.error('âœ— Failed to refresh dashboard metrics:', error);
         });
-    }
+}
 
-    // Function to refresh dashboard metrics
-    function refreshDashboardMetrics() {
-        console.log('⟳ Refreshing dashboard metrics...');
-        fetchJson(dashboardMovementsEndpoint)
-            .then(data => {
-                if (data.success) {
-                    updateMovementSnapshots(data.snapshots);
-                    updateHourlyBreakdown(data.hourly);
-                    console.log('✓ Dashboard fully refreshed at', data.timestamp);
-                } else {
-                    console.warn('Dashboard API returned success=false');
-                }
-            })
-            .catch(error => {
-                console.error('✗ Failed to refresh dashboard metrics:', error);
-            });
-    }
+// Auto-refresh apron status every 30 seconds (starts immediately)
+setInterval(() => {
+    fetchJson(refreshApronEndpoint)
+        .then(data => {
+            const total = document.querySelector('#apron-total');
+            const available = document.querySelector('#apron-available');
+            const occupied = document.querySelector('#apron-occupied');
+            const ron = document.querySelector('#apron-ron');
 
-    // Auto-refresh apron status every 30 seconds (starts immediately)
-    setInterval(() => {
-        fetchJson(refreshApronEndpoint)
-            .then(data => {
-                const total = document.querySelector('#apron-total');
-                const available = document.querySelector('#apron-available');
-                const occupied = document.querySelector('#apron-occupied');
-                const ron = document.querySelector('#apron-ron');
+            if (total) total.textContent = data.total;
+            if (available) available.textContent = data.available;
+            if (occupied) occupied.textContent = data.occupied;
+            if (ron) ron.textContent = data.ron;
+        })
+        .catch(error => {
+            console.error('Failed to refresh apron status:', error);
+        });
+}, 30000);
 
-                if (total) total.textContent = data.total;
-                if (available) available.textContent = data.available;
-                if (occupied) occupied.textContent = data.occupied;
-                if (ron) ron.textContent = data.ron;
-            })
-            .catch(error => {
-                console.error('Failed to refresh apron status:', error);
-            });
-    }, 30000);
+// Peak hours summary
+function updatePeakHoursSummary() {
+    const dataWithTotals = peakHourData.map(h => ({ 
+        ...h, 
+        Arrivals: parseInt(h.Arrivals) || 0,
+        Departures: parseInt(h.Departures) || 0,
+        total: (parseInt(h.Arrivals) || 0) + (parseInt(h.Departures) || 0)
+    }));
 
-    // Peak hours summary
-    function updatePeakHoursSummary() {
-        const dataWithTotals = peakHourData.map(h => ({
-            ...h,
-            Arrivals: parseInt(h.Arrivals) || 0,
-            Departures: parseInt(h.Departures) || 0,
-            total: (parseInt(h.Arrivals) || 0) + (parseInt(h.Departures) || 0)
-        }));
-
-        const sortedByTotal = [...dataWithTotals].sort((a, b) => b.total - a.total);
-        const peakPeriod = sortedByTotal[0] || { time_range: 'N/A', total: 0 };
-        const quietPeriod = [...dataWithTotals].sort((a, b) => a.total - b.total).find(h => h.total > 0) || sortedByTotal[sortedByTotal.length - 1] || { time_range: 'N/A', total: 0 };
-
-        const totalMovements = dataWithTotals.reduce((sum, h) => sum + h.total, 0);
-        const totalArrivals = dataWithTotals.reduce((sum, h) => sum + h.Arrivals, 0);
-        const totalDepartures = dataWithTotals.reduce((sum, h) => sum + h.Departures, 0);
-
-        let busiestPeriod = { start: 0, total: 0 };
-        for (let i = 0; i < dataWithTotals.length - 1; i++) {
-            const windowTotal = dataWithTotals[i].total + dataWithTotals[i + 1].total;
-            if (windowTotal > busiestPeriod.total) {
-                busiestPeriod = { start: i, total: windowTotal };
-            }
+    const sortedByTotal = [...dataWithTotals].sort((a, b) => b.total - a.total);
+    const peakPeriod = sortedByTotal[0] || { time_range: 'N/A', total: 0 };
+    const quietPeriod = [...dataWithTotals].sort((a, b) => a.total - b.total).find(h => h.total > 0) || sortedByTotal[sortedByTotal.length - 1] || { time_range: 'N/A', total: 0 };
+    
+    const totalMovements = dataWithTotals.reduce((sum, h) => sum + h.total, 0);
+    const totalArrivals = dataWithTotals.reduce((sum, h) => sum + h.Arrivals, 0);
+    const totalDepartures = dataWithTotals.reduce((sum, h) => sum + h.Departures, 0);
+    
+    let busiestPeriod = { start: 0, total: 0 };
+    for (let i = 0; i < dataWithTotals.length - 1; i++) {
+        const windowTotal = dataWithTotals[i].total + dataWithTotals[i + 1].total;
+        if (windowTotal > busiestPeriod.total) {
+            busiestPeriod = { start: i, total: windowTotal };
         }
-
-        let busiestStart = "00:00-01:59";
-        let busiestEnd = "02:00-03:59";
-        if (dataWithTotals.length > 1 && busiestPeriod.start < dataWithTotals.length - 1) {
-            busiestStart = dataWithTotals[busiestPeriod.start].time_range;
-            busiestEnd = dataWithTotals[busiestPeriod.start + 1].time_range;
-        }
-
-        const summaryHTML = `
+    }
+    
+    let busiestStart = "00:00-01:59";
+    let busiestEnd = "02:00-03:59";
+    if (dataWithTotals.length > 1 && busiestPeriod.start < dataWithTotals.length - 1) {
+        busiestStart = dataWithTotals[busiestPeriod.start].time_range;
+        busiestEnd = dataWithTotals[busiestPeriod.start + 1].time_range;
+    }
+    
+    const summaryHTML = `
         <div style="display: flex; flex-direction: column; gap: 5px;">
             <strong style="color: #dc3545;">Peak 2-Hour Period:</strong>
             <span>${peakPeriod.time_range} (${peakPeriod.total} movements)</span>
@@ -229,9 +229,9 @@
             <span>${totalMovements} movements (${totalArrivals} arr, ${totalDepartures} dep)</span>
         </div>
     `;
-
-        document.getElementById('peakHoursContent').innerHTML = summaryHTML;
-    }
+    
+    document.getElementById('peakHoursContent').innerHTML = summaryHTML;
+}
 
     function loadMlMetrics() {
         const versionEl = document.getElementById('ml-metrics-version');
@@ -260,72 +260,72 @@
             }
         };
 
-        fetchJson(mlMetricsEndpoint)
-            .then(data => {
-                if (!data || data.success === false) {
-                    throw new Error(data && data.message ? data.message : 'Unable to load metrics');
+    fetchJson(mlMetricsEndpoint)
+        .then(data => {
+            if (!data || data.success === false) {
+                throw new Error(data && data.message ? data.message : 'Unable to load metrics');
+            }
+            const model = data.model || {};
+            const observed = data.observed || {};
+            versionEl.textContent = model.version || 'N/A';
+            if (trainingEl) trainingEl.textContent = model.training_date || 'N/A';
+
+            const expectedVal = typeof model.top3_accuracy_expected === 'number' ? model.top3_accuracy_expected : null;
+            if (expectedEl) expectedEl.textContent = expectedVal !== null ? (expectedVal * 100).toFixed(1) + '%' : '--';
+
+            const observedVal = typeof observed.observed_top3_accuracy === 'number' ? observed.observed_top3_accuracy : null;
+            if (observedEl) observedEl.textContent = observedVal !== null ? (observedVal * 100).toFixed(1) + '%' : '--';
+
+            if (sampleEl) sampleEl.textContent = observed.total_predictions != null ? observed.total_predictions : 0;
+
+            if (statusEl) {
+                const total = observed.total_predictions || 0;
+                const window = observed.window_days || 30;
+                statusEl.textContent = total > 0
+                    ? `Tracking ${total} predictions across the last ${window} days.`
+                    : 'No prediction logs recorded for the recent window.';
+
+                statusEl.classList.remove('text-green-600', 'text-red-600', 'text-amber-500', 'text-slate-500');
+                if (observedVal !== null && expectedVal !== null) {
+                    statusEl.classList.add(observedVal >= expectedVal ? 'text-green-600' : 'text-amber-500');
+                } else {
+                    statusEl.classList.add('text-slate-500');
                 }
-                const model = data.model || {};
-                const observed = data.observed || {};
-                versionEl.textContent = model.version || 'N/A';
-                if (trainingEl) trainingEl.textContent = model.training_date || 'N/A';
+            }
 
-                const expectedVal = typeof model.top3_accuracy_expected === 'number' ? model.top3_accuracy_expected : null;
-                if (expectedEl) expectedEl.textContent = expectedVal !== null ? (expectedVal * 100).toFixed(1) + '%' : '--';
-
-                const observedVal = typeof observed.observed_top3_accuracy === 'number' ? observed.observed_top3_accuracy : null;
-                if (observedEl) observedEl.textContent = observedVal !== null ? (observedVal * 100).toFixed(1) + '%' : '--';
-
-                if (sampleEl) sampleEl.textContent = observed.total_predictions != null ? observed.total_predictions : 0;
-
-                if (statusEl) {
-                    const total = observed.total_predictions || 0;
-                    const window = observed.window_days || 30;
-                    statusEl.textContent = total > 0
-                        ? `Tracking ${total} predictions across the last ${window} days.`
-                        : 'No prediction logs recorded for the recent window.';
-
-                    statusEl.classList.remove('text-green-600', 'text-red-600', 'text-amber-500', 'text-slate-500');
-                    if (observedVal !== null && expectedVal !== null) {
-                        statusEl.classList.add(observedVal >= expectedVal ? 'text-green-600' : 'text-amber-500');
-                    } else {
-                        statusEl.classList.add('text-slate-500');
-                    }
-                }
-
-                if (recentEl) {
-                    const recent = Array.isArray(data.recent) ? data.recent : [];
-                    if (recent.length === 0) {
-                        recentEl.innerHTML = '<p class="text-xs text-slate-400">No recent prediction logs.</p>';
-                    } else {
-                        recentEl.innerHTML = recent.map(item => {
-                            const isCorrect = item.was_prediction_correct;
-                            const statusBadge = isCorrect === null
-                                ? '<span class="px-2 py-0.5 rounded-full text-xxs bg-slate-200 text-slate-600">pending</span>'
-                                : isCorrect
-                                    ? '<span class="px-2 py-0.5 rounded-full text-xxs bg-green-100 text-green-700">top-3</span>'
-                                    : '<span class="px-2 py-0.5 rounded-full text-xxs bg-red-100 text-red-700">missed</span>';
-                            const date = item.prediction_date ? new Date(item.prediction_date.replace(' ', 'T')) : null;
-                            const displayDate = date ? date.toLocaleString() : 'N/A';
-                            return `
+            if (recentEl) {
+                const recent = Array.isArray(data.recent) ? data.recent : [];
+                if (recent.length === 0) {
+                    recentEl.innerHTML = '<p class="text-xs text-slate-400">No recent prediction logs.</p>';
+                } else {
+                    recentEl.innerHTML = recent.map(item => {
+                        const isCorrect = item.was_prediction_correct;
+                        const statusBadge = isCorrect === null
+                            ? '<span class="px-2 py-0.5 rounded-full text-xxs bg-slate-200 text-slate-600">pending</span>'
+                            : isCorrect
+                                ? '<span class="px-2 py-0.5 rounded-full text-xxs bg-green-100 text-green-700">top-3</span>'
+                                : '<span class="px-2 py-0.5 rounded-full text-xxs bg-red-100 text-red-700">missed</span>';
+                        const date = item.prediction_date ? new Date(item.prediction_date.replace(' ', 'T')) : null;
+                        const displayDate = date ? date.toLocaleString() : 'N/A';
+                        return `
                             <div class="border border-slate-100 rounded-lg p-2 flex flex-col gap-1">
                                 <div class="flex items-center justify-between text-xs">
                                     <span class="font-semibold text-amc-dark-blue">${item.operator_airline || 'UNKNOWN'}</span>
                                     ${statusBadge}
                                 </div>
-                                <div class="text-xxs text-slate-500">${item.aircraft_type || ''} • Cat ${item.category || 'N/A'} • ${item.model_version || '–'}</div>
+                                <div class="text-xxs text-slate-500">${item.aircraft_type || ''} â€¢ Cat ${item.category || 'N/A'} â€¢ ${item.model_version || 'â€“'}</div>
                                 <div class="text-xxs text-slate-500">Logged ${displayDate}</div>
                             </div>
                         `;
-                        }).join('');
-                    }
+                    }).join('');
                 }
-            })
-            .catch(err => {
-                console.error('Failed to load ML metrics', err);
-                setPlaceholders('Unable to load ML metrics at this time.', 'error');
-            });
-    }
+            }
+        })
+        .catch(err => {
+            console.error('Failed to load ML metrics', err);
+            setPlaceholders('Unable to load ML metrics at this time.', 'error');
+        });
+}
 
     function renderPredictionLogRows(logs) {
         if (!logControls.rows) {
@@ -359,7 +359,7 @@
                     <td class="border border-gray-200 px-3 py-2">${sanitizeText(log.aircraft_type || 'N/A')}</td>
                     <td class="border border-gray-200 px-3 py-2">${sanitizeText(log.operator_airline || 'N/A')}</td>
                     <td class="border border-gray-200 px-3 py-2">${sanitizeText(log.category || 'N/A')}</td>
-                    <td class="border border-gray-200 px-3 py-2">${sanitizeText(log.model_version || '—')}</td>
+                    <td class="border border-gray-200 px-3 py-2">${sanitizeText(log.model_version || 'â€”')}</td>
                     <td class="border border-gray-200 px-3 py-2 space-y-1">${predictions}</td>
                     <td class="border border-gray-200 px-3 py-2">${assigned}</td>
                     <td class="border border-gray-200 px-3 py-2">${resultBadge}</td>
@@ -378,7 +378,7 @@
             limit: logControls.limit ? logControls.limit.value : 50
         });
         if (logControls.status) {
-            logControls.status.textContent = 'Loading prediction entries…';
+            logControls.status.textContent = 'Loading prediction entriesâ€¦';
         }
 
         fetchJson(`${mlLogsEndpoint}?${params.toString()}`)
@@ -398,121 +398,121 @@
             });
     }
 
-    // Modal Management System
-    class ModalManager {
-        constructor() {
-            this.userEndpoint = userEndpoint;
-            this.setupEventListeners();
-        }
+// Modal Management System
+class ModalManager {
+    constructor() {
+        this.userEndpoint = userEndpoint;
+        this.setupEventListeners();
+    }
 
-        setupEventListeners() {
-            // Modal trigger buttons
-            document.addEventListener('click', (e) => {
-                const openTrigger = e.target.closest('[data-modal-target]');
-                if (openTrigger) {
-                    e.preventDefault();
-                    const modalId = openTrigger.getAttribute('data-modal-target');
-                    this.openModal(modalId);
-                }
-
-                const closeTrigger = e.target.closest('[data-modal-close]');
-                if (closeTrigger) {
-                    e.preventDefault();
-                    this.closeModal(closeTrigger.closest('.modal-backdrop'));
-                }
-            });
-
-            // Close modal when clicking backdrop
-            document.addEventListener('click', (e) => {
-                if (e.target.classList.contains('modal-backdrop')) {
-                    this.closeModal(e.target);
-                }
-            });
-
-            // ESC key to close modals
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    const openModal = document.querySelector('.modal-backdrop[style*="block"]');
-                    if (openModal) {
-                        this.closeModal(openModal);
-                    }
-                }
-            });
-        }
-
-        openModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                // Auto-scroll to top and show modal
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                setTimeout(() => {
-                    modal.style.display = 'flex';
-                    modal.style.alignItems = 'flex-start';
-                    modal.style.paddingTop = '50px';
-
-                    // Special handling for different modals
-                    if (modalId === 'accountsModalBg') {
-                        this.loadUsers();
-                    } else if (modalId === 'snapshotModalBg') {
-                        SnapshotManager.loadSnapshots();
-                    } else if (modalId === 'userFormModalBg') {
-                        // Reset to create-user mode (undo any disabled state from editUser)
-                        const usernameField = document.getElementById('user-username');
-                        const userIdField = document.getElementById('user-id');
-                        const titleEl = document.getElementById('user-form-title');
-                        const passwordRow = document.getElementById('password-row');
-                        if (usernameField) usernameField.disabled = false;
-                        if (userIdField) userIdField.value = '';
-                        if (titleEl) titleEl.textContent = 'Create User';
-                        if (passwordRow) passwordRow.style.display = '';
-                    }
-                }, 300);
+    setupEventListeners() {
+        // Modal trigger buttons
+        document.addEventListener('click', (e) => {
+            const openTrigger = e.target.closest('[data-modal-target]');
+            if (openTrigger) {
+                e.preventDefault();
+                const modalId = openTrigger.getAttribute('data-modal-target');
+                this.openModal(modalId);
             }
-        }
 
-        closeModal(modal) {
-            if (modal) {
-                modal.style.display = 'none';
-                // Reset forms
-                const forms = modal.querySelectorAll('form');
-                forms.forEach(form => form.reset());
+            const closeTrigger = e.target.closest('[data-modal-close]');
+            if (closeTrigger) {
+                e.preventDefault();
+                this.closeModal(closeTrigger.closest('.modal-backdrop'));
             }
+        });
+
+        // Close modal when clicking backdrop
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-backdrop')) {
+                this.closeModal(e.target);
+            }
+        });
+
+        // ESC key to close modals
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const openModal = document.querySelector('.modal-backdrop[style*="block"]');
+                if (openModal) {
+                    this.closeModal(openModal);
+                }
+            }
+        });
+    }
+
+    openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            // Auto-scroll to top and show modal
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => {
+                modal.style.display = 'flex';
+                modal.style.alignItems = 'flex-start';
+                modal.style.paddingTop = '50px';
+                
+                // Special handling for different modals
+                if (modalId === 'accountsModalBg') {
+                    this.loadUsers();
+                } else if (modalId === 'snapshotModalBg') {
+                    SnapshotManager.loadSnapshots();
+                } else if (modalId === 'userFormModalBg') {
+                    // Reset to create-user mode (undo any disabled state from editUser)
+                    const usernameField = document.getElementById('user-username');
+                    const userIdField = document.getElementById('user-id');
+                    const titleEl = document.getElementById('user-form-title');
+                    const passwordRow = document.getElementById('password-row');
+                    if (usernameField) usernameField.disabled = false;
+                    if (userIdField) userIdField.value = '';
+                    if (titleEl) titleEl.textContent = 'Create User';
+                    if (passwordRow) passwordRow.style.display = '';
+                }
+            }, 300);
         }
+    }
 
-        // User management functions
-        loadUsers(page = 1) {
-            const query = document.getElementById('user-search')?.value || '';
-            const role = document.getElementById('role-filter')?.value || '';
-            const status = document.getElementById('status-filter')?.value || '';
+    closeModal(modal) {
+        if (modal) {
+            modal.style.display = 'none';
+            // Reset forms
+            const forms = modal.querySelectorAll('form');
+            forms.forEach(form => form.reset());
+        }
+    }
 
-            const params = new URLSearchParams({
-                action: 'list',
-                query: query,
-                role: role,
-                status: status,
-                page: page,
-                per_page: 25
+    // User management functions
+    loadUsers(page = 1) {
+        const query = document.getElementById('user-search')?.value || '';
+        const role = document.getElementById('role-filter')?.value || '';
+        const status = document.getElementById('status-filter')?.value || '';
+
+        const params = new URLSearchParams({
+            action: 'list',
+            query: query,
+            role: role,
+            status: status,
+            page: page,
+            per_page: 25
+        });
+
+        fetchJson(`${this.userEndpoint}?${params}`)
+            .then(data => {
+                if (data.success) {
+                    this.renderUsersTable(data.data);
+                    this.renderPagination(data);
+                } else {
+                    this.showToast(data.message || 'Failed to load users.', 'error');
+                }
+            })
+            .catch(error => {
+                this.showToast('Error loading users: ' + error.message, 'error');
             });
+    }
 
-            fetchJson(`${this.userEndpoint}?${params}`)
-                .then(data => {
-                    if (data.success) {
-                        this.renderUsersTable(data.data);
-                        this.renderPagination(data);
-                    } else {
-                        this.showToast(data.message || 'Failed to load users.', 'error');
-                    }
-                })
-                .catch(error => {
-                    this.showToast('Error loading users: ' + error.message, 'error');
-                });
-        }
+    renderUsersTable(users) {
+        const tbody = document.getElementById('users-tbody');
+        if (!tbody) return;
 
-        renderUsersTable(users) {
-            const tbody = document.getElementById('users-tbody');
-            if (!tbody) return;
-
-            tbody.innerHTML = users.map(user => `
+        tbody.innerHTML = users.map(user => `
             <tr class="hover:bg-slate-50">
                 <td class="px-3 py-2 text-xs">${this.escapeHtml(user.full_name || '')}</td>
                 <td class="px-3 py-2 text-xs">${this.escapeHtml(user.username)}</td>
@@ -532,142 +532,142 @@
                 </td>
             </tr>
         `).join('');
+    }
+
+    renderPagination(data) {
+        const container = document.getElementById('accounts-pagination');
+        if (!container) return;
+
+        const totalPages = Math.ceil(data.total / data.per_page);
+        if (totalPages <= 1) {
+            container.innerHTML = '';
+            return;
         }
 
-        renderPagination(data) {
-            const container = document.getElementById('accounts-pagination');
-            if (!container) return;
-
-            const totalPages = Math.ceil(data.total / data.per_page);
-            if (totalPages <= 1) {
-                container.innerHTML = '';
-                return;
-            }
-
-            let paginationHTML = '<div class="pagination">';
-
-            if (data.page > 1) {
-                paginationHTML += `<button onclick="modalManager.loadUsers(${data.page - 1})" class="page-btn">Â&laquo; Previous</button>`;
-            }
-
-            for (let i = Math.max(1, data.page - 2); i <= Math.min(totalPages, data.page + 2); i++) {
-                paginationHTML += `<button onclick="modalManager.loadUsers(${i})" class="page-btn ${i === data.page ? 'active' : ''}">${i}</button>`;
-            }
-
-            if (data.page < totalPages) {
-                paginationHTML += `<button onclick="modalManager.loadUsers(${data.page + 1})" class="page-btn">Next Â&raquo;</button>`;
-            }
-
-            paginationHTML += '</div>';
-            container.innerHTML = paginationHTML;
+        let paginationHTML = '<div class="pagination">';
+        
+        if (data.page > 1) {
+            paginationHTML += `<button onclick="modalManager.loadUsers(${data.page - 1})" class="page-btn">Ã‚&laquo; Previous</button>`;
         }
-
-        editUser(userId) {
-            // Fetch user data and populate form
-            fetchJson(`${this.userEndpoint}?action=list`)
-                .then(data => {
-                    if (!data.success) {
-                        this.showToast(data.message || 'Unable to load user details.', 'error');
-                        return;
-                    }
-
-                    const user = data.data.find(u => u.id == userId);
-                    if (user) {
-                        document.getElementById('user-form-title').textContent = 'Edit User';
-                        document.getElementById('user-id').value = user.id;
-                        document.getElementById('user-full-name').value = user.full_name || '';
-                        document.getElementById('user-username').value = user.username;
-                        // FIX: Disable username field in edit mode
-                        document.getElementById('user-username').disabled = true;
-                        document.getElementById('user-email').value = user.email || '';
-                        document.getElementById('user-role').value = user.role;
-                        document.getElementById('user-status').value = user.status;
-                        document.getElementById('password-row').style.display = 'none';
-                        this.openModal('userFormModalBg');
-                    } else {
-                        this.showToast('User record not found.', 'error');
-                    }
-                })
-                .catch(error => {
-                    this.showToast('Error loading user details: ' + error.message, 'error');
-                });
+        
+        for (let i = Math.max(1, data.page - 2); i <= Math.min(totalPages, data.page + 2); i++) {
+            paginationHTML += `<button onclick="modalManager.loadUsers(${i})" class="page-btn ${i === data.page ? 'active' : ''}">${i}</button>`;
         }
-
-        resetPassword(userId, username) {
-            document.getElementById('reset-username').textContent = username;
-            document.getElementById('reset-user-id').value = userId;
-            document.getElementById('reset-password-form').reset();
-            this.openModal('resetPasswordModalBg');
+        
+        if (data.page < totalPages) {
+            paginationHTML += `<button onclick="modalManager.loadUsers(${data.page + 1})" class="page-btn">Next Ã‚&raquo;</button>`;
         }
+        
+        paginationHTML += '</div>';
+        container.innerHTML = paginationHTML;
+    }
 
-        toggleStatus(userId, currentStatus) {
-            const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
-            const action = newStatus === 'suspended' ? 'suspend' : 'activate';
+    editUser(userId) {
+        // Fetch user data and populate form
+        fetchJson(`${this.userEndpoint}?action=list`)
+            .then(data => {
+                if (!data.success) {
+                    this.showToast(data.message || 'Unable to load user details.', 'error');
+                    return;
+                }
 
-            if (confirm(`Are you sure you want to ${action} this user?`)) {
-                const formData = new FormData();
-                formData.append('action', 'set_status');
-                formData.append('id', userId);
-                formData.append('status', newStatus);
-                formData.append('csrf_token', document.querySelector('input[name="csrf_token"]').value);
+                const user = data.data.find(u => u.id == userId);
+                if (user) {
+                    document.getElementById('user-form-title').textContent = 'Edit User';
+                    document.getElementById('user-id').value = user.id;
+                    document.getElementById('user-full-name').value = user.full_name || '';
+                    document.getElementById('user-username').value = user.username;
+                    // FIX: Disable username field in edit mode
+                    document.getElementById('user-username').disabled = true;
+                    document.getElementById('user-email').value = user.email || '';
+                    document.getElementById('user-role').value = user.role;
+                    document.getElementById('user-status').value = user.status;
+                    document.getElementById('password-row').style.display = 'none';
+                    this.openModal('userFormModalBg');
+                } else {
+                    this.showToast('User record not found.', 'error');
+                }
+            })
+            .catch(error => {
+                this.showToast('Error loading user details: ' + error.message, 'error');
+            });
+    }
 
-                fetchJson(this.userEndpoint, {
-                    method: 'POST',
-                    body: formData
-                })
-                    .then(data => {
-                        if (data.success) {
-                            this.showToast(data.message, 'success');
-                            this.loadUsers();
-                        } else {
-                            this.showToast(data.message || 'Unable to update user status.', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        this.showToast('Error updating user status: ' + error.message, 'error');
-                    });
-            }
-        }
+    resetPassword(userId, username) {
+        document.getElementById('reset-username').textContent = username;
+        document.getElementById('reset-user-id').value = userId;
+        document.getElementById('reset-password-form').reset();
+        this.openModal('resetPasswordModalBg');
+    }
 
-        deleteUser(userId, username) {
-            if (!confirm(`Are you sure you want to delete user ${username}? This action cannot be undone.`)) {
-                return;
-            }
-
+    toggleStatus(userId, currentStatus) {
+        const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
+        const action = newStatus === 'suspended' ? 'suspend' : 'activate';
+        
+        if (confirm(`Are you sure you want to ${action} this user?`)) {
             const formData = new FormData();
-            formData.append('action', 'delete');
+            formData.append('action', 'set_status');
             formData.append('id', userId);
+            formData.append('status', newStatus);
             formData.append('csrf_token', document.querySelector('input[name="csrf_token"]').value);
 
             fetchJson(this.userEndpoint, {
                 method: 'POST',
                 body: formData
             })
-                .then(data => {
-                    if (data.success) {
-                        this.showToast(data.message, 'success');
-                        this.loadUsers();
-                    } else {
-                        this.showToast(data.message || 'Unable to delete user.', 'error');
-                    }
-                })
-                .catch(error => {
-                    this.showToast('Error deleting user: ' + error.message, 'error');
-                });
+            .then(data => {
+                if (data.success) {
+                    this.showToast(data.message, 'success');
+                    this.loadUsers();
+                } else {
+                    this.showToast(data.message || 'Unable to update user status.', 'error');
+                }
+            })
+            .catch(error => {
+                this.showToast('Error updating user status: ' + error.message, 'error');
+            });
+        }
+    }
+
+    deleteUser(userId, username) {
+        if (!confirm(`Are you sure you want to delete user ${username}? This action cannot be undone.`)) {
+            return;
         }
 
-        escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
+        const formData = new FormData();
+        formData.append('action', 'delete');
+        formData.append('id', userId);
+        formData.append('csrf_token', document.querySelector('input[name="csrf_token"]').value);
 
-        showToast(message, type = 'info') {
-            // Create toast element
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
-            toast.textContent = message;
-            toast.style.cssText = `
+        fetchJson(this.userEndpoint, {
+            method: 'POST',
+            body: formData
+        })
+        .then(data => {
+            if (data.success) {
+                this.showToast(data.message, 'success');
+                this.loadUsers();
+            } else {
+                this.showToast(data.message || 'Unable to delete user.', 'error');
+            }
+        })
+        .catch(error => {
+            this.showToast('Error deleting user: ' + error.message, 'error');
+        });
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    showToast(message, type = 'info') {
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        toast.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
@@ -678,62 +678,62 @@
             z-index: 10000;
             animation: slideIn 0.3s ease;
         `;
+        
+        if (type === 'success') toast.style.backgroundColor = '#28a745';
+        else if (type === 'error') toast.style.backgroundColor = '#dc3545';
+        else toast.style.backgroundColor = '#17a2b8';
 
-            if (type === 'success') toast.style.backgroundColor = '#28a745';
-            else if (type === 'error') toast.style.backgroundColor = '#dc3545';
-            else toast.style.backgroundColor = '#17a2b8';
-
-            document.body.appendChild(toast);
-
-            setTimeout(() => {
-                toast.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
     }
+}
 
-    // Snapshot Management Functions
-    const SnapshotManager = {
-        loadSnapshots: function (page = 1) {
-            const tbody = document.getElementById('snapshots-tbody');
-            const loading = document.getElementById('snapshots-loading');
+// Snapshot Management Functions
+const SnapshotManager = {
+    loadSnapshots: function(page = 1) {
+        const tbody = document.getElementById('snapshots-tbody');
+        const loading = document.getElementById('snapshots-loading');
+        
+        if (loading) loading.style.display = 'block';
+        if (tbody) tbody.innerHTML = '';
 
-            if (loading) loading.style.display = 'block';
-            if (tbody) tbody.innerHTML = '';
+        const params = new URLSearchParams({
+            action: 'list',
+            page: page,
+            per_page: 20
+        });
 
-            const params = new URLSearchParams({
-                action: 'list',
-                page: page,
-                per_page: 20
+        fetchJson(`${snapshotEndpoint}?${params}`)
+            .then(data => {
+                if (loading) loading.style.display = 'none';
+                
+                if (data.success) {
+                    this.renderSnapshotsTable(data.data);
+                    this.renderSnapshotsPagination(data);
+                } else {
+                    modalManager.showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                if (loading) loading.style.display = 'none';
+                modalManager.showToast('Error loading snapshots: ' + error.message, 'error');
             });
+    },
 
-            fetchJson(`${snapshotEndpoint}?${params}`)
-                .then(data => {
-                    if (loading) loading.style.display = 'none';
+    renderSnapshotsTable: function(snapshots) {
+        const tbody = document.getElementById('snapshots-tbody');
+        if (!tbody) return;
 
-                    if (data.success) {
-                        this.renderSnapshotsTable(data.data);
-                        this.renderSnapshotsPagination(data);
-                    } else {
-                        modalManager.showToast(data.message, 'error');
-                    }
-                })
-                .catch(error => {
-                    if (loading) loading.style.display = 'none';
-                    modalManager.showToast('Error loading snapshots: ' + error.message, 'error');
-                });
-        },
+        if (snapshots.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="snapshot-empty">No snapshots found</td></tr>';
+            return;
+        }
 
-        renderSnapshotsTable: function (snapshots) {
-            const tbody = document.getElementById('snapshots-tbody');
-            if (!tbody) return;
-
-            if (snapshots.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="snapshot-empty">No snapshots found</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = snapshots.map(snapshot => `
+        tbody.innerHTML = snapshots.map(snapshot => `
             <tr>
                 <td>${new Date(snapshot.snapshot_date).toLocaleDateString()}</td>
                 <td>${modalManager.escapeHtml(snapshot.created_by_username || 'Unknown')}</td>
@@ -745,79 +745,79 @@
                 </td>
             </tr>
         `).join('');
-        },
+    },
 
-        renderSnapshotsPagination: function (data) {
-            const container = document.getElementById('snapshots-pagination');
-            if (!container) return;
+    renderSnapshotsPagination: function(data) {
+        const container = document.getElementById('snapshots-pagination');
+        if (!container) return;
 
-            const totalPages = Math.ceil(data.total / data.per_page);
-            if (totalPages <= 1) {
-                container.innerHTML = '';
-                return;
-            }
+        const totalPages = Math.ceil(data.total / data.per_page);
+        if (totalPages <= 1) {
+            container.innerHTML = '';
+            return;
+        }
 
-            let paginationHTML = '<div class="pagination">';
+        let paginationHTML = '<div class="pagination">';
+        
+        if (data.page > 1) {
+            paginationHTML += `<button onclick="SnapshotManager.loadSnapshots(${data.page - 1})" class="page-btn">Ã‚&laquo; Previous</button>`;
+        }
+        
+        for (let i = Math.max(1, data.page - 2); i <= Math.min(totalPages, data.page + 2); i++) {
+            paginationHTML += `<button onclick="SnapshotManager.loadSnapshots(${i})" class="page-btn ${i === data.page ? 'active' : ''}">${i}</button>`;
+        }
+        
+        if (data.page < totalPages) {
+            paginationHTML += `<button onclick="SnapshotManager.loadSnapshots(${data.page + 1})" class="page-btn">Next Ã‚&raquo;</button>`;
+        }
+        
+        paginationHTML += '</div>';
+        container.innerHTML = paginationHTML;
+    },
 
-            if (data.page > 1) {
-                paginationHTML += `<button onclick="SnapshotManager.loadSnapshots(${data.page - 1})" class="page-btn">Â&laquo; Previous</button>`;
-            }
+    viewSnapshot: function(snapshotId) {
+        fetchJson(`${snapshotEndpoint}?action=view&id=${snapshotId}`)
+            .then(data => {
+                if (data.success) {
+                    this.renderSnapshotView(data.data, false);
+                    modalManager.openModal('viewSnapshotModalBg');
+                } else {
+                    modalManager.showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                modalManager.showToast('Error loading snapshot: ' + error.message, 'error');
+            });
+    },
 
-            for (let i = Math.max(1, data.page - 2); i <= Math.min(totalPages, data.page + 2); i++) {
-                paginationHTML += `<button onclick="SnapshotManager.loadSnapshots(${i})" class="page-btn ${i === data.page ? 'active' : ''}">${i}</button>`;
-            }
+    printSnapshot: function(snapshotId) {
+        fetchJson(`${snapshotEndpoint}?action=view&id=${snapshotId}`)
+            .then(data => {
+                if (data.success) {
+                    this.renderSnapshotView(data.data, false);
+                    document.title = `AMCReport(${data.data.snapshot_date})`;
+                    const titleEl = document.getElementById('snapshot-title');
+                    const contentEl = document.getElementById('snapshot-content');
+                    const snapshotTitle = titleEl ? titleEl.textContent : 'Daily Snapshot';
+                    const snapshotHtml = contentEl ? contentEl.innerHTML : '';
 
-            if (data.page < totalPages) {
-                paginationHTML += `<button onclick="SnapshotManager.loadSnapshots(${data.page + 1})" class="page-btn">Next Â&raquo;</button>`;
-            }
-
-            paginationHTML += '</div>';
-            container.innerHTML = paginationHTML;
-        },
-
-        viewSnapshot: function (snapshotId) {
-            fetchJson(`${snapshotEndpoint}?action=view&id=${snapshotId}`)
-                .then(data => {
-                    if (data.success) {
-                        this.renderSnapshotView(data.data, false);
-                        modalManager.openModal('viewSnapshotModalBg');
-                    } else {
-                        modalManager.showToast(data.message, 'error');
+                    if (!snapshotHtml.trim()) {
+                        modalManager.showToast('Snapshot content is empty. Please open View first.', 'error');
+                        return;
                     }
-                })
-                .catch(error => {
-                    modalManager.showToast('Error loading snapshot: ' + error.message, 'error');
-                });
-        },
 
-        printSnapshot: function (snapshotId) {
-            fetchJson(`${snapshotEndpoint}?action=view&id=${snapshotId}`)
-                .then(data => {
-                    if (data.success) {
-                        this.renderSnapshotView(data.data, false);
-                        document.title = `AMCReport(${data.data.snapshot_date})`;
-                        const titleEl = document.getElementById('snapshot-title');
-                        const contentEl = document.getElementById('snapshot-content');
-                        const snapshotTitle = titleEl ? titleEl.textContent : 'Daily Snapshot';
-                        const snapshotHtml = contentEl ? contentEl.innerHTML : '';
+                    const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+                        .map(link => `<link rel="stylesheet" href="${link.href}">`)
+                        .join('');
 
-                        if (!snapshotHtml.trim()) {
-                            modalManager.showToast('Snapshot content is empty. Please open View first.', 'error');
-                            return;
-                        }
+                    const printWindow = window.open('', '_blank', 'width=1200,height=900');
+                    if (!printWindow) {
+                        modalManager.showToast('Popup blocked. Allow popups to print snapshots.', 'error');
+                        return;
+                    }
 
-                        const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
-                            .map(link => `<link rel="stylesheet" href="${link.href}">`)
-                            .join('');
-
-                        const printWindow = window.open('', '_blank', 'width=1200,height=900');
-                        if (!printWindow) {
-                            modalManager.showToast('Popup blocked. Allow popups to print snapshots.', 'error');
-                            return;
-                        }
-
-                        printWindow.document.open();
-                        printWindow.document.write(`<!DOCTYPE html>
+                    printWindow.document.open();
+                    printWindow.document.write(`<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -835,65 +835,65 @@
     <div id="snapshot-content">${snapshotHtml}</div>
 </body>
 </html>`);
-                        printWindow.document.close();
-                        printWindow.focus();
+                    printWindow.document.close();
+                    printWindow.focus();
 
+                    setTimeout(() => {
+                        printWindow.print();
                         setTimeout(() => {
-                            printWindow.print();
-                            setTimeout(() => {
-                                if (!printWindow.closed) {
-                                    printWindow.close();
-                                }
-                            }, 800);
-                        }, 300);
+                            if (!printWindow.closed) {
+                                printWindow.close();
+                            }
+                        }, 800);
+                    }, 300);
 
-                    } else {
-                        modalManager.showToast(data.message, 'error');
-                    }
-                })
-                .catch(error => {
-                    modalManager.showToast('Error loading snapshot for printing: ' + error.message, 'error');
-                });
-        },
+                } else {
+                    modalManager.showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                modalManager.showToast('Error loading snapshot for printing: ' + error.message, 'error');
+            });
+    },
 
-        renderSnapshotView: function (snapshot, isPrinting) {
-            const title = document.getElementById('snapshot-title');
-            const content = document.getElementById('snapshot-content');
+    renderSnapshotView: function(snapshot, isPrinting) {
+        const title = document.getElementById('snapshot-title');
+        const content = document.getElementById('snapshot-content');
+        
+        if (title) {
+            title.innerHTML = `Daily Snapshot - ${new Date(snapshot.snapshot_date).toLocaleDateString()}`;
+        }
 
-            if (title) {
-                title.innerHTML = `Daily Snapshot - ${new Date(snapshot.snapshot_date).toLocaleDateString()}`;
-            }
+        if (!content) return;
 
-            if (!content) return;
+        const data = snapshot.snapshot_data;
+        let html = '';
 
-            const data = snapshot.snapshot_data;
-            let html = '';
-
-            // Staff Roster Section
-            if (data.staff_roster && data.staff_roster.length > 0) {
-                html += `
+        // Staff Roster Section
+        if (data.staff_roster && data.staff_roster.length > 0) {
+            html += `
                 <div class="snapshot-section">
                     <div class="snapshot-section-header">Staff Roster</div>
                     <div class="snapshot-section-content">
             `;
-                data.staff_roster.forEach(roster => {
-                    html += `
+            data.staff_roster.forEach(roster => {
+                html += `
                     <div style="margin-bottom: 15px;">
                         <h4>${modalManager.escapeHtml(roster.shift)} - ${new Date(roster.roster_date).toLocaleDateString()}</h4>
                         <p><strong>Day Shift:</strong> ${[roster.day_shift_staff_1, roster.day_shift_staff_2, roster.day_shift_staff_3].filter(s => s).join(', ') || 'Not assigned'}</p>
                         <p><strong>Night Shift:</strong> ${[roster.night_shift_staff_1, roster.night_shift_staff_2, roster.night_shift_staff_3].filter(s => s).join(', ') || 'Not assigned'}</p>
                     </div>
                 `;
-                });
-                html += `
+            });
+            html += `
                     </div>
                 </div>
             `;
-            }
+        }
 
-            // Metrics Section
-            if (data.daily_metrics) {
-                html += `
+        // Metrics Section
+        if (data.daily_metrics) {
+            html += `
                 <div class="snapshot-section">
                     <div class="snapshot-section-header">Daily Metrics</div>
                     <div class="snapshot-section-content">
@@ -918,11 +918,11 @@
                     </div>
                 </div>
             `;
-            }
+        }
 
-            // Peak Hour Analysis Section
-            if (data.daily_metrics && data.daily_metrics.hourly_movements) {
-                html += `
+        // Peak Hour Analysis Section
+        if (data.daily_metrics && data.daily_metrics.hourly_movements) {
+            html += `
                 <div class="snapshot-section">
                     <div class="snapshot-section-header">Peak Hour Analysis</div>
                     <div class="snapshot-section-content">
@@ -931,11 +931,11 @@
                     </div>
                 </div>
             `;
-            }
+        }
 
-            // Movements Section
-            if (data.movements && data.movements.length > 0) {
-                html += `
+        // Movements Section
+        if (data.movements && data.movements.length > 0) {
+            html += `
                 <div class="snapshot-section">
                     <div class="snapshot-section-header">Aircraft Movements</div>
                     <div class="snapshot-section-content">
@@ -955,8 +955,8 @@
                             </thead>
                             <tbody>
             `;
-                data.movements.forEach(movement => {
-                    html += `
+            data.movements.forEach(movement => {
+                html += `
                     <tr>
                         <td>${modalManager.escapeHtml(movement.registration || '')}</td>
                         <td>${modalManager.escapeHtml(movement.aircraft_type || '')}</td>
@@ -969,20 +969,20 @@
                         <td>${movement.is_ron ? 'Yes' : 'No'}</td>
                     </tr>
                 `;
-                });
-                html += `
+            });
+            html += `
                             </tbody>
                         </table>
                     </div>
                 </div>
             `;
-            } else {
-                html += '<div class="snapshot-empty">No movements recorded for this date</div>';
-            }
+        } else {
+            html += '<div class="snapshot-empty">No movements recorded for this date</div>';
+        }
 
-            // RON Section
-            if (data.ron_data && data.ron_data.length > 0) {
-                html += `
+        // RON Section
+        if (data.ron_data && data.ron_data.length > 0) {
+            html += `
                 <div class="snapshot-section">
                     <div class="snapshot-section-header">RON Aircraft</div>
                     <div class="snapshot-section-content">
@@ -998,8 +998,8 @@
                             </thead>
                             <tbody>
             `;
-                data.ron_data.forEach(ron => {
-                    html += `
+            data.ron_data.forEach(ron => {
+                html += `
                     <tr>
                         <td>${modalManager.escapeHtml(ron.registration || '')}</td>
                         <td>${modalManager.escapeHtml(ron.aircraft_type || '')}</td>
@@ -1008,40 +1008,40 @@
                         <td>${modalManager.escapeHtml(ron.category || '')}</td>
                     </tr>
                 `;
-                });
-                html += `
+            });
+            html += `
                             </tbody>
                         </table>
                     </div>
                 </div>
             `;
+        }
+
+        content.innerHTML = html;
+
+        if (isPrinting) {
+            const printableContent = document.getElementById('viewSnapshotModalBg');
+            if (printableContent) {
+                printableContent.style.display = 'block';
             }
+        }
+    },
 
-            content.innerHTML = html;
+    renderPeakHourChart: function(peakHourData) {
+        let chartHTML = '';
+        const maxMovements = Math.max(...peakHourData.map(h => (parseInt(h.Arrivals) || 0) + (parseInt(h.Departures) || 0))) || 1;
 
-            if (isPrinting) {
-                const printableContent = document.getElementById('viewSnapshotModalBg');
-                if (printableContent) {
-                    printableContent.style.display = 'block';
-                }
-            }
-        },
+        chartHTML += '<div class="chart-container" style="position: relative; height: 400px; overflow-x: auto;">';
+        chartHTML += '<div class="chart-content" style="display: flex; align-items: end; height: 100%; min-width: 800px; gap: 2px; padding: 0 10px;">';
 
-        renderPeakHourChart: function (peakHourData) {
-            let chartHTML = '';
-            const maxMovements = Math.max(...peakHourData.map(h => (parseInt(h.Arrivals) || 0) + (parseInt(h.Departures) || 0))) || 1;
+        peakHourData.forEach(hour => {
+            const arrivalHeight = (parseInt(hour.Arrivals) / maxMovements) * 300;
+            const departureHeight = (parseInt(hour.Departures) / maxMovements) * 300;
+            const totalHeight = ((parseInt(hour.Arrivals) + parseInt(hour.Departures)) / maxMovements) * 300;
+            const timeRange = hour.time_range || '00:00-01:59';
+            const shortLabel = timeRange.substring(0, 2) + '-' + timeRange.substring(6, 8);
 
-            chartHTML += '<div class="chart-container" style="position: relative; height: 400px; overflow-x: auto;">';
-            chartHTML += '<div class="chart-content" style="display: flex; align-items: end; height: 100%; min-width: 800px; gap: 2px; padding: 0 10px;">';
-
-            peakHourData.forEach(hour => {
-                const arrivalHeight = (parseInt(hour.Arrivals) / maxMovements) * 300;
-                const departureHeight = (parseInt(hour.Departures) / maxMovements) * 300;
-                const totalHeight = ((parseInt(hour.Arrivals) + parseInt(hour.Departures)) / maxMovements) * 300;
-                const timeRange = hour.time_range || '00:00-01:59';
-                const shortLabel = timeRange.substring(0, 2) + '-' + timeRange.substring(6, 8);
-
-                chartHTML += `
+            chartHTML += `
                 <div class="hour-bar-group" style="flex: 1; display: flex; flex-direction: column; align-items: center; position: relative;">
                     <div style="display: flex; gap: 1px; align-items: end; height: 300px; margin-bottom: 5px;">
                         <div class="arrival-bar" 
@@ -1069,45 +1069,45 @@
                     ` : ''}
                 </div>
             `;
-            });
+        });
 
-            chartHTML += '</div></div>';
-            return chartHTML;
-        },
+        chartHTML += '</div></div>';
+        return chartHTML;
+    },
 
-        renderPeakHourSummary: function (peakHourData) {
-            const dataWithTotals = peakHourData.map(h => ({
-                ...h,
-                time_range: h.time_range || '00:00-01:59', // guard against null from departure-only records
-                Arrivals: parseInt(h.Arrivals) || 0,
-                Departures: parseInt(h.Departures) || 0,
-                total: (parseInt(h.Arrivals) || 0) + (parseInt(h.Departures) || 0)
-            }));
+    renderPeakHourSummary: function(peakHourData) {
+        const dataWithTotals = peakHourData.map(h => ({ 
+            ...h, 
+            time_range: h.time_range || '00:00-01:59', // guard against null from departure-only records
+            Arrivals: parseInt(h.Arrivals) || 0,
+            Departures: parseInt(h.Departures) || 0,
+            total: (parseInt(h.Arrivals) || 0) + (parseInt(h.Departures) || 0)
+        }));
 
-            const sortedByTotal = [...dataWithTotals].sort((a, b) => b.total - a.total);
-            const peakPeriod = sortedByTotal[0] || { time_range: 'N/A', total: 0 };
-            const quietPeriod = [...dataWithTotals].sort((a, b) => a.total - b.total).find(h => h.total > 0) || sortedByTotal[sortedByTotal.length - 1] || { time_range: 'N/A', total: 0 };
-
-            const totalMovements = dataWithTotals.reduce((sum, h) => sum + h.total, 0);
-            const totalArrivals = dataWithTotals.reduce((sum, h) => sum + h.Arrivals, 0);
-            const totalDepartures = dataWithTotals.reduce((sum, h) => sum + h.Departures, 0);
-
-            let busiestPeriod = { start: 0, total: 0 };
-            for (let i = 0; i < dataWithTotals.length - 1; i++) {
-                const windowTotal = dataWithTotals[i].total + dataWithTotals[i + 1].total;
-                if (windowTotal > busiestPeriod.total) {
-                    busiestPeriod = { start: i, total: windowTotal };
-                }
+        const sortedByTotal = [...dataWithTotals].sort((a, b) => b.total - a.total);
+        const peakPeriod = sortedByTotal[0] || { time_range: 'N/A', total: 0 };
+        const quietPeriod = [...dataWithTotals].sort((a, b) => a.total - b.total).find(h => h.total > 0) || sortedByTotal[sortedByTotal.length - 1] || { time_range: 'N/A', total: 0 };
+        
+        const totalMovements = dataWithTotals.reduce((sum, h) => sum + h.total, 0);
+        const totalArrivals = dataWithTotals.reduce((sum, h) => sum + h.Arrivals, 0);
+        const totalDepartures = dataWithTotals.reduce((sum, h) => sum + h.Departures, 0);
+        
+        let busiestPeriod = { start: 0, total: 0 };
+        for (let i = 0; i < dataWithTotals.length - 1; i++) {
+            const windowTotal = dataWithTotals[i].total + dataWithTotals[i + 1].total;
+            if (windowTotal > busiestPeriod.total) {
+                busiestPeriod = { start: i, total: windowTotal };
             }
-
-            let busiestStart = "00:00-01:59";
-            let busiestEnd = "02:00-03:59";
-            if (dataWithTotals.length > 1 && busiestPeriod.start < dataWithTotals.length - 1) {
-                busiestStart = dataWithTotals[busiestPeriod.start].time_range || '00:00-01:59';
-                busiestEnd = dataWithTotals[busiestPeriod.start + 1].time_range || '02:00-03:59';
-            }
-
-            return `
+        }
+        
+        let busiestStart = "00:00-01:59";
+        let busiestEnd = "02:00-03:59";
+        if (dataWithTotals.length > 1 && busiestPeriod.start < dataWithTotals.length - 1) {
+            busiestStart = dataWithTotals[busiestPeriod.start].time_range || '00:00-01:59';
+            busiestEnd = dataWithTotals[busiestPeriod.start + 1].time_range || '02:00-03:59';
+        }
+        
+        return `
             <div id="peakHoursSummary" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #112D4E;">
                 <div style="font-weight: bold; margin-bottom: 10px; color: #112D4E;">Peak Hours Summary</div>
                 <div id="peakHoursContent" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
@@ -1130,251 +1130,437 @@
                 </div>
             </div>
         `;
-        },
+    },
 
-        deleteSnapshot: function (snapshotId) {
-            if (!confirm('Are you sure you want to delete this snapshot? This action cannot be undone.')) {
-                return;
+    deleteSnapshot: function(snapshotId) {
+        if (!confirm('Are you sure you want to delete this snapshot? This action cannot be undone.')) {
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('action', 'delete');
+        formData.append('id', snapshotId);
+        formData.append('csrf_token', document.querySelector('input[name="csrf_token"]').value);
+
+        fetchJson(snapshotEndpoint, {
+            method: 'POST',
+            body: formData
+        })
+        .then(data => {
+            if (data.success) {
+                modalManager.showToast(data.message, 'success');
+                this.loadSnapshots();
+            } else {
+                modalManager.showToast(data.message, 'error');
             }
+        })
+        .catch(error => {
+            modalManager.showToast('Error deleting snapshot: ' + error.message, 'error');
+        });
+    }
+};
 
-            const formData = new FormData();
-            formData.append('action', 'delete');
-            formData.append('id', snapshotId);
-            formData.append('csrf_token', document.querySelector('input[name="csrf_token"]').value);
+// Initialize modal manager
+const modalManager = new ModalManager();
+window.modalManager = modalManager;
+window.SnapshotManager = SnapshotManager;
 
-            fetchJson(snapshotEndpoint, {
+// Form submissions
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize dashboard metrics refresh
+    refreshDashboardMetrics(); // Initial load
+    setInterval(refreshDashboardMetrics, 30000); // Refresh every 30 seconds
+
+    updatePeakHoursSummary();
+    loadMlMetrics();
+    setInterval(loadMlMetrics, 60000);
+    if (logControls.rows) {
+        const debouncedLogSearch = debounce(() => loadMlPredictionLogs(), 350);
+        loadMlPredictionLogs();
+        if (logControls.filter) {
+            logControls.filter.addEventListener('change', () => loadMlPredictionLogs());
+        }
+        if (logControls.limit) {
+            logControls.limit.addEventListener('change', () => loadMlPredictionLogs());
+        }
+        if (logControls.search) {
+            logControls.search.addEventListener('input', debouncedLogSearch);
+        }
+        if (logControls.refresh) {
+            logControls.refresh.addEventListener('click', () => loadMlPredictionLogs());
+        }
+    }
+
+    const logScrollBtn = document.getElementById('ml-log-scroll');
+    if (logScrollBtn) {
+        logScrollBtn.addEventListener('click', () => {
+            const logbook = document.getElementById('ml-logbook-card');
+            if (logbook) {
+                logbook.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    }
+
+    const mlLogToggle = document.getElementById('ml-log-toggle');
+    const mlLogContent = document.getElementById('ml-log-content');
+
+    if (mlLogToggle && mlLogContent) {
+        mlLogToggle.addEventListener('click', () => {
+            const isHidden = mlLogContent.classList.contains('hidden');
+            if (isHidden) {
+                mlLogContent.classList.remove('hidden');
+                mlLogToggle.textContent = 'Hide Logbook';
+                loadMlPredictionLogs();
+            } else {
+                mlLogContent.classList.add('hidden');
+                mlLogToggle.textContent = 'Show Logbook';
+            }
+        });
+    }
+
+    // User form submission
+    const userForm = document.getElementById('user-form');
+    if (userForm) {
+        userForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const isEdit = formData.get('id');
+            
+            // FIX: Remove username from edit payload
+            if (isEdit) {
+                formData.delete('username');
+            }
+            
+            formData.append('action', isEdit ? 'update' : 'create');
+
+            fetchJson(modalManager.userEndpoint, {
                 method: 'POST',
                 body: formData
             })
-                .then(data => {
-                    if (data.success) {
-                        modalManager.showToast(data.message, 'success');
-                        this.loadSnapshots();
-                    } else {
-                        modalManager.showToast(data.message, 'error');
+            .then(data => {
+                if (data.success) {
+                    modalManager.showToast(data.message, 'success');
+                    if (data.temp_password) {
+                        modalManager.showToast(`Temporary password: ${data.temp_password}`, 'info');
                     }
-                })
-                .catch(error => {
-                    modalManager.showToast('Error deleting snapshot: ' + error.message, 'error');
-                });
-        }
-    };
-
-    // Initialize modal manager
-    const modalManager = new ModalManager();
-    window.modalManager = modalManager;
-    window.SnapshotManager = SnapshotManager;
-
-    // Form submissions
-    document.addEventListener('DOMContentLoaded', function () {
-        // Initialize dashboard metrics refresh
-        refreshDashboardMetrics(); // Initial load
-        setInterval(refreshDashboardMetrics, 30000); // Refresh every 30 seconds
-
-        updatePeakHoursSummary();
-        loadMlMetrics();
-        setInterval(loadMlMetrics, 60000);
-        if (logControls.rows) {
-            const debouncedLogSearch = debounce(() => loadMlPredictionLogs(), 350);
-            loadMlPredictionLogs();
-            if (logControls.filter) {
-                logControls.filter.addEventListener('change', () => loadMlPredictionLogs());
-            }
-            if (logControls.limit) {
-                logControls.limit.addEventListener('change', () => loadMlPredictionLogs());
-            }
-            if (logControls.search) {
-                logControls.search.addEventListener('input', debouncedLogSearch);
-            }
-            if (logControls.refresh) {
-                logControls.refresh.addEventListener('click', () => loadMlPredictionLogs());
-            }
-        }
-
-        const logScrollBtn = document.getElementById('ml-log-scroll');
-        if (logScrollBtn) {
-            logScrollBtn.addEventListener('click', () => {
-                const logbook = document.getElementById('ml-logbook-card');
-                if (logbook) {
-                    logbook.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        }
-
-        const mlLogToggle = document.getElementById('ml-log-toggle');
-        const mlLogContent = document.getElementById('ml-log-content');
-
-        if (mlLogToggle && mlLogContent) {
-            mlLogToggle.addEventListener('click', () => {
-                const isHidden = mlLogContent.classList.contains('hidden');
-                if (isHidden) {
-                    mlLogContent.classList.remove('hidden');
-                    mlLogToggle.textContent = 'Hide Logbook';
-                    loadMlPredictionLogs();
+                    modalManager.closeModal(document.getElementById('userFormModalBg'));
+                    modalManager.loadUsers();
                 } else {
-                    mlLogContent.classList.add('hidden');
-                    mlLogToggle.textContent = 'Show Logbook';
+                    modalManager.showToast(data.message || 'Unable to save user.', 'error');
                 }
+            })
+            .catch(error => {
+                modalManager.showToast('Error saving user: ' + error.message, 'error');
             });
-        }
-
-        // User form submission
-        const userForm = document.getElementById('user-form');
-        if (userForm) {
-            userForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-                const formData = new FormData(this);
-                const isEdit = formData.get('id');
-
-                // FIX: Remove username from edit payload
-                if (isEdit) {
-                    formData.delete('username');
-                }
-
-                formData.append('action', isEdit ? 'update' : 'create');
-
-                fetchJson(modalManager.userEndpoint, {
-                    method: 'POST',
-                    body: formData
-                })
-                    .then(data => {
-                        if (data.success) {
-                            modalManager.showToast(data.message, 'success');
-                            if (data.temp_password) {
-                                modalManager.showToast(`Temporary password: ${data.temp_password}`, 'info');
-                            }
-                            modalManager.closeModal(document.getElementById('userFormModalBg'));
-                            modalManager.loadUsers();
-                        } else {
-                            modalManager.showToast(data.message || 'Unable to save user.', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        modalManager.showToast('Error saving user: ' + error.message, 'error');
-                    });
-            });
-        }
-
-        // New user button
-        const newUserBtn = document.getElementById('new-user-btn');
-        if (newUserBtn) {
-            newUserBtn.addEventListener('click', function () {
-                document.getElementById('user-form-title').textContent = 'Create User';
-                document.getElementById('user-form').reset();
-                document.getElementById('user-id').value = '';
-                document.getElementById('password-row').style.display = 'table-row';
-                modalManager.closeModal(document.getElementById('accountsModalBg'));
-                modalManager.openModal('userFormModalBg');
-            });
-        }
-
-        // Search and filter handlers
-        const userSearch = document.getElementById('user-search');
-        const roleFilter = document.getElementById('role-filter');
-        const statusFilter = document.getElementById('status-filter');
-        const refreshBtn = document.getElementById('refresh-users');
-
-        if (userSearch) {
-            let searchTimeout;
-            userSearch.addEventListener('input', function () {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => modalManager.loadUsers(), 500);
-            });
-        }
-
-        if (roleFilter) {
-            roleFilter.addEventListener('change', () => modalManager.loadUsers());
-        }
-
-        if (statusFilter) {
-            statusFilter.addEventListener('change', () => modalManager.loadUsers());
-        }
-
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', () => modalManager.loadUsers());
-        }
-
-        // Copy password functionality
-        const copyBtn = document.getElementById('copy-password');
-        if (copyBtn) {
-            copyBtn.addEventListener('click', function () {
-                const passwordInput = document.getElementById('temp-password-value');
-                passwordInput.select();
-                document.execCommand('copy');
-                modalManager.showToast('Password copied to clipboard', 'success');
-            });
-        }
-
-        // Charter form date handling
-        const charterForm = document.getElementById('charter-report-form');
-        if (charterForm) {
-            charterForm.addEventListener('submit', function (e) {
-                const monthYearInput = document.getElementById('charter-month');
-                const [year, month] = monthYearInput.value.split('-');
-                document.getElementById('charter-month-hidden').value = month;
-                document.getElementById('charter-year-hidden').value = year;
-            });
-        }
-
-        // Password reset form submission
-        const resetPasswordForm = document.getElementById('reset-password-form');
-        if (resetPasswordForm) {
-            resetPasswordForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-                const formData = new FormData(this);
-                formData.append('action', 'reset_password');
-
-                fetchJson(modalManager.userEndpoint, {
-                    method: 'POST',
-                    body: formData
-                })
-                    .then(data => {
-                        if (data.success) {
-                            modalManager.showToast(data.message, 'success');
-                            modalManager.closeModal(document.getElementById('resetPasswordModalBg'));
-                        } else {
-                            modalManager.showToast(data.message || 'Unable to reset password.', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        modalManager.showToast('Error resetting password: ' + error.message, 'error');
-                    });
-            });
-        }
-
-        // Create snapshot form submission
-        const createSnapshotForm = document.getElementById('create-snapshot-form');
-        if (createSnapshotForm) {
-            createSnapshotForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-                const formData = new FormData(this);
-                formData.append('action', 'create');
-
-                fetchJson(snapshotEndpoint, {
-                    method: 'POST',
-                    body: formData
-                })
-                    .then(data => {
-                        if (data.success) {
-                            modalManager.showToast(data.message, 'success');
-                            this.reset();
-                            SnapshotManager.loadSnapshots();
-                        } else {
-                            modalManager.showToast(data.message, 'error');
-                        }
-                    })
-                    .catch(error => {
-                        modalManager.showToast('Error creating snapshot: ' + error.message, 'error');
-                    });
-            });
-        }
-    });
-
-    // Add role checking function for JavaScript
-    function hasRole(role) {
-        if (Array.isArray(role)) {
-            return role.includes(userRole);
-        }
-        return userRole === role;
+        });
     }
+
+    // New user button
+    const newUserBtn = document.getElementById('new-user-btn');
+    if (newUserBtn) {
+        newUserBtn.addEventListener('click', function() {
+            document.getElementById('user-form-title').textContent = 'Create User';
+            document.getElementById('user-form').reset();
+            document.getElementById('user-id').value = '';
+            document.getElementById('password-row').style.display = 'table-row';
+            modalManager.closeModal(document.getElementById('accountsModalBg'));
+            modalManager.openModal('userFormModalBg');
+        });
+    }
+
+    // Search and filter handlers
+    const userSearch = document.getElementById('user-search');
+    const roleFilter = document.getElementById('role-filter');
+    const statusFilter = document.getElementById('status-filter');
+    const refreshBtn = document.getElementById('refresh-users');
+
+    if (userSearch) {
+        let searchTimeout;
+        userSearch.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => modalManager.loadUsers(), 500);
+        });
+    }
+
+    if (roleFilter) {
+        roleFilter.addEventListener('change', () => modalManager.loadUsers());
+    }
+
+    if (statusFilter) {
+        statusFilter.addEventListener('change', () => modalManager.loadUsers());
+    }
+
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => modalManager.loadUsers());
+    }
+
+    // Copy password functionality
+    const copyBtn = document.getElementById('copy-password');
+    if (copyBtn) {
+        copyBtn.addEventListener('click', function() {
+            const passwordInput = document.getElementById('temp-password-value');
+            passwordInput.select();
+            document.execCommand('copy');
+            modalManager.showToast('Password copied to clipboard', 'success');
+        });
+    }
+
+    // Charter form date handling
+    const charterForm = document.getElementById('charter-report-form');
+    if (charterForm) {
+        charterForm.addEventListener('submit', function(e) {
+            const monthYearInput = document.getElementById('charter-month');
+            const [year, month] = monthYearInput.value.split('-');
+            document.getElementById('charter-month-hidden').value = month;
+            document.getElementById('charter-year-hidden').value = year;
+        });
+    }
+
+    // Password reset form submission
+    const resetPasswordForm = document.getElementById('reset-password-form');
+    if (resetPasswordForm) {
+        resetPasswordForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            formData.append('action', 'reset_password');
+
+            fetchJson(modalManager.userEndpoint, {
+                method: 'POST',
+                body: formData
+            })
+            .then(data => {
+                if (data.success) {
+                    modalManager.showToast(data.message, 'success');
+                    modalManager.closeModal(document.getElementById('resetPasswordModalBg'));
+                } else {
+                    modalManager.showToast(data.message || 'Unable to reset password.', 'error');
+                }
+            })
+            .catch(error => {
+                modalManager.showToast('Error resetting password: ' + error.message, 'error');
+            });
+        });
+    }
+
+    // Create snapshot form submission
+    const createSnapshotForm = document.getElementById('create-snapshot-form');
+    if (createSnapshotForm) {
+       createSnapshotForm.addEventListener('submit', function(e) {
+           e.preventDefault();
+           const formData = new FormData(this);
+           formData.append('action', 'create');
+
+           fetchJson(snapshotEndpoint, {
+               method: 'POST',
+               body: formData
+           })
+           .then(data => {
+               if (data.success) {
+                   modalManager.showToast(data.message, 'success');
+                   this.reset();
+                   SnapshotManager.loadSnapshots();
+               } else {
+                   modalManager.showToast(data.message, 'error');
+               }
+           })
+           .catch(error => {
+               modalManager.showToast('Error creating snapshot: ' + error.message, 'error');
+           });
+       });
+    }
+
+    // ===== Gantt init via this confirmed-working DCL listener =====
+    if (typeof window._initGantt === 'function') {
+        window._initGantt();
+        window._initGantt = null;
+    }
+});
+
+// Add role checking function for JavaScript
+function hasRole(role) {
+   if (Array.isArray(role)) {
+       return role.includes(userRole);
+   }
+   return userRole === role;
+}
+
+
+
+// ===== Stand Usage Gantt Chart =====
+(function() {
+    var CAT_COLORS = {
+        komersial: '#3b82f6', commercial: '#3b82f6',
+        cargo: '#14b8a6',
+        charter: '#a855f7', private: '#a855f7'
+    };
+    var RON_COLOR   = '#f59e0b';
+    var OTHER_COLOR = '#94a3b8';
+    var _lastMovements = [];
+    var _allStands     = [];
+    var _showAll       = false;
+
+    function minutesToHHMM(min) {
+        var h = Math.floor(min / 60) % 24;
+        var m = min % 60;
+        return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+    }
+
+    function getBarColor(row) {
+        if (parseInt(row.is_ron)===1 && parseInt(row.end_minutes)===1440) return RON_COLOR;
+        return CAT_COLORS[(row.category||'').toLowerCase()] || OTHER_COLOR;
+    }
+
+    function renderGantt(container, movements, standsToShow) {
+        var byStand = {};
+        (movements||[]).forEach(function(row) {
+            var s = row.parking_stand||'N/A';
+            if (!byStand[s]) byStand[s]=[];
+            byStand[s].push(row);
+        });
+        var stands;
+        if (standsToShow && standsToShow.length>0) {
+            var ss={};
+            standsToShow.forEach(function(s){ss[s]=true;});
+            Object.keys(byStand).forEach(function(s){ss[s]=true;});
+            stands=Object.keys(ss).sort();
+        } else {
+            stands=Object.keys(byStand).sort();
+        }
+        if (stands.length===0) {
+            container.innerHTML='<p style="color:#94a3b8;text-align:center;padding:24px 0;font-size:12px;">No movements recorded for this date.</p>';
+            return;
+        }
+        var LW=64, RH=26, TH=22;
+        var h='<div style="display:flex;font-size:11px;font-family:monospace;min-width:700px;">';
+        h+='<div style="width:'+LW+'px;flex-shrink:0;">';
+        h+='<div style="height:'+TH+'px;"></div>';
+        stands.forEach(function(s){
+            var hd=byStand[s]&&byStand[s].length>0;
+            h+='<div style="height:'+RH+'px;display:flex;align-items:center;padding-right:6px;font-weight:600;color:'+(hd?'#1e3a5f':'#94a3b8')+';justify-content:flex-end;border-top:1px solid #e2e8f0;font-size:10px;">'+s+'</div>';
+        });
+        h+='</div>';
+        h+='<div style="flex:1;min-width:0;overflow:hidden;">';
+        h+='<div style="display:flex;height:'+TH+'px;border-bottom:2px solid #94a3b8;">';
+        for (var hh=0;hh<=24;hh+=2) {
+            var isMajor=(hh%6===0);
+            h+='<div style="flex:1;font-size:'+(isMajor?'10':'9')+'px;color:'+(isMajor?'#1e3a5f':'#94a3b8')+';padding-left:3px;font-weight:'+(isMajor?'700':'400')+';border-left:'+(isMajor&&hh>0?'1px solid #94a3b8':'none')+';">'+(isMajor?String(hh).padStart(2,'0'):String(hh).padStart(2,'0'))+'</div>';
+        }
+        h+='</div>';
+        stands.forEach(function(s,idx){
+            var hd=byStand[s]&&byStand[s].length>0;
+            var bg=hd?(idx%2===0?'#f0f7ff':'#f8fafc'):(idx%2===0?'#fafafa':'#ffffff');
+            h+='<div style="position:relative;height:'+RH+'px;background:'+bg+';border-top:1px solid #e2e8f0;">';
+            // 6-hour zone shading (00-06 slate, 06-12 sky, 12-18 slate, 18-24 sky alternating)
+            var zones=[
+                {s:0,   w:25,  c:'rgba(241,245,249,0.55)'},
+                {s:25,  w:25,  c:'rgba(239,246,255,0.45)'},
+                {s:50,  w:25,  c:'rgba(241,245,249,0.55)'},
+                {s:75,  w:25,  c:'rgba(239,246,255,0.45)'}
+            ];
+            zones.forEach(function(z){h+='<div style="position:absolute;top:0;bottom:0;left:'+z.s+'%;width:'+z.w+'%;background:'+z.c+';pointer-events:none;"></div>';});
+            // Minor grid lines — every 2 hours, faint
+            for (var gh=2;gh<=22;gh+=2) {
+                if (gh%6!==0) {
+                    var gp=(gh/24*100).toFixed(2);
+                    h+='<div style="position:absolute;top:0;bottom:0;left:'+gp+'%;width:1px;background:rgba(203,213,225,0.5);pointer-events:none;"></div>';
+                }
+            }
+            // Major grid lines — every 6 hours, clearly visible
+            for (var gh=6;gh<=18;gh+=6) {
+                var gp=(gh/24*100).toFixed(2);
+                h+='<div style="position:absolute;top:0;bottom:0;left:'+gp+'%;width:1px;background:rgba(71,85,105,0.4);pointer-events:none;"></div>';
+            }
+            if (byStand[s]) {
+                byStand[s].forEach(function(row){
+                    var st=Math.max(0,Math.min(1440,parseInt(row.start_minutes)||0));
+                    var en=Math.max(0,Math.min(1440,parseInt(row.end_minutes)||1440));
+                    if (en<=st) return;
+                    var lp=(st/1440*100).toFixed(3);
+                    var wp=((en-st)/1440*100).toFixed(3);
+                    var col=getBarColor(row);
+                    var lbl=(parseFloat(wp)>4&&row.registration)?row.registration:'';
+                    var tip=[row.registration||'',row.operator_airline||'',row.category||'',minutesToHHMM(st)+'-'+(en===1440?'24:00':minutesToHHMM(en))].filter(Boolean).join(' | ').replace(/"/g,'&quot;');
+                    h+='<div title="'+tip+'" style="position:absolute;top:3px;bottom:3px;left:'+lp+'%;width:'+wp+'%;background:'+col+';border-radius:3px;opacity:0.88;overflow:hidden;display:flex;align-items:center;padding:0 3px;font-size:9px;color:#fff;white-space:nowrap;">'+lbl+'</div>';
+                });
+            }
+            h+='</div>';
+        });
+        h+='</div></div>';
+        container.innerHTML=h;
+    }
+
+    function applyRender(container) {
+        renderGantt(container, _lastMovements, _showAll?_allStands:[]);
+    }
+
+    function updateToggleBtn(btn) {
+        if (!btn) return;
+        if (_showAll) {
+            btn.textContent='Occupied Only';
+            btn.style.cssText='font-size:0.75rem;border:1px solid #1e3a5f;padding:4px 12px;border-radius:4px;font-weight:600;cursor:pointer;background:#1e3a5f;color:#fff;';
+        } else {
+            btn.textContent='Show All Stands';
+            btn.style.cssText='font-size:0.75rem;border:1px solid #e2e8f0;padding:4px 12px;border-radius:4px;font-weight:600;cursor:pointer;background:#fff;color:#64748b;';
+        }
+    }
+
+    function loadGantt(date, container, statusEl, toggleBtn) {
+        if (!container) return;
+        if (statusEl) statusEl.textContent='Loading...';
+        container.innerHTML='';
+        var cfg=window.dashboardConfig&&window.dashboardConfig.endpoints;
+        var base=(cfg&&cfg.dashboardMovements)?cfg.dashboardMovements:'api/dashboard/movements';
+        var url=base+'?action=stand_usage&date='+encodeURIComponent(date);
+        fetch(url,{credentials:'same-origin'})
+            .then(function(r){return r.json();})
+            .then(function(resp){
+                if (resp&&resp.success) {
+                    _lastMovements=resp.data||[];
+                    _allStands=resp.allStands||[];
+                    applyRender(container);
+                    var occ=_lastMovements.length, total=_allStands.length;
+                    var mode=_showAll?'all '+total+' stands':occ+' occupied stand(s)';
+                    if (statusEl) statusEl.textContent='Showing '+mode+' - '+date;
+                } else {
+                    container.innerHTML='<p style="color:#ef4444;padding:16px;font-size:12px;">Failed to load data.</p>';
+                    if (statusEl) statusEl.textContent='Error.';
+                }
+            })
+            .catch(function(err){
+                console.error('[Gantt]',err);
+                container.innerHTML='<p style="color:#ef4444;padding:16px;font-size:12px;">'+err.message+'</p>';
+                if (statusEl) statusEl.textContent='Network error.';
+            });
+    }
+
+    function initGantt() {
+        var container  = document.getElementById('gantt-container');
+        var dateInput  = document.getElementById('gantt-date');
+        var refreshBtn = document.getElementById('gantt-refresh');
+        var toggleBtn  = document.getElementById('gantt-toggle-all');
+        var statusEl   = document.getElementById('gantt-status');
+        if (!container || !dateInput) { console.warn('[Gantt] required elements missing'); return; }
+
+        loadGantt(dateInput.value, container, statusEl, toggleBtn);
+
+        dateInput.addEventListener('change', function(){
+            loadGantt(dateInput.value, container, statusEl, toggleBtn);
+        });
+        if (refreshBtn) refreshBtn.addEventListener('click', function(){
+            loadGantt(dateInput.value, container, statusEl, toggleBtn);
+        });
+        if (toggleBtn) toggleBtn.addEventListener('click', function(){
+            _showAll=!_showAll;
+            updateToggleBtn(toggleBtn);
+            applyRender(container);
+            var occ=_lastMovements.length, total=_allStands.length;
+            var mode=_showAll?'all '+total+' stands':occ+' occupied stand(s)';
+            if (statusEl) statusEl.textContent='Showing '+mode+' - '+dateInput.value;
+        });
+    }
+
+    // Expose initGantt so the main DOMContentLoaded listener can call it
+    window._initGantt = initGantt;
+})();
+
 })();

@@ -59,6 +59,21 @@ class DashboardController extends Controller
 
     public function movementMetrics(): Response
     {
+        $request = $this->request();
+        $action  = strtolower((string) $request->query('action', ''));
+
+        // Stand Usage Gantt data — called by the dashboard Gantt chart JS
+        if ($action === 'stand_usage') {
+            $date = (string) $request->query('date', date('Y-m-d'));
+            // Basic date validation
+            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+                $date = date('Y-m-d');
+            }
+            $data      = $this->movements->standUsage($date);
+            $allStands = $this->movements->getAllStands();
+            return Response::json(['success' => true, 'data' => $data, 'allStands' => $allStands]);
+        }
+
         $today = date('Y-m-d');
         return Response::json([
             'success' => true,
