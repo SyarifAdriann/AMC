@@ -103,19 +103,12 @@ Write-Host "Directories created OK"
 
 ## STEP 6 — Import the database
 
-First check if the user has a database dump file.
-Look for any .sql file in common locations:
-```powershell
-Get-ChildItem -Path $env:USERPROFILE\Desktop, $env:USERPROFILE\Downloads, "C:\xampp\htdocs\AMC" -Filter "*.sql" -ErrorAction SilentlyContinue | Select FullName
-```
+The database dump is already included in the repo at `C:\xampp\htdocs\AMC\amc.sql`.
+Just create the database and import it:
 
-If a dump file is found (e.g. amc_dump.sql), import it:
 ```powershell
-# Replace the path below with the actual path to the .sql dump file
-$dumpFile = "PATH_TO_DUMP_FILE_HERE"
-
 C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE IF NOT EXISTS amc CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-C:\xampp\mysql\bin\mysql.exe -u root amc < $dumpFile
+C:\xampp\mysql\bin\mysql.exe -u root amc < C:\xampp\htdocs\AMC\amc.sql
 Write-Host "Database import complete"
 ```
 
@@ -124,11 +117,6 @@ Verify tables exist:
 C:\xampp\mysql\bin\mysql.exe -u root amc -e "SHOW TABLES;"
 ```
 Expected output: should list tables including aircraft_movements, users, ml_prediction_log.
-
-If no dump file is found, tell the user:
-"Please export the database from your old machine with this command:
-C:\xampp\mysql\bin\mysqldump.exe -u root amc > amc_dump.sql
-Then copy amc_dump.sql to this machine and re-run Step 6."
 
 ---
 
@@ -247,6 +235,5 @@ Write-Host "Login: username=DOCKER  password=DOCKER"
 
 1. Install XAMPP from https://www.apachefriends.org
 2. Open XAMPP Control Panel and click Start for Apache and MySQL
-3. Copy the database dump file (amc_dump.sql) from the old machine to this machine
-4. That's it — Claude Code handles everything else above
+3. That's it — Claude Code handles everything else above
 
