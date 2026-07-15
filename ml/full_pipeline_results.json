@@ -1,0 +1,753 @@
+[
+  {
+    "test_case": {
+      "label": "TC-01",
+      "registration": "PK-LUO",
+      "aircraft_type": "A 320",
+      "operator_airline": "BATIK AIR",
+      "category": "Komersial"
+    },
+    "success": true,
+    "raw_predictions": [
+      {
+        "stand": "A1",
+        "probability": 0.25503955282130336,
+        "rank": 1
+      },
+      {
+        "stand": "A2",
+        "probability": 0.24982371864755806,
+        "rank": 2
+      },
+      {
+        "stand": "A3",
+        "probability": 0.24483625292145114,
+        "rank": 3
+      }
+    ],
+    "final": [
+      {
+        "rank": 1,
+        "stand": "A1",
+        "probability": 0.25503955282130336,
+        "preference_score": 100.0,
+        "composite_score": 0.5530237316927821
+      },
+      {
+        "rank": 2,
+        "stand": "A2",
+        "probability": 0.24982371864755806,
+        "preference_score": 95.0,
+        "composite_score": 0.5298942311885348
+      },
+      {
+        "rank": 3,
+        "stand": "A3",
+        "probability": 0.24483625292145114,
+        "preference_score": 90.0,
+        "composite_score": 0.5069017517528707
+      }
+    ],
+    "occupied_snapshot": [
+      "B10",
+      "B12",
+      "B13",
+      "B3",
+      "B4",
+      "B5",
+      "B7",
+      "B8",
+      "B9",
+      "C3",
+      "RW06",
+      "SA15",
+      "SA16",
+      "SA23",
+      "WR01",
+      "WR03"
+    ],
+    "preferences": {
+      "A1": 100.0,
+      "A2": 95.0,
+      "A3": 90.0,
+      "B1": 85.0,
+      "B6": 80.0,
+      "B7": 75.0,
+      "B8": 70.0
+    }
+  },
+  {
+    "test_case": {
+      "label": "TC-02",
+      "registration": "PK-GJT",
+      "aircraft_type": "ATR 72",
+      "operator_airline": "CITILINK",
+      "category": "Komersial"
+    },
+    "success": true,
+    "raw_predictions": [
+      {
+        "stand": "A3",
+        "probability": 0.22860932015878535,
+        "rank": 1
+      },
+      {
+        "stand": "B1",
+        "probability": 0.21928720206976987,
+        "rank": 2
+      },
+      {
+        "stand": "B2",
+        "probability": 0.21176043736176872,
+        "rank": 3
+      }
+    ],
+    "final": [
+      {
+        "rank": 1,
+        "stand": "B1",
+        "probability": 0.21928720206976987,
+        "preference_score": 100.0,
+        "composite_score": 0.5315723212418619
+      },
+      {
+        "rank": 2,
+        "stand": "B2",
+        "probability": 0.21176043736176872,
+        "preference_score": 95.0,
+        "composite_score": 0.5070562624170613
+      },
+      {
+        "rank": 3,
+        "stand": "A3",
+        "probability": 0.22860932015878535,
+        "preference_score": 90.0,
+        "composite_score": 0.4971655920952712
+      }
+    ],
+    "occupied_snapshot": [
+      "B10",
+      "B12",
+      "B13",
+      "B3",
+      "B4",
+      "B5",
+      "B7",
+      "B8",
+      "B9",
+      "C3",
+      "RW06",
+      "SA15",
+      "SA16",
+      "SA23",
+      "WR01",
+      "WR03"
+    ],
+    "preferences": {
+      "B1": 100.0,
+      "B2": 95.0,
+      "A3": 90.0
+    }
+  },
+  {
+    "test_case": {
+      "label": "TC-03",
+      "registration": "PK-GFM",
+      "aircraft_type": "B 738",
+      "operator_airline": "GARUDA",
+      "category": "Komersial"
+    },
+    "success": true,
+    "raw_predictions": [
+      {
+        "stand": "B2",
+        "probability": 0.8742383997670535,
+        "rank": 1
+      },
+      {
+        "stand": "B1",
+        "probability": 0.09523276984071921,
+        "rank": 2
+      },
+      {
+        "stand": "A3",
+        "probability": 0.014863656280436954,
+        "rank": 3
+      }
+    ],
+    "final": [
+      {
+        "rank": 1,
+        "stand": "B2",
+        "probability": 0.8742383997670535,
+        "preference_score": 100.0,
+        "composite_score": 0.9245430398602321
+      },
+      {
+        "rank": 2,
+        "stand": "B1",
+        "probability": 0.09523276984071921,
+        "preference_score": 95.0,
+        "composite_score": 0.43713966190443154
+      },
+      {
+        "rank": 3,
+        "stand": "A3",
+        "probability": 0.014863656280436954,
+        "preference_score": 85.0,
+        "composite_score": 0.3489181937682622
+      }
+    ],
+    "occupied_snapshot": [
+      "B10",
+      "B12",
+      "B13",
+      "B3",
+      "B4",
+      "B5",
+      "B7",
+      "B8",
+      "B9",
+      "C3",
+      "RW06",
+      "SA15",
+      "SA16",
+      "SA23",
+      "WR01",
+      "WR03"
+    ],
+    "preferences": {
+      "B2": 100.0,
+      "B1": 95.0,
+      "B3": 90.0,
+      "A3": 85.0
+    }
+  },
+  {
+    "test_case": {
+      "label": "TC-04",
+      "registration": "PK-PAH",
+      "aircraft_type": "ATR 72",
+      "operator_airline": "PELITA",
+      "category": "Komersial"
+    },
+    "success": true,
+    "raw_predictions": [
+      {
+        "stand": "A1",
+        "probability": 0.49690588033025507,
+        "rank": 1
+      },
+      {
+        "stand": "A2",
+        "probability": 0.29017728241144325,
+        "rank": 2
+      },
+      {
+        "stand": "A3",
+        "probability": 0.14704438327900302,
+        "rank": 3
+      }
+    ],
+    "final": [
+      {
+        "rank": 1,
+        "stand": "A1",
+        "probability": 0.49690588033025507,
+        "preference_score": 100.0,
+        "composite_score": 0.6981435281981531
+      },
+      {
+        "rank": 2,
+        "stand": "A2",
+        "probability": 0.29017728241144325,
+        "preference_score": 95.0,
+        "composite_score": 0.554106369446866
+      },
+      {
+        "rank": 3,
+        "stand": "A3",
+        "probability": 0.14704438327900302,
+        "preference_score": 90.0,
+        "composite_score": 0.44822662996740187
+      }
+    ],
+    "occupied_snapshot": [
+      "B10",
+      "B12",
+      "B13",
+      "B3",
+      "B4",
+      "B5",
+      "B7",
+      "B8",
+      "B9",
+      "C3",
+      "RW06",
+      "SA15",
+      "SA16",
+      "SA23",
+      "WR01",
+      "WR03"
+    ],
+    "preferences": {
+      "A1": 100.0,
+      "A2": 95.0,
+      "A3": 90.0,
+      "B1": 85.0
+    }
+  },
+  {
+    "test_case": {
+      "label": "TC-05",
+      "registration": "PK-VVM",
+      "aircraft_type": "C 208",
+      "operator_airline": "SUSI AIR",
+      "category": "Komersial"
+    },
+    "success": true,
+    "raw_predictions": [
+      {
+        "stand": "A0",
+        "probability": 0.7431491698917897,
+        "rank": 1
+      },
+      {
+        "stand": "A1",
+        "probability": 0.06737280733230237,
+        "rank": 2
+      },
+      {
+        "stand": "A3",
+        "probability": 0.06473697163722174,
+        "rank": 3
+      }
+    ],
+    "final": [
+      {
+        "rank": 1,
+        "stand": "A0",
+        "probability": 0.7431491698917897,
+        "preference_score": 100.0,
+        "composite_score": 0.8458895019350738
+      },
+      {
+        "rank": 2,
+        "stand": "A1",
+        "probability": 0.06737280733230237,
+        "preference_score": 0.0,
+        "composite_score": 0.040423684399381425
+      },
+      {
+        "rank": 3,
+        "stand": "A3",
+        "probability": 0.06473697163722174,
+        "preference_score": 0.0,
+        "composite_score": 0.038842182982333044
+      }
+    ],
+    "occupied_snapshot": [
+      "B10",
+      "B12",
+      "B13",
+      "B3",
+      "B4",
+      "B5",
+      "B7",
+      "B8",
+      "B9",
+      "C3",
+      "RW06",
+      "SA15",
+      "SA16",
+      "SA23",
+      "WR01",
+      "WR03"
+    ],
+    "preferences": {
+      "A0": 100.0,
+      "B7": 95.0
+    }
+  },
+  {
+    "test_case": {
+      "label": "TC-06",
+      "registration": "PK-BON",
+      "aircraft_type": "G IV",
+      "operator_airline": "JETSET",
+      "category": "Charter"
+    },
+    "success": true,
+    "raw_predictions": [
+      {
+        "stand": "B4",
+        "probability": 0.24888155645461865,
+        "rank": 1
+      },
+      {
+        "stand": "B5",
+        "probability": 0.2314693949307788,
+        "rank": 2
+      },
+      {
+        "stand": "B6",
+        "probability": 0.2110856336178718,
+        "rank": 3
+      }
+    ],
+    "final": [
+      {
+        "rank": 1,
+        "stand": "B6",
+        "probability": 0.2110856336178718,
+        "preference_score": 85.0,
+        "composite_score": 0.4666513801707231
+      },
+      {
+        "rank": 2,
+        "stand": "A1",
+        "probability": null,
+        "preference_score": 0.0,
+        "composite_score": 0.0
+      },
+      {
+        "rank": 3,
+        "stand": "A2",
+        "probability": null,
+        "preference_score": 0.0,
+        "composite_score": 0.0
+      }
+    ],
+    "occupied_snapshot": [
+      "B10",
+      "B12",
+      "B13",
+      "B3",
+      "B4",
+      "B5",
+      "B7",
+      "B8",
+      "B9",
+      "C3",
+      "RW06",
+      "SA15",
+      "SA16",
+      "SA23",
+      "WR01",
+      "WR03"
+    ],
+    "preferences": {
+      "B3": 100.0,
+      "B4": 95.0,
+      "B5": 90.0,
+      "B6": 85.0,
+      "B7": 80.0
+    }
+  },
+  {
+    "test_case": {
+      "label": "TC-07",
+      "registration": "T7-777",
+      "aircraft_type": "BBJ",
+      "operator_airline": "JIP",
+      "category": "Charter"
+    },
+    "success": true,
+    "raw_predictions": [
+      {
+        "stand": "B5",
+        "probability": 0.3518773210453455,
+        "rank": 1
+      },
+      {
+        "stand": "B4",
+        "probability": 0.2590065086489473,
+        "rank": 2
+      },
+      {
+        "stand": "B6",
+        "probability": 0.1661779287745194,
+        "rank": 3
+      }
+    ],
+    "final": [
+      {
+        "rank": 1,
+        "stand": "B6",
+        "probability": 0.1661779287745194,
+        "preference_score": 85.0,
+        "composite_score": 0.43970675726471165
+      },
+      {
+        "rank": 2,
+        "stand": "A1",
+        "probability": null,
+        "preference_score": 0.0,
+        "composite_score": 0.0
+      },
+      {
+        "rank": 3,
+        "stand": "A2",
+        "probability": null,
+        "preference_score": 0.0,
+        "composite_score": 0.0
+      }
+    ],
+    "occupied_snapshot": [
+      "B10",
+      "B12",
+      "B13",
+      "B3",
+      "B4",
+      "B5",
+      "B7",
+      "B8",
+      "B9",
+      "C3",
+      "RW06",
+      "SA15",
+      "SA16",
+      "SA23",
+      "WR01",
+      "WR03"
+    ],
+    "preferences": {
+      "B3": 100.0,
+      "B4": 95.0,
+      "B5": 90.0,
+      "B6": 85.0,
+      "B7": 80.0
+    }
+  },
+  {
+    "test_case": {
+      "label": "TC-08",
+      "registration": "PK-JRB",
+      "aircraft_type": "B 733",
+      "operator_airline": "JAYAWIJAYA",
+      "category": "Cargo"
+    },
+    "success": true,
+    "raw_predictions": [
+      {
+        "stand": "B11",
+        "probability": 0.2788141948291242,
+        "rank": 1
+      },
+      {
+        "stand": "B10",
+        "probability": 0.2678776868442051,
+        "rank": 2
+      },
+      {
+        "stand": "B13",
+        "probability": 0.2033259461685244,
+        "rank": 3
+      }
+    ],
+    "final": [
+      {
+        "rank": 1,
+        "stand": "B11",
+        "probability": 0.2788141948291242,
+        "preference_score": 100.0,
+        "composite_score": 0.5672885168974745
+      },
+      {
+        "rank": 2,
+        "stand": "A1",
+        "probability": null,
+        "preference_score": 0.0,
+        "composite_score": 0.0
+      },
+      {
+        "rank": 3,
+        "stand": "A2",
+        "probability": null,
+        "preference_score": 0.0,
+        "composite_score": 0.0
+      }
+    ],
+    "occupied_snapshot": [
+      "B10",
+      "B12",
+      "B13",
+      "B3",
+      "B4",
+      "B5",
+      "B7",
+      "B8",
+      "B9",
+      "C3",
+      "RW06",
+      "SA15",
+      "SA16",
+      "SA23",
+      "WR01",
+      "WR03"
+    ],
+    "preferences": {
+      "B11": 100.0,
+      "B12": 66.67,
+      "B13": 66.67,
+      "RE05": 33.33,
+      "A3": 33.33,
+      "B1": 33.33,
+      "B7": 33.33,
+      "B10": 33.33
+    }
+  },
+  {
+    "test_case": {
+      "label": "TC-09",
+      "registration": "PK-YST",
+      "aircraft_type": "B 733",
+      "operator_airline": "TRIGANA",
+      "category": "Cargo"
+    },
+    "success": true,
+    "raw_predictions": [
+      {
+        "stand": "B12",
+        "probability": 0.30056627901694005,
+        "rank": 1
+      },
+      {
+        "stand": "B11",
+        "probability": 0.23601734408775457,
+        "rank": 2
+      },
+      {
+        "stand": "B13",
+        "probability": 0.22905912428242828,
+        "rank": 3
+      }
+    ],
+    "final": [
+      {
+        "rank": 1,
+        "stand": "B11",
+        "probability": 0.23601734408775457,
+        "preference_score": 90.0,
+        "composite_score": 0.5016104064526528
+      },
+      {
+        "rank": 2,
+        "stand": "A1",
+        "probability": null,
+        "preference_score": 0.0,
+        "composite_score": 0.0
+      },
+      {
+        "rank": 3,
+        "stand": "A2",
+        "probability": null,
+        "preference_score": 0.0,
+        "composite_score": 0.0
+      }
+    ],
+    "occupied_snapshot": [
+      "B10",
+      "B12",
+      "B13",
+      "B3",
+      "B4",
+      "B5",
+      "B7",
+      "B8",
+      "B9",
+      "C3",
+      "RW06",
+      "SA15",
+      "SA16",
+      "SA23",
+      "WR01",
+      "WR03"
+    ],
+    "preferences": {
+      "B13": 100.0,
+      "B12": 95.0,
+      "B11": 90.0,
+      "B10": 85.0,
+      "B9": 80.0
+    }
+  },
+  {
+    "test_case": {
+      "label": "TC-10",
+      "registration": "PK-BBN",
+      "aircraft_type": "B737F",
+      "operator_airline": "BBN",
+      "category": "Cargo"
+    },
+    "success": true,
+    "raw_predictions": [
+      {
+        "stand": "B11",
+        "probability": 0.19924577530560708,
+        "rank": 1
+      },
+      {
+        "stand": "B10",
+        "probability": 0.18382626730286167,
+        "rank": 2
+      },
+      {
+        "stand": "B8",
+        "probability": 0.16517617697755538,
+        "rank": 3
+      }
+    ],
+    "final": [
+      {
+        "rank": 1,
+        "stand": "B11",
+        "probability": 0.19924577530560708,
+        "preference_score": 100.0,
+        "composite_score": 0.5195474651833643
+      },
+      {
+        "rank": 2,
+        "stand": "A1",
+        "probability": null,
+        "preference_score": 0.0,
+        "composite_score": 0.0
+      },
+      {
+        "rank": 3,
+        "stand": "A2",
+        "probability": null,
+        "preference_score": 0.0,
+        "composite_score": 0.0
+      }
+    ],
+    "occupied_snapshot": [
+      "B10",
+      "B12",
+      "B13",
+      "B3",
+      "B4",
+      "B5",
+      "B7",
+      "B8",
+      "B9",
+      "C3",
+      "RW06",
+      "SA15",
+      "SA16",
+      "SA23",
+      "WR01",
+      "WR03"
+    ],
+    "preferences": {
+      "B11": 100.0,
+      "B12": 66.67,
+      "B13": 66.67,
+      "RE05": 33.33,
+      "A3": 33.33,
+      "B1": 33.33,
+      "B7": 33.33,
+      "B10": 33.33
+    }
+  }
+]

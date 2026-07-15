@@ -1,0 +1,372 @@
+[
+  {
+    "no": 1,
+    "aircraft_type": "ATR 72",
+    "operator_airline": "PELITA",
+    "category_raw": "Komersial",
+    "category_norm": "COMMERCIAL",
+    "actual_stand": "A2",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "MEDIUM_FREQUENCY",
+    "stand_zone": "RIGHT_COMMERCIAL",
+    "encoded_vector": [
+      4,
+      1,
+      24,
+      2,
+      2,
+      2
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "A1",
+        "prob": 0.4969
+      },
+      {
+        "rank": 2,
+        "stand": "A2",
+        "prob": 0.2902
+      },
+      {
+        "rank": 3,
+        "stand": "A3",
+        "prob": 0.147
+      }
+    ],
+    "in_top3": true
+  },
+  {
+    "no": 2,
+    "aircraft_type": "B 738",
+    "operator_airline": "GARUDA",
+    "category_raw": "Komersial",
+    "category_norm": "COMMERCIAL",
+    "actual_stand": "B2",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "HIGH_FREQUENCY",
+    "stand_zone": "RIGHT_COMMERCIAL",
+    "encoded_vector": [
+      14,
+      1,
+      16,
+      0,
+      2,
+      2
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "B2",
+        "prob": 0.8742
+      },
+      {
+        "rank": 2,
+        "stand": "B1",
+        "prob": 0.0952
+      },
+      {
+        "rank": 3,
+        "stand": "A3",
+        "prob": 0.0149
+      }
+    ],
+    "in_top3": true
+  },
+  {
+    "no": 3,
+    "aircraft_type": "A 320",
+    "operator_airline": "BATIK AIR",
+    "category_raw": "Komersial",
+    "category_norm": "COMMERCIAL",
+    "actual_stand": "B5",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "HIGH_FREQUENCY",
+    "stand_zone": "RIGHT_COMMERCIAL",
+    "encoded_vector": [
+      0,
+      1,
+      7,
+      0,
+      2,
+      2
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "A1",
+        "prob": 0.255
+      },
+      {
+        "rank": 2,
+        "stand": "A2",
+        "prob": 0.2498
+      },
+      {
+        "rank": 3,
+        "stand": "A3",
+        "prob": 0.2448
+      }
+    ],
+    "in_top3": false
+  },
+  {
+    "no": 4,
+    "aircraft_type": "ATR 72",
+    "operator_airline": "CITILINK",
+    "category_raw": "Komersial",
+    "category_norm": "COMMERCIAL",
+    "actual_stand": "B2",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "HIGH_FREQUENCY",
+    "stand_zone": "RIGHT_COMMERCIAL",
+    "encoded_vector": [
+      4,
+      1,
+      11,
+      0,
+      2,
+      2
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "A3",
+        "prob": 0.2286
+      },
+      {
+        "rank": 2,
+        "stand": "B1",
+        "prob": 0.2193
+      },
+      {
+        "rank": 3,
+        "stand": "B2",
+        "prob": 0.2118
+      }
+    ],
+    "in_top3": true
+  },
+  {
+    "no": 5,
+    "aircraft_type": "ATR 72",
+    "operator_airline": "FLY JAYA",
+    "category_raw": "Komersial",
+    "category_norm": "COMMERCIAL",
+    "actual_stand": "B2",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "LOW_FREQUENCY",
+    "stand_zone": "RIGHT_COMMERCIAL",
+    "encoded_vector": [
+      4,
+      1,
+      13,
+      1,
+      2,
+      2
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "B2",
+        "prob": 0.4736
+      },
+      {
+        "rank": 2,
+        "stand": "B1",
+        "prob": 0.2291
+      },
+      {
+        "rank": 3,
+        "stand": "A3",
+        "prob": 0.1636
+      }
+    ],
+    "in_top3": true
+  },
+  {
+    "no": 6,
+    "aircraft_type": "G IV",
+    "operator_airline": "JETSET",
+    "category_raw": "Charter",
+    "category_norm": "CHARTER",
+    "actual_stand": "B7",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "MEDIUM_FREQUENCY",
+    "stand_zone": "MIDDLE_CHARTER",
+    "encoded_vector": [
+      46,
+      1,
+      20,
+      2,
+      1,
+      1
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "B4",
+        "prob": 0.2489
+      },
+      {
+        "rank": 2,
+        "stand": "B5",
+        "prob": 0.2315
+      },
+      {
+        "rank": 3,
+        "stand": "B6",
+        "prob": 0.2111
+      }
+    ],
+    "in_top3": false
+  },
+  {
+    "no": 7,
+    "aircraft_type": "EMB 135",
+    "operator_airline": "KARISMA",
+    "category_raw": "CHARTER",
+    "category_norm": "CHARTER",
+    "actual_stand": "B4",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "MEDIUM_FREQUENCY",
+    "stand_zone": "MIDDLE_CHARTER",
+    "encoded_vector": [
+      39,
+      1,
+      22,
+      2,
+      1,
+      1
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "B5",
+        "prob": 0.3194
+      },
+      {
+        "rank": 2,
+        "stand": "B4",
+        "prob": 0.2419
+      },
+      {
+        "rank": 3,
+        "stand": "B6",
+        "prob": 0.1935
+      }
+    ],
+    "in_top3": true
+  },
+  {
+    "no": 8,
+    "aircraft_type": "BBJ",
+    "operator_airline": "JIP",
+    "category_raw": "Charter",
+    "category_norm": "CHARTER",
+    "actual_stand": "B4",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "MEDIUM_FREQUENCY",
+    "stand_zone": "MIDDLE_CHARTER",
+    "encoded_vector": [
+      15,
+      1,
+      21,
+      2,
+      1,
+      1
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "B5",
+        "prob": 0.3519
+      },
+      {
+        "rank": 2,
+        "stand": "B4",
+        "prob": 0.259
+      },
+      {
+        "rank": 3,
+        "stand": "B6",
+        "prob": 0.1662
+      }
+    ],
+    "in_top3": true
+  },
+  {
+    "no": 9,
+    "aircraft_type": "B 733",
+    "operator_airline": "TRI MG",
+    "category_raw": "cargo",
+    "category_norm": "CARGO",
+    "actual_stand": "B10",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "HIGH_FREQUENCY",
+    "stand_zone": "LEFT_CARGO",
+    "encoded_vector": [
+      10,
+      1,
+      37,
+      0,
+      0,
+      0
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "B12",
+        "prob": 0.2902
+      },
+      {
+        "rank": 2,
+        "stand": "B13",
+        "prob": 0.2801
+      },
+      {
+        "rank": 3,
+        "stand": "B11",
+        "prob": 0.2075
+      }
+    ],
+    "in_top3": false
+  },
+  {
+    "no": 10,
+    "aircraft_type": "B 734",
+    "operator_airline": "B. B. N.",
+    "category_raw": "cargo",
+    "category_norm": "CARGO",
+    "actual_stand": "B11",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "LOW_FREQUENCY",
+    "stand_zone": "LEFT_CARGO",
+    "encoded_vector": [
+      11,
+      1,
+      4,
+      1,
+      0,
+      0
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "B11",
+        "prob": 0.3168
+      },
+      {
+        "rank": 2,
+        "stand": "B13",
+        "prob": 0.2961
+      },
+      {
+        "rank": 3,
+        "stand": "B10",
+        "prob": 0.1824
+      }
+    ],
+    "in_top3": true
+  }
+]

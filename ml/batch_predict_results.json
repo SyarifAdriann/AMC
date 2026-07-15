@@ -1,0 +1,262 @@
+[
+  {
+    "test_case": {
+      "label": "TC-01",
+      "aircraft_type": "ATR 72",
+      "operator_airline": "BATIK AIR",
+      "category": "Komersial"
+    },
+    "success": true,
+    "predictions": [
+      {
+        "stand": "A3",
+        "probability": 0.23728200095025895,
+        "rank": 1
+      },
+      {
+        "stand": "A2",
+        "probability": 0.22195437758839698,
+        "rank": 2
+      },
+      {
+        "stand": "A1",
+        "probability": 0.1935843754848407,
+        "rank": 3
+      }
+    ]
+  },
+  {
+    "test_case": {
+      "label": "TC-02",
+      "aircraft_type": "A320",
+      "operator_airline": "CITILINK",
+      "category": "Komersial"
+    },
+    "success": true,
+    "predictions": [
+      {
+        "stand": "B1",
+        "probability": 0.4303724387989979,
+        "rank": 1
+      },
+      {
+        "stand": "B2",
+        "probability": 0.2198900499282677,
+        "rank": 2
+      },
+      {
+        "stand": "A3",
+        "probability": 0.1525932358162926,
+        "rank": 3
+      }
+    ]
+  },
+  {
+    "test_case": {
+      "label": "TC-03",
+      "aircraft_type": "ATR 72",
+      "operator_airline": "GARUDA",
+      "category": "Komersial"
+    },
+    "success": true,
+    "predictions": [
+      {
+        "stand": "B2",
+        "probability": 0.5780535888871955,
+        "rank": 1
+      },
+      {
+        "stand": "B1",
+        "probability": 0.20785945696581784,
+        "rank": 2
+      },
+      {
+        "stand": "A3",
+        "probability": 0.12873813452694743,
+        "rank": 3
+      }
+    ]
+  },
+  {
+    "test_case": {
+      "label": "TC-04",
+      "aircraft_type": "C 208",
+      "operator_airline": "PELITA",
+      "category": "Komersial"
+    },
+    "success": true,
+    "predictions": [
+      {
+        "stand": "A0",
+        "probability": 0.5053601933286217,
+        "rank": 1
+      },
+      {
+        "stand": "A1",
+        "probability": 0.14422165631047892,
+        "rank": 2
+      },
+      {
+        "stand": "A2",
+        "probability": 0.11307528465524515,
+        "rank": 3
+      }
+    ]
+  },
+  {
+    "test_case": {
+      "label": "TC-05",
+      "aircraft_type": "C 208",
+      "operator_airline": "SUSI AIR",
+      "category": "Charter"
+    },
+    "success": true,
+    "predictions": [
+      {
+        "stand": "A0",
+        "probability": 0.2851413520070614,
+        "rank": 1
+      },
+      {
+        "stand": "B6",
+        "probability": 0.16525229876119496,
+        "rank": 2
+      },
+      {
+        "stand": "B7",
+        "probability": 0.14721110822483735,
+        "rank": 3
+      }
+    ]
+  },
+  {
+    "test_case": {
+      "label": "TC-06",
+      "aircraft_type": "PC 12",
+      "operator_airline": "KARISMA",
+      "category": "Charter"
+    },
+    "success": true,
+    "predictions": [
+      {
+        "stand": "B5",
+        "probability": 0.20757459403117515,
+        "rank": 1
+      },
+      {
+        "stand": "A0",
+        "probability": 0.20514750147833014,
+        "rank": 2
+      },
+      {
+        "stand": "B6",
+        "probability": 0.16039004193093565,
+        "rank": 3
+      }
+    ]
+  },
+  {
+    "test_case": {
+      "label": "TC-07",
+      "aircraft_type": "B737",
+      "operator_airline": "JIP",
+      "category": "Charter"
+    },
+    "success": true,
+    "predictions": [
+      {
+        "stand": "B5",
+        "probability": 0.31679088430193264,
+        "rank": 1
+      },
+      {
+        "stand": "B6",
+        "probability": 0.22792368841866054,
+        "rank": 2
+      },
+      {
+        "stand": "B3",
+        "probability": 0.17718508548721112,
+        "rank": 3
+      }
+    ]
+  },
+  {
+    "test_case": {
+      "label": "TC-08",
+      "aircraft_type": "B737F",
+      "operator_airline": "TRI MG",
+      "category": "Cargo"
+    },
+    "success": true,
+    "predictions": [
+      {
+        "stand": "B12",
+        "probability": 0.2250856409357824,
+        "rank": 1
+      },
+      {
+        "stand": "B13",
+        "probability": 0.20873238082050272,
+        "rank": 2
+      },
+      {
+        "stand": "B11",
+        "probability": 0.15655935847716554,
+        "rank": 3
+      }
+    ]
+  },
+  {
+    "test_case": {
+      "label": "TC-09",
+      "aircraft_type": "ATR 72",
+      "operator_airline": "TRIGANA",
+      "category": "Cargo"
+    },
+    "success": true,
+    "predictions": [
+      {
+        "stand": "B12",
+        "probability": 0.26048471792894845,
+        "rank": 1
+      },
+      {
+        "stand": "B11",
+        "probability": 0.18975231531582223,
+        "rank": 2
+      },
+      {
+        "stand": "B13",
+        "probability": 0.18700091102606514,
+        "rank": 3
+      }
+    ]
+  },
+  {
+    "test_case": {
+      "label": "TC-10",
+      "aircraft_type": "B737F",
+      "operator_airline": "BBN",
+      "category": "Cargo"
+    },
+    "success": true,
+    "predictions": [
+      {
+        "stand": "B11",
+        "probability": 0.19924577530560705,
+        "rank": 1
+      },
+      {
+        "stand": "B10",
+        "probability": 0.1838262673028617,
+        "rank": 2
+      },
+      {
+        "stand": "B8",
+        "probability": 0.16517617697755538,
+        "rank": 3
+      }
+    ]
+  }
+]

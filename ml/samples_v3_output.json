@@ -1,0 +1,8800 @@
+[
+  {
+    "no": 1,
+    "aircraft_type": "ATR 72",
+    "operator_airline": "PELITA",
+    "category_raw": "Komersial",
+    "category_norm": "COMMERCIAL",
+    "actual_stand": "A2",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "MEDIUM_FREQUENCY",
+    "stand_zone": "RIGHT_COMMERCIAL",
+    "encoded_vector": [
+      4,
+      1,
+      24,
+      2,
+      2,
+      2
+    ],
+    "tree0_path": [
+      {
+        "node_id": 0,
+        "is_leaf": "False",
+        "gini": 0.941176,
+        "n_samples": 2610,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.058824
+          }
+        ],
+        "feature": "aircraft_size",
+        "feature_index": 1,
+        "threshold": 0.5,
+        "x_value": 1,
+        "condition": "1 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "2",
+        "is_leaf": "False",
+        "gini": 0.938547,
+        "n_samples": 2540,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.009194
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.060848
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.059395
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.061292
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.060758
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.062344
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.062127
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.062263
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.061615
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.062521
+          }
+        ],
+        "feature": "category",
+        "feature_index": 4,
+        "threshold": 0.5,
+        "x_value": 2,
+        "condition": "2 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "4",
+        "is_leaf": "False",
+        "gini": 0.928756,
+        "n_samples": 2229,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.011597
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.076486
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.074353
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.077309
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.076636
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.026089
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.015021
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.017807
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.017311
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.078636
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.077867
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.077237
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.075431
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.061644
+          }
+        ],
+        "feature": "category",
+        "feature_index": 4,
+        "threshold": 1.5,
+        "x_value": 2,
+        "condition": "2 > 1.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "118",
+        "is_leaf": "False",
+        "gini": 0.912499,
+        "n_samples": 1517,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.012476
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.101333
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.106911
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.114048
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.114885
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.023692
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.0101
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.017984
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.00739
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.110208
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.024952
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.016007
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.037412
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.050034
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.073814
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.094262
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.084495
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 13.5,
+        "x_value": 4,
+        "condition": "4 <= 13.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "119",
+        "is_leaf": "False",
+        "gini": 0.91123,
+        "n_samples": 1390,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.013382
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.108696
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.114679
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.121376
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.117875
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.025414
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.010833
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.01929
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.007927
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.067026
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.022516
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.012264
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.035044
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.05367
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.079177
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.101111
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.089719
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 8.5,
+        "x_value": 4,
+        "condition": "4 <= 8.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "120",
+        "is_leaf": "False",
+        "gini": 0.904443,
+        "n_samples": 1356,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.014095
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.114482
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.120783
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.1275
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.124149
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.01956
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.002445
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.000883
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.00167
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.070593
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.023715
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.012917
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.036909
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.056527
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.083392
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.106493
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.083888
+          }
+        ],
+        "feature": "stand_zone",
+        "feature_index": 5,
+        "threshold": 1.5,
+        "x_value": 2,
+        "condition": "2 > 1.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "134",
+        "is_leaf": "False",
+        "gini": 0.802448,
+        "n_samples": 929,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.024658
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.200282
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.211306
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.223058
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.217194
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.123501
+          }
+        ],
+        "feature": "operator_airline",
+        "feature_index": 2,
+        "threshold": 28.5,
+        "x_value": 24,
+        "condition": "24 <= 28.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "135",
+        "is_leaf": "False",
+        "gini": 0.793037,
+        "n_samples": 920,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.203752
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.217578
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.227861
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.223641
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.127167
+          }
+        ],
+        "feature": "airline_tier",
+        "feature_index": 3,
+        "threshold": 1.0,
+        "x_value": 2,
+        "condition": "2 > 1.0000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "143",
+        "is_leaf": "True",
+        "gini": 0.673215,
+        "n_samples": 28,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.468841
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.263503
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.163151
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.104505
+          }
+        ],
+        "predicted_stand": "A1"
+      }
+    ],
+    "root_n_samples": 2610,
+    "root_gini": 0.941176,
+    "root_gini_manual": 0.0,
+    "root_class_dist": [
+      {
+        "stand": "A0",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B10",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B11",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B12",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B13",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B4",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B5",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B6",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B7",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B8",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B9",
+        "count": 0,
+        "p": 0.058824
+      }
+    ],
+    "root_sq_terms": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "root_sum_sq": 0.0,
+    "leaf_node_id": "143",
+    "leaf_n_samples": 28,
+    "leaf_gini": 0.673215,
+    "leaf_gini_manual": 0.0,
+    "leaf_class_dist": [
+      {
+        "stand": "A1",
+        "count": 0,
+        "p": 0.468841
+      },
+      {
+        "stand": "A2",
+        "count": 0,
+        "p": 0.263503
+      },
+      {
+        "stand": "A3",
+        "count": 0,
+        "p": 0.163151
+      },
+      {
+        "stand": "B2",
+        "count": 0,
+        "p": 0.104505
+      }
+    ],
+    "leaf_sq_terms": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "leaf_sum_sq": 0.0,
+    "leaf_pred_stand": "A1",
+    "votes": [
+      {
+        "stand": "A1",
+        "votes": 188,
+        "vote_prob": 0.94
+      },
+      {
+        "stand": "A2",
+        "votes": 12,
+        "vote_prob": 0.06
+      }
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "A1",
+        "prob": 0.496906
+      },
+      {
+        "rank": 2,
+        "stand": "A2",
+        "prob": 0.290177
+      },
+      {
+        "rank": 3,
+        "stand": "A3",
+        "prob": 0.147044
+      }
+    ],
+    "in_top3": true
+  },
+  {
+    "no": 2,
+    "aircraft_type": "B 738",
+    "operator_airline": "GARUDA",
+    "category_raw": "Komersial",
+    "category_norm": "COMMERCIAL",
+    "actual_stand": "B2",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "HIGH_FREQUENCY",
+    "stand_zone": "RIGHT_COMMERCIAL",
+    "encoded_vector": [
+      14,
+      1,
+      16,
+      0,
+      2,
+      2
+    ],
+    "tree0_path": [
+      {
+        "node_id": 0,
+        "is_leaf": "False",
+        "gini": 0.941176,
+        "n_samples": 2610,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.058824
+          }
+        ],
+        "feature": "aircraft_size",
+        "feature_index": 1,
+        "threshold": 0.5,
+        "x_value": 1,
+        "condition": "1 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "2",
+        "is_leaf": "False",
+        "gini": 0.938547,
+        "n_samples": 2540,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.009194
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.060848
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.059395
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.061292
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.060758
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.062344
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.062127
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.062263
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.061615
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.062521
+          }
+        ],
+        "feature": "category",
+        "feature_index": 4,
+        "threshold": 0.5,
+        "x_value": 2,
+        "condition": "2 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "4",
+        "is_leaf": "False",
+        "gini": 0.928756,
+        "n_samples": 2229,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.011597
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.076486
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.074353
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.077309
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.076636
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.026089
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.015021
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.017807
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.017311
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.078636
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.077867
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.077237
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.075431
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.061644
+          }
+        ],
+        "feature": "category",
+        "feature_index": 4,
+        "threshold": 1.5,
+        "x_value": 2,
+        "condition": "2 > 1.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "118",
+        "is_leaf": "False",
+        "gini": 0.912499,
+        "n_samples": 1517,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.012476
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.101333
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.106911
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.114048
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.114885
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.023692
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.0101
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.017984
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.00739
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.110208
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.024952
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.016007
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.037412
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.050034
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.073814
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.094262
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.084495
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 13.5,
+        "x_value": 14,
+        "condition": "14 > 13.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "146",
+        "is_leaf": "False",
+        "gini": 0.485049,
+        "n_samples": 127,
+        "class_dist": [
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.013187
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.073737
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.704488
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.058467
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.067513
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.070008
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.012599
+          }
+        ],
+        "feature": "stand_zone",
+        "feature_index": 5,
+        "threshold": 1.5,
+        "x_value": 2,
+        "condition": "2 > 1.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "148",
+        "is_leaf": "True",
+        "gini": 0.198647,
+        "n_samples": 108,
+        "class_dist": [
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.016663
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.093172
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.890165
+          }
+        ],
+        "predicted_stand": "A3"
+      }
+    ],
+    "root_n_samples": 2610,
+    "root_gini": 0.941176,
+    "root_gini_manual": 0.0,
+    "root_class_dist": [
+      {
+        "stand": "A0",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B10",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B11",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B12",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B13",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B4",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B5",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B6",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B7",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B8",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B9",
+        "count": 0,
+        "p": 0.058824
+      }
+    ],
+    "root_sq_terms": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "root_sum_sq": 0.0,
+    "leaf_node_id": "148",
+    "leaf_n_samples": 108,
+    "leaf_gini": 0.198647,
+    "leaf_gini_manual": 0.0,
+    "leaf_class_dist": [
+      {
+        "stand": "A3",
+        "count": 0,
+        "p": 0.016663
+      },
+      {
+        "stand": "B1",
+        "count": 0,
+        "p": 0.093172
+      },
+      {
+        "stand": "B2",
+        "count": 0,
+        "p": 0.890165
+      }
+    ],
+    "leaf_sq_terms": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "leaf_sum_sq": 0.0,
+    "leaf_pred_stand": "A3",
+    "votes": [
+      {
+        "stand": "B2",
+        "votes": 199,
+        "vote_prob": 0.995
+      },
+      {
+        "stand": "B1",
+        "votes": 1,
+        "vote_prob": 0.005
+      }
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "B2",
+        "prob": 0.874238
+      },
+      {
+        "rank": 2,
+        "stand": "B1",
+        "prob": 0.095233
+      },
+      {
+        "rank": 3,
+        "stand": "A3",
+        "prob": 0.014864
+      }
+    ],
+    "in_top3": true
+  },
+  {
+    "no": 3,
+    "aircraft_type": "A 320",
+    "operator_airline": "BATIK AIR",
+    "category_raw": "Komersial",
+    "category_norm": "COMMERCIAL",
+    "actual_stand": "B5",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "HIGH_FREQUENCY",
+    "stand_zone": "RIGHT_COMMERCIAL",
+    "encoded_vector": [
+      0,
+      1,
+      7,
+      0,
+      2,
+      2
+    ],
+    "tree0_path": [
+      {
+        "node_id": 0,
+        "is_leaf": "False",
+        "gini": 0.941176,
+        "n_samples": 2610,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.058824
+          }
+        ],
+        "feature": "aircraft_size",
+        "feature_index": 1,
+        "threshold": 0.5,
+        "x_value": 1,
+        "condition": "1 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "2",
+        "is_leaf": "False",
+        "gini": 0.938547,
+        "n_samples": 2540,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.009194
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.060848
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.059395
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.061292
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.060758
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.062344
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.062127
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.062263
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.061615
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.062521
+          }
+        ],
+        "feature": "category",
+        "feature_index": 4,
+        "threshold": 0.5,
+        "x_value": 2,
+        "condition": "2 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "4",
+        "is_leaf": "False",
+        "gini": 0.928756,
+        "n_samples": 2229,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.011597
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.076486
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.074353
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.077309
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.076636
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.026089
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.015021
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.017807
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.017311
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.078636
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.077867
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.077237
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.075431
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.061644
+          }
+        ],
+        "feature": "category",
+        "feature_index": 4,
+        "threshold": 1.5,
+        "x_value": 2,
+        "condition": "2 > 1.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "118",
+        "is_leaf": "False",
+        "gini": 0.912499,
+        "n_samples": 1517,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.012476
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.101333
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.106911
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.114048
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.114885
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.023692
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.0101
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.017984
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.00739
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.110208
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.024952
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.016007
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.037412
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.050034
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.073814
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.094262
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.084495
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 13.5,
+        "x_value": 0,
+        "condition": "0 <= 13.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "119",
+        "is_leaf": "False",
+        "gini": 0.91123,
+        "n_samples": 1390,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.013382
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.108696
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.114679
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.121376
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.117875
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.025414
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.010833
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.01929
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.007927
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.067026
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.022516
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.012264
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.035044
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.05367
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.079177
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.101111
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.089719
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 8.5,
+        "x_value": 0,
+        "condition": "0 <= 8.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "120",
+        "is_leaf": "False",
+        "gini": 0.904443,
+        "n_samples": 1356,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.014095
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.114482
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.120783
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.1275
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.124149
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.01956
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.002445
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.000883
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.00167
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.070593
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.023715
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.012917
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.036909
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.056527
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.083392
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.106493
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.083888
+          }
+        ],
+        "feature": "stand_zone",
+        "feature_index": 5,
+        "threshold": 1.5,
+        "x_value": 2,
+        "condition": "2 > 1.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "134",
+        "is_leaf": "False",
+        "gini": 0.802448,
+        "n_samples": 929,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.024658
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.200282
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.211306
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.223058
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.217194
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.123501
+          }
+        ],
+        "feature": "operator_airline",
+        "feature_index": 2,
+        "threshold": 28.5,
+        "x_value": 7,
+        "condition": "7 <= 28.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "135",
+        "is_leaf": "False",
+        "gini": 0.793037,
+        "n_samples": 920,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.203752
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.217578
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.227861
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.223641
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.127167
+          }
+        ],
+        "feature": "airline_tier",
+        "feature_index": 3,
+        "threshold": 1.0,
+        "x_value": 0,
+        "condition": "0 <= 1.0000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "136",
+        "is_leaf": "False",
+        "gini": 0.792633,
+        "n_samples": 892,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.194584
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.21599
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.230099
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.231376
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.127951
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 2.0,
+        "x_value": 0,
+        "condition": "0 <= 2.0000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "137",
+        "is_leaf": "False",
+        "gini": 0.783067,
+        "n_samples": 725,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.216332
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.226611
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.239904
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.232515
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.084639
+          }
+        ],
+        "feature": "operator_airline",
+        "feature_index": 2,
+        "threshold": 9.0,
+        "x_value": 7,
+        "condition": "7 <= 9.0000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "138",
+        "is_leaf": "True",
+        "gini": 0.767592,
+        "n_samples": 558,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.255085
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.257107
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.258148
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.178951
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.050709
+          }
+        ],
+        "predicted_stand": "A1"
+      }
+    ],
+    "root_n_samples": 2610,
+    "root_gini": 0.941176,
+    "root_gini_manual": 0.0,
+    "root_class_dist": [
+      {
+        "stand": "A0",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B10",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B11",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B12",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B13",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B4",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B5",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B6",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B7",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B8",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B9",
+        "count": 0,
+        "p": 0.058824
+      }
+    ],
+    "root_sq_terms": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "root_sum_sq": 0.0,
+    "leaf_node_id": "138",
+    "leaf_n_samples": 558,
+    "leaf_gini": 0.767592,
+    "leaf_gini_manual": 0.0,
+    "leaf_class_dist": [
+      {
+        "stand": "A1",
+        "count": 0,
+        "p": 0.255085
+      },
+      {
+        "stand": "A2",
+        "count": 0,
+        "p": 0.257107
+      },
+      {
+        "stand": "A3",
+        "count": 0,
+        "p": 0.258148
+      },
+      {
+        "stand": "B1",
+        "count": 0,
+        "p": 0.178951
+      },
+      {
+        "stand": "B2",
+        "count": 0,
+        "p": 0.050709
+      }
+    ],
+    "leaf_sq_terms": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "leaf_sum_sq": 0.0,
+    "leaf_pred_stand": "A1",
+    "votes": [
+      {
+        "stand": "A1",
+        "votes": 111,
+        "vote_prob": 0.555
+      },
+      {
+        "stand": "A2",
+        "votes": 48,
+        "vote_prob": 0.24
+      },
+      {
+        "stand": "A3",
+        "votes": 27,
+        "vote_prob": 0.135
+      },
+      {
+        "stand": "B1",
+        "votes": 10,
+        "vote_prob": 0.05
+      },
+      {
+        "stand": "B8",
+        "votes": 4,
+        "vote_prob": 0.02
+      }
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "A1",
+        "prob": 0.25504
+      },
+      {
+        "rank": 2,
+        "stand": "A2",
+        "prob": 0.249824
+      },
+      {
+        "rank": 3,
+        "stand": "A3",
+        "prob": 0.244836
+      }
+    ],
+    "in_top3": false
+  },
+  {
+    "no": 4,
+    "aircraft_type": "ATR 72",
+    "operator_airline": "CITILINK",
+    "category_raw": "Komersial",
+    "category_norm": "COMMERCIAL",
+    "actual_stand": "B2",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "HIGH_FREQUENCY",
+    "stand_zone": "RIGHT_COMMERCIAL",
+    "encoded_vector": [
+      4,
+      1,
+      11,
+      0,
+      2,
+      2
+    ],
+    "tree0_path": [
+      {
+        "node_id": 0,
+        "is_leaf": "False",
+        "gini": 0.941176,
+        "n_samples": 2610,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.058824
+          }
+        ],
+        "feature": "aircraft_size",
+        "feature_index": 1,
+        "threshold": 0.5,
+        "x_value": 1,
+        "condition": "1 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "2",
+        "is_leaf": "False",
+        "gini": 0.938547,
+        "n_samples": 2540,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.009194
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.060848
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.059395
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.061292
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.060758
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.062344
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.062127
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.062263
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.061615
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.062521
+          }
+        ],
+        "feature": "category",
+        "feature_index": 4,
+        "threshold": 0.5,
+        "x_value": 2,
+        "condition": "2 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "4",
+        "is_leaf": "False",
+        "gini": 0.928756,
+        "n_samples": 2229,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.011597
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.076486
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.074353
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.077309
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.076636
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.026089
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.015021
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.017807
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.017311
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.078636
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.077867
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.077237
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.075431
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.061644
+          }
+        ],
+        "feature": "category",
+        "feature_index": 4,
+        "threshold": 1.5,
+        "x_value": 2,
+        "condition": "2 > 1.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "118",
+        "is_leaf": "False",
+        "gini": 0.912499,
+        "n_samples": 1517,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.012476
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.101333
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.106911
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.114048
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.114885
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.023692
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.0101
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.017984
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.00739
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.110208
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.024952
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.016007
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.037412
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.050034
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.073814
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.094262
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.084495
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 13.5,
+        "x_value": 4,
+        "condition": "4 <= 13.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "119",
+        "is_leaf": "False",
+        "gini": 0.91123,
+        "n_samples": 1390,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.013382
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.108696
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.114679
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.121376
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.117875
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.025414
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.010833
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.01929
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.007927
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.067026
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.022516
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.012264
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.035044
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.05367
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.079177
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.101111
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.089719
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 8.5,
+        "x_value": 4,
+        "condition": "4 <= 8.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "120",
+        "is_leaf": "False",
+        "gini": 0.904443,
+        "n_samples": 1356,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.014095
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.114482
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.120783
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.1275
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.124149
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.01956
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.002445
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.000883
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.00167
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.070593
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.023715
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.012917
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.036909
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.056527
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.083392
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.106493
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.083888
+          }
+        ],
+        "feature": "stand_zone",
+        "feature_index": 5,
+        "threshold": 1.5,
+        "x_value": 2,
+        "condition": "2 > 1.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "134",
+        "is_leaf": "False",
+        "gini": 0.802448,
+        "n_samples": 929,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.024658
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.200282
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.211306
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.223058
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.217194
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.123501
+          }
+        ],
+        "feature": "operator_airline",
+        "feature_index": 2,
+        "threshold": 28.5,
+        "x_value": 11,
+        "condition": "11 <= 28.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "135",
+        "is_leaf": "False",
+        "gini": 0.793037,
+        "n_samples": 920,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.203752
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.217578
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.227861
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.223641
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.127167
+          }
+        ],
+        "feature": "airline_tier",
+        "feature_index": 3,
+        "threshold": 1.0,
+        "x_value": 0,
+        "condition": "0 <= 1.0000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "136",
+        "is_leaf": "False",
+        "gini": 0.792633,
+        "n_samples": 892,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.194584
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.21599
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.230099
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.231376
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.127951
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 2.0,
+        "x_value": 4,
+        "condition": "4 > 2.0000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "140",
+        "is_leaf": "False",
+        "gini": 0.766784,
+        "n_samples": 167,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.089553
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.164695
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.182748
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.225878
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.337126
+          }
+        ],
+        "feature": "operator_airline",
+        "feature_index": 2,
+        "threshold": 12.0,
+        "x_value": 11,
+        "condition": "11 <= 12.0000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "141",
+        "is_leaf": "True",
+        "gini": 0.794616,
+        "n_samples": 102,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.144336
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.239759
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.188508
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.223636
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.203761
+          }
+        ],
+        "predicted_stand": "A1"
+      }
+    ],
+    "root_n_samples": 2610,
+    "root_gini": 0.941176,
+    "root_gini_manual": 0.0,
+    "root_class_dist": [
+      {
+        "stand": "A0",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B10",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B11",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B12",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B13",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B4",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B5",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B6",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B7",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B8",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B9",
+        "count": 0,
+        "p": 0.058824
+      }
+    ],
+    "root_sq_terms": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "root_sum_sq": 0.0,
+    "leaf_node_id": "141",
+    "leaf_n_samples": 102,
+    "leaf_gini": 0.794616,
+    "leaf_gini_manual": 0.0,
+    "leaf_class_dist": [
+      {
+        "stand": "A1",
+        "count": 0,
+        "p": 0.144336
+      },
+      {
+        "stand": "A2",
+        "count": 0,
+        "p": 0.239759
+      },
+      {
+        "stand": "A3",
+        "count": 0,
+        "p": 0.188508
+      },
+      {
+        "stand": "B1",
+        "count": 0,
+        "p": 0.223636
+      },
+      {
+        "stand": "B2",
+        "count": 0,
+        "p": 0.203761
+      }
+    ],
+    "leaf_sq_terms": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "leaf_sum_sq": 0.0,
+    "leaf_pred_stand": "A1",
+    "votes": [
+      {
+        "stand": "A3",
+        "votes": 85,
+        "vote_prob": 0.425
+      },
+      {
+        "stand": "B1",
+        "votes": 49,
+        "vote_prob": 0.245
+      },
+      {
+        "stand": "B2",
+        "votes": 46,
+        "vote_prob": 0.23
+      },
+      {
+        "stand": "A2",
+        "votes": 20,
+        "vote_prob": 0.1
+      }
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "A3",
+        "prob": 0.228609
+      },
+      {
+        "rank": 2,
+        "stand": "B1",
+        "prob": 0.219287
+      },
+      {
+        "rank": 3,
+        "stand": "B2",
+        "prob": 0.21176
+      }
+    ],
+    "in_top3": true
+  },
+  {
+    "no": 5,
+    "aircraft_type": "ATR 72",
+    "operator_airline": "FLY JAYA",
+    "category_raw": "Komersial",
+    "category_norm": "COMMERCIAL",
+    "actual_stand": "B2",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "LOW_FREQUENCY",
+    "stand_zone": "RIGHT_COMMERCIAL",
+    "encoded_vector": [
+      4,
+      1,
+      13,
+      1,
+      2,
+      2
+    ],
+    "tree0_path": [
+      {
+        "node_id": 0,
+        "is_leaf": "False",
+        "gini": 0.941176,
+        "n_samples": 2610,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.058824
+          }
+        ],
+        "feature": "aircraft_size",
+        "feature_index": 1,
+        "threshold": 0.5,
+        "x_value": 1,
+        "condition": "1 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "2",
+        "is_leaf": "False",
+        "gini": 0.938547,
+        "n_samples": 2540,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.009194
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.060848
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.059395
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.061292
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.060758
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.062344
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.062127
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.062263
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.061615
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.062521
+          }
+        ],
+        "feature": "category",
+        "feature_index": 4,
+        "threshold": 0.5,
+        "x_value": 2,
+        "condition": "2 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "4",
+        "is_leaf": "False",
+        "gini": 0.928756,
+        "n_samples": 2229,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.011597
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.076486
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.074353
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.077309
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.076636
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.026089
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.015021
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.017807
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.017311
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.078636
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.077867
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.077237
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.075431
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.061644
+          }
+        ],
+        "feature": "category",
+        "feature_index": 4,
+        "threshold": 1.5,
+        "x_value": 2,
+        "condition": "2 > 1.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "118",
+        "is_leaf": "False",
+        "gini": 0.912499,
+        "n_samples": 1517,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.012476
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.101333
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.106911
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.114048
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.114885
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.023692
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.0101
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.017984
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.00739
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.110208
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.024952
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.016007
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.037412
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.050034
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.073814
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.094262
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.084495
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 13.5,
+        "x_value": 4,
+        "condition": "4 <= 13.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "119",
+        "is_leaf": "False",
+        "gini": 0.91123,
+        "n_samples": 1390,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.013382
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.108696
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.114679
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.121376
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.117875
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.025414
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.010833
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.01929
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.007927
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.067026
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.022516
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.012264
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.035044
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.05367
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.079177
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.101111
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.089719
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 8.5,
+        "x_value": 4,
+        "condition": "4 <= 8.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "120",
+        "is_leaf": "False",
+        "gini": 0.904443,
+        "n_samples": 1356,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.014095
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.114482
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.120783
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.1275
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.124149
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.01956
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.002445
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.000883
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.00167
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.070593
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.023715
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.012917
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.036909
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.056527
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.083392
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.106493
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.083888
+          }
+        ],
+        "feature": "stand_zone",
+        "feature_index": 5,
+        "threshold": 1.5,
+        "x_value": 2,
+        "condition": "2 > 1.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "134",
+        "is_leaf": "False",
+        "gini": 0.802448,
+        "n_samples": 929,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.024658
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.200282
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.211306
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.223058
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.217194
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.123501
+          }
+        ],
+        "feature": "operator_airline",
+        "feature_index": 2,
+        "threshold": 28.5,
+        "x_value": 13,
+        "condition": "13 <= 28.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "135",
+        "is_leaf": "False",
+        "gini": 0.793037,
+        "n_samples": 920,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.203752
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.217578
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.227861
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.223641
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.127167
+          }
+        ],
+        "feature": "airline_tier",
+        "feature_index": 3,
+        "threshold": 1.0,
+        "x_value": 1,
+        "condition": "1 <= 1.0000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "136",
+        "is_leaf": "False",
+        "gini": 0.792633,
+        "n_samples": 892,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.194584
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.21599
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.230099
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.231376
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.127951
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 2.0,
+        "x_value": 4,
+        "condition": "4 > 2.0000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "140",
+        "is_leaf": "False",
+        "gini": 0.766784,
+        "n_samples": 167,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.089553
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.164695
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.182748
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.225878
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.337126
+          }
+        ],
+        "feature": "operator_airline",
+        "feature_index": 2,
+        "threshold": 12.0,
+        "x_value": 13,
+        "condition": "13 > 12.0000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "142",
+        "is_leaf": "True",
+        "gini": 0.60733,
+        "n_samples": 65,
+        "class_dist": [
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.041992
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.173332
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.229543
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.555133
+          }
+        ],
+        "predicted_stand": "A2"
+      }
+    ],
+    "root_n_samples": 2610,
+    "root_gini": 0.941176,
+    "root_gini_manual": 0.0,
+    "root_class_dist": [
+      {
+        "stand": "A0",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B10",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B11",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B12",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B13",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B4",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B5",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B6",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B7",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B8",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B9",
+        "count": 0,
+        "p": 0.058824
+      }
+    ],
+    "root_sq_terms": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "root_sum_sq": 0.0,
+    "leaf_node_id": "142",
+    "leaf_n_samples": 65,
+    "leaf_gini": 0.60733,
+    "leaf_gini_manual": 0.0,
+    "leaf_class_dist": [
+      {
+        "stand": "A2",
+        "count": 0,
+        "p": 0.041992
+      },
+      {
+        "stand": "A3",
+        "count": 0,
+        "p": 0.173332
+      },
+      {
+        "stand": "B1",
+        "count": 0,
+        "p": 0.229543
+      },
+      {
+        "stand": "B2",
+        "count": 0,
+        "p": 0.555133
+      }
+    ],
+    "leaf_sq_terms": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "leaf_sum_sq": 0.0,
+    "leaf_pred_stand": "A2",
+    "votes": [
+      {
+        "stand": "B2",
+        "votes": 165,
+        "vote_prob": 0.825
+      },
+      {
+        "stand": "B1",
+        "votes": 14,
+        "vote_prob": 0.07
+      },
+      {
+        "stand": "A2",
+        "votes": 7,
+        "vote_prob": 0.035
+      },
+      {
+        "stand": "A1",
+        "votes": 6,
+        "vote_prob": 0.03
+      },
+      {
+        "stand": "A3",
+        "votes": 4,
+        "vote_prob": 0.02
+      },
+      {
+        "stand": "B6",
+        "votes": 2,
+        "vote_prob": 0.01
+      },
+      {
+        "stand": "B13",
+        "votes": 1,
+        "vote_prob": 0.005
+      },
+      {
+        "stand": "B4",
+        "votes": 1,
+        "vote_prob": 0.005
+      }
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "B2",
+        "prob": 0.473614
+      },
+      {
+        "rank": 2,
+        "stand": "B1",
+        "prob": 0.229096
+      },
+      {
+        "rank": 3,
+        "stand": "A3",
+        "prob": 0.163619
+      }
+    ],
+    "in_top3": true
+  },
+  {
+    "no": 6,
+    "aircraft_type": "G IV",
+    "operator_airline": "JETSET",
+    "category_raw": "Charter",
+    "category_norm": "CHARTER",
+    "actual_stand": "B7",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "MEDIUM_FREQUENCY",
+    "stand_zone": "MIDDLE_CHARTER",
+    "encoded_vector": [
+      46,
+      1,
+      20,
+      2,
+      1,
+      1
+    ],
+    "tree0_path": [
+      {
+        "node_id": 0,
+        "is_leaf": "False",
+        "gini": 0.941176,
+        "n_samples": 2610,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.058824
+          }
+        ],
+        "feature": "aircraft_size",
+        "feature_index": 1,
+        "threshold": 0.5,
+        "x_value": 1,
+        "condition": "1 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "2",
+        "is_leaf": "False",
+        "gini": 0.938547,
+        "n_samples": 2540,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.009194
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.060848
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.059395
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.061292
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.060758
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.062344
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.062127
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.062263
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.061615
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.062521
+          }
+        ],
+        "feature": "category",
+        "feature_index": 4,
+        "threshold": 0.5,
+        "x_value": 1,
+        "condition": "1 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "4",
+        "is_leaf": "False",
+        "gini": 0.928756,
+        "n_samples": 2229,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.011597
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.076486
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.074353
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.077309
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.076636
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.026089
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.015021
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.017807
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.017311
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.078636
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.077867
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.077237
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.075431
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.061644
+          }
+        ],
+        "feature": "category",
+        "feature_index": 4,
+        "threshold": 1.5,
+        "x_value": 1,
+        "condition": "1 <= 1.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "5",
+        "is_leaf": "False",
+        "gini": 0.874858,
+        "n_samples": 712,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.00996
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.030201
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.013707
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.008875
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.005387
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.030553
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.024188
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.017478
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.03579
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.019825
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.179276
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.193098
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.156065
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.132553
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.083613
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.040352
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.019078
+          }
+        ],
+        "feature": "stand_zone",
+        "feature_index": 5,
+        "threshold": 0.5,
+        "x_value": 1,
+        "condition": "1 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "23",
+        "is_leaf": "False",
+        "gini": 0.826815,
+        "n_samples": 630,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.011963
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.036275
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.016463
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.01066
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.00647
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.023813
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.215331
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.231933
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.187452
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.159212
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.100429
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 14.5,
+        "x_value": 46,
+        "condition": "46 > 14.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "37",
+        "is_leaf": "False",
+        "gini": 0.813658,
+        "n_samples": 555,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.013323
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.02626
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.010785
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.002968
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.001965
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.017965
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.229947
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.253558
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.175942
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.157922
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.109363
+          }
+        ],
+        "feature": "airline_tier",
+        "feature_index": 3,
+        "threshold": 0.5,
+        "x_value": 2,
+        "condition": "2 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "101",
+        "is_leaf": "False",
+        "gini": 0.797487,
+        "n_samples": 132,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.007777
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.020761
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.011426
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.002522
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.009881
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.148178
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.186458
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.121317
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.314655
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.177025
+          }
+        ],
+        "feature": "operator_airline",
+        "feature_index": 2,
+        "threshold": 33.0,
+        "x_value": 20,
+        "condition": "20 <= 33.0000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "102",
+        "is_leaf": "False",
+        "gini": 0.79965,
+        "n_samples": 117,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.00886
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.023654
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.013018
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.011257
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.168822
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.212437
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.13822
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.303809
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.119923
+          }
+        ],
+        "feature": "airline_tier",
+        "feature_index": 3,
+        "threshold": 1.5,
+        "x_value": 2,
+        "condition": "2 > 1.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "104",
+        "is_leaf": "False",
+        "gini": 0.806896,
+        "n_samples": 89,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.011908
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.019074
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.004374
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.015129
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.221073
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.195936
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.139321
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.261317
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.131868
+          }
+        ],
+        "feature": "stand_zone",
+        "feature_index": 5,
+        "threshold": 1.5,
+        "x_value": 1,
+        "condition": "1 <= 1.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "105",
+        "is_leaf": "False",
+        "gini": 0.786652,
+        "n_samples": 82,
+        "class_dist": [
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.232827
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.206354
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.146729
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.275211
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.138879
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 35.5,
+        "x_value": 46,
+        "condition": "46 > 35.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "107",
+        "is_leaf": "False",
+        "gini": 0.771821,
+        "n_samples": 73,
+        "class_dist": [
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.258869
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.216324
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.099697
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.296431
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.128678
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 42.5,
+        "x_value": 46,
+        "condition": "46 > 42.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "111",
+        "is_leaf": "False",
+        "gini": 0.75367,
+        "n_samples": 39,
+        "class_dist": [
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.212637
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.264793
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.033282
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.316029
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.173259
+          }
+        ],
+        "feature": "operator_airline",
+        "feature_index": 2,
+        "threshold": 18.5,
+        "x_value": 20,
+        "condition": "20 > 18.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "113",
+        "is_leaf": "False",
+        "gini": 0.735632,
+        "n_samples": 29,
+        "class_dist": [
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.277677
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.18861
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.043462
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.366839
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.123412
+          }
+        ],
+        "feature": "operator_airline",
+        "feature_index": 2,
+        "threshold": 28.5,
+        "x_value": 20,
+        "condition": "20 <= 28.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "114",
+        "is_leaf": "True",
+        "gini": 0.690099,
+        "n_samples": 13,
+        "class_dist": [
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.471084
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.123629
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.056977
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.240453
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.107858
+          }
+        ],
+        "predicted_stand": "B3"
+      }
+    ],
+    "root_n_samples": 2610,
+    "root_gini": 0.941176,
+    "root_gini_manual": 0.0,
+    "root_class_dist": [
+      {
+        "stand": "A0",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B10",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B11",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B12",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B13",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B4",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B5",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B6",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B7",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B8",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B9",
+        "count": 0,
+        "p": 0.058824
+      }
+    ],
+    "root_sq_terms": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "root_sum_sq": 0.0,
+    "leaf_node_id": "114",
+    "leaf_n_samples": 13,
+    "leaf_gini": 0.690099,
+    "leaf_gini_manual": 0.0,
+    "leaf_class_dist": [
+      {
+        "stand": "B3",
+        "count": 0,
+        "p": 0.471084
+      },
+      {
+        "stand": "B4",
+        "count": 0,
+        "p": 0.123629
+      },
+      {
+        "stand": "B5",
+        "count": 0,
+        "p": 0.056977
+      },
+      {
+        "stand": "B6",
+        "count": 0,
+        "p": 0.240453
+      },
+      {
+        "stand": "B7",
+        "count": 0,
+        "p": 0.107858
+      }
+    ],
+    "leaf_sq_terms": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "leaf_sum_sq": 0.0,
+    "leaf_pred_stand": "B3",
+    "votes": [
+      {
+        "stand": "B4",
+        "votes": 67,
+        "vote_prob": 0.335
+      },
+      {
+        "stand": "B5",
+        "votes": 53,
+        "vote_prob": 0.265
+      },
+      {
+        "stand": "B6",
+        "votes": 51,
+        "vote_prob": 0.255
+      },
+      {
+        "stand": "B7",
+        "votes": 19,
+        "vote_prob": 0.095
+      },
+      {
+        "stand": "B3",
+        "votes": 9,
+        "vote_prob": 0.045
+      },
+      {
+        "stand": "B10",
+        "votes": 1,
+        "vote_prob": 0.005
+      }
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "B4",
+        "prob": 0.248882
+      },
+      {
+        "rank": 2,
+        "stand": "B5",
+        "prob": 0.231469
+      },
+      {
+        "rank": 3,
+        "stand": "B6",
+        "prob": 0.211086
+      }
+    ],
+    "in_top3": false
+  },
+  {
+    "no": 7,
+    "aircraft_type": "EMB 135",
+    "operator_airline": "KARISMA",
+    "category_raw": "CHARTER",
+    "category_norm": "CHARTER",
+    "actual_stand": "B4",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "MEDIUM_FREQUENCY",
+    "stand_zone": "MIDDLE_CHARTER",
+    "encoded_vector": [
+      39,
+      1,
+      22,
+      2,
+      1,
+      1
+    ],
+    "tree0_path": [
+      {
+        "node_id": 0,
+        "is_leaf": "False",
+        "gini": 0.941176,
+        "n_samples": 2610,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.058824
+          }
+        ],
+        "feature": "aircraft_size",
+        "feature_index": 1,
+        "threshold": 0.5,
+        "x_value": 1,
+        "condition": "1 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "2",
+        "is_leaf": "False",
+        "gini": 0.938547,
+        "n_samples": 2540,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.009194
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.060848
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.059395
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.061292
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.060758
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.062344
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.062127
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.062263
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.061615
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.062521
+          }
+        ],
+        "feature": "category",
+        "feature_index": 4,
+        "threshold": 0.5,
+        "x_value": 1,
+        "condition": "1 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "4",
+        "is_leaf": "False",
+        "gini": 0.928756,
+        "n_samples": 2229,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.011597
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.076486
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.074353
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.077309
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.076636
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.026089
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.015021
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.017807
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.017311
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.078636
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.077867
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.077237
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.075431
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.061644
+          }
+        ],
+        "feature": "category",
+        "feature_index": 4,
+        "threshold": 1.5,
+        "x_value": 1,
+        "condition": "1 <= 1.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "5",
+        "is_leaf": "False",
+        "gini": 0.874858,
+        "n_samples": 712,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.00996
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.030201
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.013707
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.008875
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.005387
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.030553
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.024188
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.017478
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.03579
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.019825
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.179276
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.193098
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.156065
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.132553
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.083613
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.040352
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.019078
+          }
+        ],
+        "feature": "stand_zone",
+        "feature_index": 5,
+        "threshold": 0.5,
+        "x_value": 1,
+        "condition": "1 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "23",
+        "is_leaf": "False",
+        "gini": 0.826815,
+        "n_samples": 630,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.011963
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.036275
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.016463
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.01066
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.00647
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.023813
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.215331
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.231933
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.187452
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.159212
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.100429
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 14.5,
+        "x_value": 39,
+        "condition": "39 > 14.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "37",
+        "is_leaf": "False",
+        "gini": 0.813658,
+        "n_samples": 555,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.013323
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.02626
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.010785
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.002968
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.001965
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.017965
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.229947
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.253558
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.175942
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.157922
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.109363
+          }
+        ],
+        "feature": "airline_tier",
+        "feature_index": 3,
+        "threshold": 0.5,
+        "x_value": 2,
+        "condition": "2 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "101",
+        "is_leaf": "False",
+        "gini": 0.797487,
+        "n_samples": 132,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.007777
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.020761
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.011426
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.002522
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.009881
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.148178
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.186458
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.121317
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.314655
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.177025
+          }
+        ],
+        "feature": "operator_airline",
+        "feature_index": 2,
+        "threshold": 33.0,
+        "x_value": 22,
+        "condition": "22 <= 33.0000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "102",
+        "is_leaf": "False",
+        "gini": 0.79965,
+        "n_samples": 117,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.00886
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.023654
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.013018
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.011257
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.168822
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.212437
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.13822
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.303809
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.119923
+          }
+        ],
+        "feature": "airline_tier",
+        "feature_index": 3,
+        "threshold": 1.5,
+        "x_value": 2,
+        "condition": "2 > 1.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "104",
+        "is_leaf": "False",
+        "gini": 0.806896,
+        "n_samples": 89,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.011908
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.019074
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.004374
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.015129
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.221073
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.195936
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.139321
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.261317
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.131868
+          }
+        ],
+        "feature": "stand_zone",
+        "feature_index": 5,
+        "threshold": 1.5,
+        "x_value": 1,
+        "condition": "1 <= 1.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "105",
+        "is_leaf": "False",
+        "gini": 0.786652,
+        "n_samples": 82,
+        "class_dist": [
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.232827
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.206354
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.146729
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.275211
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.138879
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 35.5,
+        "x_value": 39,
+        "condition": "39 > 35.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "107",
+        "is_leaf": "False",
+        "gini": 0.771821,
+        "n_samples": 73,
+        "class_dist": [
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.258869
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.216324
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.099697
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.296431
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.128678
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 42.5,
+        "x_value": 39,
+        "condition": "39 <= 42.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "108",
+        "is_leaf": "False",
+        "gini": 0.763932,
+        "n_samples": 34,
+        "class_dist": [
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.314166
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.158353
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.179133
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.272991
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.075356
+          }
+        ],
+        "feature": "operator_airline",
+        "feature_index": 2,
+        "threshold": 22.5,
+        "x_value": 22,
+        "condition": "22 <= 22.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "109",
+        "is_leaf": "True",
+        "gini": 0.773595,
+        "n_samples": 24,
+        "class_dist": [
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.215601
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.228212
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.172106
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.302632
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.081449
+          }
+        ],
+        "predicted_stand": "B3"
+      }
+    ],
+    "root_n_samples": 2610,
+    "root_gini": 0.941176,
+    "root_gini_manual": 0.0,
+    "root_class_dist": [
+      {
+        "stand": "A0",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B10",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B11",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B12",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B13",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B4",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B5",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B6",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B7",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B8",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B9",
+        "count": 0,
+        "p": 0.058824
+      }
+    ],
+    "root_sq_terms": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "root_sum_sq": 0.0,
+    "leaf_node_id": "109",
+    "leaf_n_samples": 24,
+    "leaf_gini": 0.773595,
+    "leaf_gini_manual": 0.0,
+    "leaf_class_dist": [
+      {
+        "stand": "B3",
+        "count": 0,
+        "p": 0.215601
+      },
+      {
+        "stand": "B4",
+        "count": 0,
+        "p": 0.228212
+      },
+      {
+        "stand": "B5",
+        "count": 0,
+        "p": 0.172106
+      },
+      {
+        "stand": "B6",
+        "count": 0,
+        "p": 0.302632
+      },
+      {
+        "stand": "B7",
+        "count": 0,
+        "p": 0.081449
+      }
+    ],
+    "leaf_sq_terms": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "leaf_sum_sq": 0.0,
+    "leaf_pred_stand": "B3",
+    "votes": [
+      {
+        "stand": "B4",
+        "votes": 76,
+        "vote_prob": 0.38
+      },
+      {
+        "stand": "B5",
+        "votes": 69,
+        "vote_prob": 0.345
+      },
+      {
+        "stand": "B6",
+        "votes": 48,
+        "vote_prob": 0.24
+      },
+      {
+        "stand": "B3",
+        "votes": 5,
+        "vote_prob": 0.025
+      },
+      {
+        "stand": "B7",
+        "votes": 2,
+        "vote_prob": 0.01
+      }
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "B5",
+        "prob": 0.31941
+      },
+      {
+        "rank": 2,
+        "stand": "B4",
+        "prob": 0.241884
+      },
+      {
+        "rank": 3,
+        "stand": "B6",
+        "prob": 0.193489
+      }
+    ],
+    "in_top3": true
+  },
+  {
+    "no": 8,
+    "aircraft_type": "BBJ",
+    "operator_airline": "JIP",
+    "category_raw": "Charter",
+    "category_norm": "CHARTER",
+    "actual_stand": "B4",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "MEDIUM_FREQUENCY",
+    "stand_zone": "MIDDLE_CHARTER",
+    "encoded_vector": [
+      15,
+      1,
+      21,
+      2,
+      1,
+      1
+    ],
+    "tree0_path": [
+      {
+        "node_id": 0,
+        "is_leaf": "False",
+        "gini": 0.941176,
+        "n_samples": 2610,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.058824
+          }
+        ],
+        "feature": "aircraft_size",
+        "feature_index": 1,
+        "threshold": 0.5,
+        "x_value": 1,
+        "condition": "1 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "2",
+        "is_leaf": "False",
+        "gini": 0.938547,
+        "n_samples": 2540,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.009194
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.060848
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.059395
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.061292
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.060758
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.062344
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.062127
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.062263
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.061615
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.062521
+          }
+        ],
+        "feature": "category",
+        "feature_index": 4,
+        "threshold": 0.5,
+        "x_value": 1,
+        "condition": "1 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "4",
+        "is_leaf": "False",
+        "gini": 0.928756,
+        "n_samples": 2229,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.011597
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.076486
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.074353
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.077309
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.076636
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.026089
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.015021
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.017807
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.017311
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.078636
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.077867
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.078859
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.077237
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.075431
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.061644
+          }
+        ],
+        "feature": "category",
+        "feature_index": 4,
+        "threshold": 1.5,
+        "x_value": 1,
+        "condition": "1 <= 1.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "5",
+        "is_leaf": "False",
+        "gini": 0.874858,
+        "n_samples": 712,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.00996
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.030201
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.013707
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.008875
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.005387
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.030553
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.024188
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.017478
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.03579
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.019825
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.179276
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.193098
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.156065
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.132553
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.083613
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.040352
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.019078
+          }
+        ],
+        "feature": "stand_zone",
+        "feature_index": 5,
+        "threshold": 0.5,
+        "x_value": 1,
+        "condition": "1 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "23",
+        "is_leaf": "False",
+        "gini": 0.826815,
+        "n_samples": 630,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.011963
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.036275
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.016463
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.01066
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.00647
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.023813
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.215331
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.231933
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.187452
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.159212
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.100429
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 14.5,
+        "x_value": 15,
+        "condition": "15 > 14.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "37",
+        "is_leaf": "False",
+        "gini": 0.813658,
+        "n_samples": 555,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.013323
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.02626
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.010785
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.002968
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.001965
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.017965
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.229947
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.253558
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.175942
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.157922
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.109363
+          }
+        ],
+        "feature": "airline_tier",
+        "feature_index": 3,
+        "threshold": 0.5,
+        "x_value": 2,
+        "condition": "2 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "101",
+        "is_leaf": "False",
+        "gini": 0.797487,
+        "n_samples": 132,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.007777
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.020761
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.011426
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.002522
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.009881
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.148178
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.186458
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.121317
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.314655
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.177025
+          }
+        ],
+        "feature": "operator_airline",
+        "feature_index": 2,
+        "threshold": 33.0,
+        "x_value": 21,
+        "condition": "21 <= 33.0000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "102",
+        "is_leaf": "False",
+        "gini": 0.79965,
+        "n_samples": 117,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.00886
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.023654
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.013018
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.011257
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.168822
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.212437
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.13822
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.303809
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.119923
+          }
+        ],
+        "feature": "airline_tier",
+        "feature_index": 3,
+        "threshold": 1.5,
+        "x_value": 2,
+        "condition": "2 > 1.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "104",
+        "is_leaf": "False",
+        "gini": 0.806896,
+        "n_samples": 89,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.011908
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.019074
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.004374
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.015129
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.221073
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.195936
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.139321
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.261317
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.131868
+          }
+        ],
+        "feature": "stand_zone",
+        "feature_index": 5,
+        "threshold": 1.5,
+        "x_value": 1,
+        "condition": "1 <= 1.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "105",
+        "is_leaf": "False",
+        "gini": 0.786652,
+        "n_samples": 82,
+        "class_dist": [
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.232827
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.206354
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.146729
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.275211
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.138879
+          }
+        ],
+        "feature": "aircraft_type",
+        "feature_index": 0,
+        "threshold": 35.5,
+        "x_value": 15,
+        "condition": "15 <= 35.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "106",
+        "is_leaf": "True",
+        "gini": 0.604285,
+        "n_samples": 9,
+        "class_dist": [
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.117213
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.567211
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.08549
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.230085
+          }
+        ],
+        "predicted_stand": "B4"
+      }
+    ],
+    "root_n_samples": 2610,
+    "root_gini": 0.941176,
+    "root_gini_manual": 0.0,
+    "root_class_dist": [
+      {
+        "stand": "A0",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B10",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B11",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B12",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B13",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B4",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B5",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B6",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B7",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B8",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B9",
+        "count": 0,
+        "p": 0.058824
+      }
+    ],
+    "root_sq_terms": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "root_sum_sq": 0.0,
+    "leaf_node_id": "106",
+    "leaf_n_samples": 9,
+    "leaf_gini": 0.604285,
+    "leaf_gini_manual": 0.0,
+    "leaf_class_dist": [
+      {
+        "stand": "B4",
+        "count": 0,
+        "p": 0.117213
+      },
+      {
+        "stand": "B5",
+        "count": 0,
+        "p": 0.567211
+      },
+      {
+        "stand": "B6",
+        "count": 0,
+        "p": 0.08549
+      },
+      {
+        "stand": "B7",
+        "count": 0,
+        "p": 0.230085
+      }
+    ],
+    "leaf_sq_terms": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "leaf_sum_sq": 0.0,
+    "leaf_pred_stand": "B4",
+    "votes": [
+      {
+        "stand": "B5",
+        "votes": 84,
+        "vote_prob": 0.42
+      },
+      {
+        "stand": "B4",
+        "votes": 75,
+        "vote_prob": 0.375
+      },
+      {
+        "stand": "B6",
+        "votes": 32,
+        "vote_prob": 0.16
+      },
+      {
+        "stand": "B7",
+        "votes": 4,
+        "vote_prob": 0.02
+      },
+      {
+        "stand": "B9",
+        "votes": 2,
+        "vote_prob": 0.01
+      },
+      {
+        "stand": "B3",
+        "votes": 2,
+        "vote_prob": 0.01
+      },
+      {
+        "stand": "B10",
+        "votes": 1,
+        "vote_prob": 0.005
+      }
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "B5",
+        "prob": 0.351877
+      },
+      {
+        "rank": 2,
+        "stand": "B4",
+        "prob": 0.259007
+      },
+      {
+        "rank": 3,
+        "stand": "B6",
+        "prob": 0.166178
+      }
+    ],
+    "in_top3": true
+  },
+  {
+    "no": 9,
+    "aircraft_type": "B 733",
+    "operator_airline": "TRI MG",
+    "category_raw": "cargo",
+    "category_norm": "CARGO",
+    "actual_stand": "B10",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "HIGH_FREQUENCY",
+    "stand_zone": "LEFT_CARGO",
+    "encoded_vector": [
+      10,
+      1,
+      37,
+      0,
+      0,
+      0
+    ],
+    "tree0_path": [
+      {
+        "node_id": 0,
+        "is_leaf": "False",
+        "gini": 0.941176,
+        "n_samples": 2610,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.058824
+          }
+        ],
+        "feature": "aircraft_size",
+        "feature_index": 1,
+        "threshold": 0.5,
+        "x_value": 1,
+        "condition": "1 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "2",
+        "is_leaf": "False",
+        "gini": 0.938547,
+        "n_samples": 2540,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.009194
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.060848
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.059395
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.061292
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.060758
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.062344
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.062127
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.062263
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.061615
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.062521
+          }
+        ],
+        "feature": "category",
+        "feature_index": 4,
+        "threshold": 0.5,
+        "x_value": 0,
+        "condition": "0 <= 0.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "3",
+        "is_leaf": "True",
+        "gini": 0.785055,
+        "n_samples": 311,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.001009
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.002155
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.201928
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.24428
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.233619
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.235519
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.001898
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.004967
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.008747
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.065877
+          }
+        ],
+        "predicted_stand": "A1"
+      }
+    ],
+    "root_n_samples": 2610,
+    "root_gini": 0.941176,
+    "root_gini_manual": 0.0,
+    "root_class_dist": [
+      {
+        "stand": "A0",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B10",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B11",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B12",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B13",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B4",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B5",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B6",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B7",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B8",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B9",
+        "count": 0,
+        "p": 0.058824
+      }
+    ],
+    "root_sq_terms": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "root_sum_sq": 0.0,
+    "leaf_node_id": "3",
+    "leaf_n_samples": 311,
+    "leaf_gini": 0.785055,
+    "leaf_gini_manual": 0.0,
+    "leaf_class_dist": [
+      {
+        "stand": "A1",
+        "count": 0,
+        "p": 0.001009
+      },
+      {
+        "stand": "A2",
+        "count": 0,
+        "p": 0.002155
+      },
+      {
+        "stand": "B10",
+        "count": 0,
+        "p": 0.201928
+      },
+      {
+        "stand": "B11",
+        "count": 0,
+        "p": 0.24428
+      },
+      {
+        "stand": "B12",
+        "count": 0,
+        "p": 0.233619
+      },
+      {
+        "stand": "B13",
+        "count": 0,
+        "p": 0.235519
+      },
+      {
+        "stand": "B4",
+        "count": 0,
+        "p": 0.001898
+      },
+      {
+        "stand": "B7",
+        "count": 0,
+        "p": 0.004967
+      },
+      {
+        "stand": "B8",
+        "count": 0,
+        "p": 0.008747
+      },
+      {
+        "stand": "B9",
+        "count": 0,
+        "p": 0.065877
+      }
+    ],
+    "leaf_sq_terms": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "leaf_sum_sq": 0.0,
+    "leaf_pred_stand": "A1",
+    "votes": [
+      {
+        "stand": "B12",
+        "votes": 113,
+        "vote_prob": 0.565
+      },
+      {
+        "stand": "B13",
+        "votes": 69,
+        "vote_prob": 0.345
+      },
+      {
+        "stand": "B11",
+        "votes": 15,
+        "vote_prob": 0.075
+      },
+      {
+        "stand": "B10",
+        "votes": 2,
+        "vote_prob": 0.01
+      },
+      {
+        "stand": "B8",
+        "votes": 1,
+        "vote_prob": 0.005
+      }
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "B12",
+        "prob": 0.290227
+      },
+      {
+        "rank": 2,
+        "stand": "B13",
+        "prob": 0.280099
+      },
+      {
+        "rank": 3,
+        "stand": "B11",
+        "prob": 0.207522
+      }
+    ],
+    "in_top3": false
+  },
+  {
+    "no": 10,
+    "aircraft_type": "B 734",
+    "operator_airline": "B. B. N.",
+    "category_raw": "cargo",
+    "category_norm": "CARGO",
+    "actual_stand": "B11",
+    "aircraft_size": "STANDARD",
+    "airline_tier": "LOW_FREQUENCY",
+    "stand_zone": "LEFT_CARGO",
+    "encoded_vector": [
+      11,
+      1,
+      4,
+      1,
+      0,
+      0
+    ],
+    "tree0_path": [
+      {
+        "node_id": 0,
+        "is_leaf": "False",
+        "gini": 0.941176,
+        "n_samples": 2610,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.058824
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.058824
+          }
+        ],
+        "feature": "aircraft_size",
+        "feature_index": 1,
+        "threshold": 0.5,
+        "x_value": 1,
+        "condition": "1 > 0.5000",
+        "direction": "RIGHT"
+      },
+      {
+        "node_id": "2",
+        "is_leaf": "False",
+        "gini": 0.938547,
+        "n_samples": 2540,
+        "class_dist": [
+          {
+            "stand": "A0",
+            "count": 0,
+            "p": 0.009194
+          },
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.060848
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.059395
+          },
+          {
+            "stand": "A3",
+            "count": 0,
+            "p": 0.061292
+          },
+          {
+            "stand": "B1",
+            "count": 0,
+            "p": 0.060758
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B2",
+            "count": 0,
+            "p": 0.062344
+          },
+          {
+            "stand": "B3",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.062127
+          },
+          {
+            "stand": "B5",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B6",
+            "count": 0,
+            "p": 0.062521
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.062263
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.061615
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.062521
+          }
+        ],
+        "feature": "category",
+        "feature_index": 4,
+        "threshold": 0.5,
+        "x_value": 0,
+        "condition": "0 <= 0.5000",
+        "direction": "LEFT"
+      },
+      {
+        "node_id": "3",
+        "is_leaf": "True",
+        "gini": 0.785055,
+        "n_samples": 311,
+        "class_dist": [
+          {
+            "stand": "A1",
+            "count": 0,
+            "p": 0.001009
+          },
+          {
+            "stand": "A2",
+            "count": 0,
+            "p": 0.002155
+          },
+          {
+            "stand": "B10",
+            "count": 0,
+            "p": 0.201928
+          },
+          {
+            "stand": "B11",
+            "count": 0,
+            "p": 0.24428
+          },
+          {
+            "stand": "B12",
+            "count": 0,
+            "p": 0.233619
+          },
+          {
+            "stand": "B13",
+            "count": 0,
+            "p": 0.235519
+          },
+          {
+            "stand": "B4",
+            "count": 0,
+            "p": 0.001898
+          },
+          {
+            "stand": "B7",
+            "count": 0,
+            "p": 0.004967
+          },
+          {
+            "stand": "B8",
+            "count": 0,
+            "p": 0.008747
+          },
+          {
+            "stand": "B9",
+            "count": 0,
+            "p": 0.065877
+          }
+        ],
+        "predicted_stand": "A1"
+      }
+    ],
+    "root_n_samples": 2610,
+    "root_gini": 0.941176,
+    "root_gini_manual": 0.0,
+    "root_class_dist": [
+      {
+        "stand": "A0",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "A3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B1",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B10",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B11",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B12",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B13",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B2",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B3",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B4",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B5",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B6",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B7",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B8",
+        "count": 0,
+        "p": 0.058824
+      },
+      {
+        "stand": "B9",
+        "count": 0,
+        "p": 0.058824
+      }
+    ],
+    "root_sq_terms": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "root_sum_sq": 0.0,
+    "leaf_node_id": "3",
+    "leaf_n_samples": 311,
+    "leaf_gini": 0.785055,
+    "leaf_gini_manual": 0.0,
+    "leaf_class_dist": [
+      {
+        "stand": "A1",
+        "count": 0,
+        "p": 0.001009
+      },
+      {
+        "stand": "A2",
+        "count": 0,
+        "p": 0.002155
+      },
+      {
+        "stand": "B10",
+        "count": 0,
+        "p": 0.201928
+      },
+      {
+        "stand": "B11",
+        "count": 0,
+        "p": 0.24428
+      },
+      {
+        "stand": "B12",
+        "count": 0,
+        "p": 0.233619
+      },
+      {
+        "stand": "B13",
+        "count": 0,
+        "p": 0.235519
+      },
+      {
+        "stand": "B4",
+        "count": 0,
+        "p": 0.001898
+      },
+      {
+        "stand": "B7",
+        "count": 0,
+        "p": 0.004967
+      },
+      {
+        "stand": "B8",
+        "count": 0,
+        "p": 0.008747
+      },
+      {
+        "stand": "B9",
+        "count": 0,
+        "p": 0.065877
+      }
+    ],
+    "leaf_sq_terms": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "leaf_sum_sq": 0.0,
+    "leaf_pred_stand": "A1",
+    "votes": [
+      {
+        "stand": "B11",
+        "votes": 107,
+        "vote_prob": 0.535
+      },
+      {
+        "stand": "B13",
+        "votes": 60,
+        "vote_prob": 0.3
+      },
+      {
+        "stand": "B10",
+        "votes": 21,
+        "vote_prob": 0.105
+      },
+      {
+        "stand": "B12",
+        "votes": 8,
+        "vote_prob": 0.04
+      },
+      {
+        "stand": "B9",
+        "votes": 3,
+        "vote_prob": 0.015
+      },
+      {
+        "stand": "B8",
+        "votes": 1,
+        "vote_prob": 0.005
+      }
+    ],
+    "top3": [
+      {
+        "rank": 1,
+        "stand": "B11",
+        "prob": 0.316764
+      },
+      {
+        "rank": 2,
+        "stand": "B13",
+        "prob": 0.296072
+      },
+      {
+        "rank": 3,
+        "stand": "B10",
+        "prob": 0.182355
+      }
+    ],
+    "in_top3": true
+  }
+]

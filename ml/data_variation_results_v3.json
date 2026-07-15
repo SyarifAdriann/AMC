@@ -1,0 +1,117 @@
+{
+  "experiment": "Bulletproof Data Variation (SMOTE + RF best params)",
+  "data_source": "C:\\xampp\\htdocs\\AMC\\data\\parking_history_encoded_redo.csv",
+  "data_source_description": "data/parking_history_encoded_redo.csv — 5190 baris, gabungan DATASET AMC 2.csv (4057 baris) + DATASET AMC.csv (1133 baris), sudah di-encode dengan encoders_redo.pkl",
+  "best_params": {
+    "n_estimators": 200,
+    "max_depth": null,
+    "min_samples_leaf": 5,
+    "min_samples_split": 2,
+    "class_weight": "balanced_subsample",
+    "random_state": 42,
+    "n_jobs": -1
+  },
+  "smote": "SMOTE(random_state=42, k_neighbors=min(5,min_class_count-1))",
+  "split": "80/20 stratified, random_state=42",
+  "train_rows": 4152,
+  "test_rows": 1038,
+  "results": [
+    {
+      "training_size_label": "1,000",
+      "train_rows_before_smote": 1000,
+      "train_rows_after_smote": 1870,
+      "test_rows": 1038,
+      "top1_accuracy": 0.3507,
+      "top3_accuracy": 0.7842,
+      "top5_accuracy": 0.9875,
+      "macro_precision": 0.3261,
+      "macro_recall": 0.3754,
+      "macro_f1": 0.3252,
+      "source": "Eksperimen (SMOTE + RF dengan best params dari GridSearchCV)"
+    },
+    {
+      "training_size_label": "2,000",
+      "train_rows_before_smote": 2000,
+      "train_rows_after_smote": 3876,
+      "test_rows": 1038,
+      "top1_accuracy": 0.3728,
+      "top3_accuracy": 0.7996,
+      "top5_accuracy": 0.9827,
+      "macro_precision": 0.3517,
+      "macro_recall": 0.3983,
+      "macro_f1": 0.3318,
+      "source": "Eksperimen (SMOTE + RF dengan best params dari GridSearchCV)"
+    },
+    {
+      "training_size_label": "3,000",
+      "train_rows_before_smote": 3000,
+      "train_rows_after_smote": 5729,
+      "test_rows": 1038,
+      "top1_accuracy": 0.3671,
+      "top3_accuracy": 0.7958,
+      "top5_accuracy": 0.9778,
+      "macro_precision": 0.3449,
+      "macro_recall": 0.3938,
+      "macro_f1": 0.3343,
+      "source": "Eksperimen (SMOTE + RF dengan best params dari GridSearchCV)"
+    },
+    {
+      "training_size_label": "4.152 (penuh)",
+      "train_rows_before_smote": 4152,
+      "train_rows_after_smote": "N/A (angka resmi dari thesis)",
+      "test_rows": 1038,
+      "top1_accuracy": 0.3613,
+      "top3_accuracy": 0.8015,
+      "top5_accuracy": 0.9894,
+      "macro_precision": 0.2317,
+      "macro_recall": 0.2798,
+      "macro_f1": 0.222,
+      "source": "Angka resmi dari sub-bab 4.2.3 skripsi (model produksi yang tersimpan)"
+    }
+  ],
+  "note_full_row": "Baris 4.152 menggunakan angka resmi dari sub-bab 4.2.3 skripsi. Angka ini adalah hasil evaluasi model produksi yang dilatih dengan dataset dan pipeline yang sama, sebagaimana tercantum dalam results_summary_redo.json.",
+  "chart_data": {
+    "x_labels": [
+      "1,000",
+      "2,000",
+      "3,000",
+      "4.152 (penuh)"
+    ],
+    "top1_accuracy": [
+      0.3507,
+      0.3728,
+      0.3671,
+      0.3613
+    ],
+    "top3_accuracy": [
+      0.7842,
+      0.7996,
+      0.7958,
+      0.8015
+    ],
+    "top5_accuracy": [
+      0.9875,
+      0.9827,
+      0.9778,
+      0.9894
+    ],
+    "macro_precision": [
+      0.3261,
+      0.3517,
+      0.3449,
+      0.2317
+    ],
+    "macro_recall": [
+      0.3754,
+      0.3983,
+      0.3938,
+      0.2798
+    ],
+    "macro_f1": [
+      0.3252,
+      0.3318,
+      0.3343,
+      0.222
+    ]
+  }
+}
