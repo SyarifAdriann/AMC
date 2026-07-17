@@ -2,14 +2,15 @@
 $title = 'AMC MONITORING SYSTEM';
 $styles = [
     'assets/css/tailwind.css',
-    'assets/css/styles.css?v=1.6',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css'
+    'assets/css/styles.css?v=2.5',
+    'assets/vendor/fontawesome/css/all.min.css'
 ];
 $head = '';
 $bodyClass = 'gradient-bg min-h-screen font-sans';
 $scripts = [
     'assets/js/mobile-adaptations.js',
-    'assets/js/apron.js'
+    'assets/js/amc-http.js?v=1.0',
+    'assets/js/apron.js?v=2.4'
 ];
 ob_start();
 ?>
@@ -29,9 +30,9 @@ ob_start();
             </div>
 
             <!-- STAFF ROSTER -->
-            <div class="mb-6 lg:mb-8 bg-amc-bg rounded-xl p-4 lg:p-6 border border-amc-light shadow-lg">
+            <div class="mb-6 bg-amc-bg rounded-xl p-3 border border-amc-light shadow-lg">
                 <div class="overflow-x-auto">
-                    <table class="w-full border-separate" style="border-spacing: 0 10px;" id="roster-table">
+                    <table class="w-full border-separate" style="border-spacing: 0 4px;" id="roster-table">
                         <tbody>
                             <tr>
                                 <th class="text-amc-dark-blue text-left font-bold text-sm lg:text-base w-32 lg:w-40 px-2 py-2">AERODROME</th>
@@ -86,8 +87,8 @@ ob_start();
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="3" class="text-right pt-4">
-                                    <button id="save-roster" class="nav-btn-gradient text-white px-4 py-2 lg:px-6 lg:py-3 text-sm lg:text-base rounded-md font-semibold transition-all duration-300 hover:-translate-y-1 <?php if ($user_role==='viewer') echo 'bg-gray-400 cursor-not-allowed'; ?>">???? Save Roster</button>
+                                <td colspan="3" class="text-right pt-2">
+                                    <button id="save-roster" class="nav-btn-gradient text-white px-4 py-2 text-sm rounded-md font-semibold transition-all duration-300 hover:-translate-y-1 <?php if ($user_role==='viewer') echo 'bg-gray-400 cursor-not-allowed'; ?>">Save Roster</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -126,13 +127,64 @@ ob_start();
             <!-- APRON MAP -->
             <div class="w-full mx-auto mb-8 lg:mb-10 relative overflow-hidden rounded-xl shadow-lg border-2 border-amc-light apron-checkerboard" id="apron-wrapper">
 
-                <!-- VIEW TOGGLE -->
-                <div style="position:absolute; top:10px; right:10px; z-index:50; display:flex; gap:6px; background:rgba(255,255,255,0.92); border-radius:8px; padding:5px 8px; box-shadow:0 2px 10px rgba(0,0,0,0.18); pointer-events:auto;">
+                <!-- VIEW TOGGLE + FREEHAND -->
+                <div style="position:absolute; top:10px; right:10px; z-index:50; display:flex; gap:6px; align-items:center; background:rgba(255,255,255,0.92); border-radius:8px; padding:5px 8px; box-shadow:0 2px 10px rgba(0,0,0,0.18); pointer-events:auto;">
                     <button id="toggle-view-a" onclick="switchApronView('a')" style="padding:4px 14px; font-size:11px; font-weight:700; border-radius:5px; border:none; cursor:pointer; background:#112D4E; color:white; transition:all 0.2s;">View A</button>
                     <button id="toggle-view-b" onclick="switchApronView('b')" style="padding:4px 14px; font-size:11px; font-weight:700; border-radius:5px; border:1px solid #ccc; cursor:pointer; background:white; color:#112D4E; transition:all 0.2s;">View B</button>
+                    <button id="toggle-view-c" onclick="switchApronView('c')" style="padding:4px 14px; font-size:11px; font-weight:700; border-radius:5px; border:1px solid #ccc; cursor:pointer; background:white; color:#112D4E; transition:all 0.2s;">View C</button>
+                    <?php if ($user_role !== 'viewer'): ?>
+                    <button id="freehand-toggle" title="Event mode: drag plane icons anywhere on the apron. Deactivating snaps them back to their stands." style="padding:4px 14px; font-size:11px; font-weight:700; border-radius:5px; border:1px solid #ccc; cursor:pointer; background:white; color:#112D4E; transition:all 0.2s;">✋ Freehand: OFF</button>
+                    <?php endif; ?>
+                </div>
+
+                <!-- LIVE CONNECTION INDICATOR -->
+                <div id="realtime-indicator" style="position:absolute; top:10px; left:10px; z-index:50; display:flex; gap:6px; align-items:center; background:rgba(255,255,255,0.92); border-radius:8px; padding:5px 10px; box-shadow:0 2px 10px rgba(0,0,0,0.18); font-size:11px; font-weight:600; color:#334155;">
+                    <span id="realtime-dot" style="width:9px; height:9px; border-radius:50%; background:#9ca3af; display:inline-block;"></span>
+                    <span id="realtime-label">Connecting…</span>
+                    <span id="realtime-updated" style="color:#64748b; font-weight:400;"></span>
                 </div>
 
                 <div class="relative" id="apron-container" style="width: 1920px; height: 1080px;">
+
+                    <!-- ═══ Ground decorations (painted beneath stands & icons) ═══ -->
+
+                    <!-- View C: classic AMS gray backdrop -->
+                    <div class="apron-decor apron-view apron-view--c" style="left:0; top:0; width:2000px; height:1080px; background:#b9c0c7; display:none;"></div>
+                    <div class="apron-section-label apron-view apron-view--c" style="left:640px; top:10px; display:none;">South Apron</div>
+                    <div class="apron-section-label apron-view apron-view--c" style="left:1665px; top:455px; display:none;">New South Apron</div>
+                    <div class="apron-section-label apron-view apron-view--c" style="left:1030px; top:1038px; display:none;">Main Apron</div>
+
+                    <!-- View A: section labels only -->
+                    <div class="apron-section-label apron-view apron-view--a" style="left:640px; top:10px;">South Apron</div>
+                    <div class="apron-section-label apron-view apron-view--a" style="left:1665px; top:455px;">New South Apron</div>
+                    <div class="apron-section-label apron-view apron-view--a" style="left:1030px; top:1038px;">Main Apron</div>
+
+                    <!-- View B: real-layout markings — section zones, taxiways, runway -->
+                    <!-- Section zones (tinted + dashed boundary) -->
+                    <div class="apron-decor apron-zone apron-view apron-view--b" style="left:8px; top:60px; width:830px; height:392px; display:none;"></div>
+                    <div class="apron-decor apron-zone apron-view apron-view--b" style="left:925px; top:160px; width:605px; height:292px; display:none;"></div>
+                    <div class="apron-decor apron-zone apron-view apron-view--b" style="left:730px; top:655px; width:1182px; height:330px; display:none;"></div>
+
+                    <!-- Taxiway connectors (aprons ↔ runway) -->
+                    <div class="apron-decor apron-taxiway apron-view apron-view--b" style="left:180px; top:448px; width:70px; height:36px; display:none;"></div>
+                    <div class="apron-decor apron-taxiway apron-view apron-view--b" style="left:560px; top:448px; width:70px; height:36px; display:none;"></div>
+                    <div class="apron-decor apron-taxiway apron-view apron-view--b" style="left:1200px; top:448px; width:70px; height:36px; display:none;"></div>
+                    <div class="apron-decor apron-taxiway apron-view apron-view--b" style="left:1030px; top:552px; width:80px; height:107px; display:none;"></div>
+                    <div class="apron-decor apron-taxiway apron-view apron-view--b" style="left:1560px; top:552px; width:80px; height:107px; display:none;"></div>
+                    <!-- Diagonal taxiway toward the west remote / main apron -->
+                    <div class="apron-decor apron-taxiway apron-view apron-view--b" style="left:775px; top:548px; width:210px; height:34px; transform:rotate(33deg); transform-origin:left top; display:none;"></div>
+
+                    <!-- Runway -->
+                    <div class="apron-decor apron-runway apron-view apron-view--b" style="left:0; top:480px; width:1920px; height:76px; display:none;">
+                        <div class="apron-runway-centerline"></div>
+                        <div class="apron-runway-text">Runway</div>
+                    </div>
+
+                    <!-- View B: section labels -->
+                    <div class="apron-section-label apron-view apron-view--b" style="left:490px; top:3px; display:none;">South Apron</div>
+                    <div class="apron-section-label apron-view apron-view--b" style="left:1220px; top:40px; display:none;">New South Apron</div>
+                    <div class="apron-section-label apron-view apron-view--b" style="left:1420px; top:1035px; display:none;">Main Apron</div>
+
                     <?php
                     $baseStandClass = "stand-gradient absolute border-2 border-amc-dark-blue rounded-lg px-2 py-1 lg:px-3 lg:py-2 font-bold cursor-pointer select-none text-xs lg:text-sm text-center leading-tight text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:bg-gradient-to-br hover:from-amc-light hover:to-amc-blue hover:text-amc-dark-blue hover:shadow-xl active:translate-y-0 active:scale-100";
 
@@ -200,6 +252,11 @@ ob_start();
                     foreach($standsViewB as $code => $pos) {
                         echo "<div class=\"{$baseStandClass} apron-view apron-view--b\" data-stand=\"$code\" style=\"left:{$pos[0]}px; top:{$pos[1]}px; display:none;\" title=\"Click to edit $code\">$code</div>";
                     }
+
+                    // ── VIEW C: Classic AMS style (same coordinates as View A) ───────────
+                    foreach($standsViewA as $code => $pos) {
+                        echo "<div class=\"stand-gradient stand-classic apron-view apron-view--c absolute cursor-pointer select-none text-center\" data-stand=\"$code\" style=\"left:{$pos[0]}px; top:{$pos[1]}px; display:none;\" title=\"Click to edit $code\">$code</div>";
+                    }
                     ?>
                 </div>
             </div>
@@ -216,32 +273,39 @@ ob_start();
     
     <script>
         window.apronConfig = {
-            userRole: <?= json_encode($user_role) ?>,
-            initialMovements: <?= json_encode($currentMovements); ?>,
+            userRole: <?= json_encode($user_role, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+            csrfToken: <?= json_encode($csrf_token ?? '', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+            initialMovements: <?= json_encode($currentMovements, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>,
             endpoints: {
                 apron: 'api/apron',
                 refreshApron: 'api/apron/status',
+                refreshMovements: 'api/apron/movements',
+                stream: 'api/apron/stream',
+                freehand: 'api/apron/freehand',
                 recommend: 'api/apron/recommend'
             }
         };
 
         // ── Apron View Toggle ────────────────────────────────────────────────
+        window.currentApronView = 'a';
         function switchApronView(view) {
-            document.querySelectorAll('.apron-view--a').forEach(function(el) {
-                el.style.display = view === 'a' ? '' : 'none';
+            window.currentApronView = view;
+            ['a', 'b', 'c'].forEach(function(v) {
+                document.querySelectorAll('.apron-view--' + v).forEach(function(el) {
+                    el.style.display = view === v ? '' : 'none';
+                });
+                var btn = document.getElementById('toggle-view-' + v);
+                if (btn) {
+                    if (view === v) {
+                        btn.style.background = '#112D4E'; btn.style.color = 'white'; btn.style.border = 'none';
+                    } else {
+                        btn.style.background = 'white'; btn.style.color = '#112D4E'; btn.style.border = '1px solid #ccc';
+                    }
+                }
             });
-            document.querySelectorAll('.apron-view--b').forEach(function(el) {
-                el.style.display = view === 'b' ? '' : 'none';
-            });
-            var btnA = document.getElementById('toggle-view-a');
-            var btnB = document.getElementById('toggle-view-b');
-            if (view === 'a') {
-                btnA.style.background = '#112D4E'; btnA.style.color = 'white'; btnA.style.border = 'none';
-                btnB.style.background = 'white';   btnB.style.color = '#112D4E'; btnB.style.border = '1px solid #ccc';
-            } else {
-                btnB.style.background = '#112D4E'; btnB.style.color = 'white'; btnB.style.border = 'none';
-                btnA.style.background = 'white';   btnA.style.color = '#112D4E'; btnA.style.border = '1px solid #ccc';
-            }
+            // View C restyles icons/labels via a container class
+            var ctr = document.getElementById('apron-container');
+            if (ctr) { ctr.classList.toggle('view-c', view === 'c'); }
             // Re-render all movement icons so they follow the newly active view's positions.
             // Dispatching a custom event keeps this decoupled from apron.js scope.
             document.dispatchEvent(new CustomEvent('apronViewSwitch'));

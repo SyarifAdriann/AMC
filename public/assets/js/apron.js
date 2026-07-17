@@ -5,8 +5,20 @@
     const apronEndpoint = endpoints.apron || 'api/apron';
     const refreshApronEndpoint = endpoints.refreshApron || 'api/apron/status';
     const refreshMovementsEndpoint = endpoints.refreshMovements || 'api/apron/movements';
+    const streamEndpoint = endpoints.stream || 'api/apron/stream';
+    const freehandEndpoint = endpoints.freehand || 'api/apron/freehand';
     const recommendEndpoint = endpoints.recommend || 'api/apron/recommend';
     const userRole = config.userRole || 'viewer';
+    const csrfToken = config.csrfToken || '';
+
+    function escapeHtml(value) {
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
 
     function ensureToastHost() {
         let host = document.getElementById('apron-toast-host');
@@ -29,12 +41,12 @@
         const confidence = typeof probability === 'number'
             ? `<span class="apron-toast-meta">${(probability * 100).toFixed(1)}% confidence</span>`
             : '';
-        const model = modelVersion ? `<span class="apron-toast-meta">Model ${modelVersion}</span>` : '';
+        const model = modelVersion ? `<span class="apron-toast-meta">Model ${escapeHtml(modelVersion)}</span>` : '';
 
         toast.innerHTML = `
-            <div class="apron-toast-title">${message || 'Movement saved successfully.'}</div>
+            <div class="apron-toast-title">${escapeHtml(message || 'Movement saved successfully.')}</div>
             <div class="apron-toast-body">
-                Stand <strong>${standCode || '—'}</strong> ${badge}
+                Stand <strong>${escapeHtml(standCode || '—')}</strong> ${badge}
                 <div class="apron-toast-foot">${confidence}${model}</div>
             </div>
         `;
@@ -48,69 +60,8 @@
         }, 3200);
     }
 
-    function normalizeJsonResponse(text) {
-        if (typeof text !== 'string') {
-            return '';
-        }
-
-        let cleaned = text.replace(/^\uFEFF/, '').trim();
-        const firstBrace = cleaned.indexOf('{');
-        const firstBracket = cleaned.indexOf('[');
-        let firstJsonIndex = -1;
-
-        if (firstBrace !== -1 && firstBracket !== -1) {
-            firstJsonIndex = Math.min(firstBrace, firstBracket);
-        } else if (firstBrace !== -1) {
-            firstJsonIndex = firstBrace;
-        } else if (firstBracket !== -1) {
-            firstJsonIndex = firstBracket;
-        }
-
-        if (firstJsonIndex > 0) {
-            cleaned = cleaned.slice(firstJsonIndex);
-        }
-
-        const firstChar = cleaned.charAt(0);
-        const secondChar = cleaned.charAt(1);
-        if ((firstChar === "'" || firstChar === '"') && (secondChar === '{' || secondChar === '[')) {
-            cleaned = cleaned.slice(1);
-            const lastChar = cleaned.charAt(cleaned.length - 1);
-            if (lastChar === firstChar) {
-                cleaned = cleaned.slice(0, -1);
-            }
-        }
-
-        return cleaned.trim();
-    }
-
-    function fetchJson(url, options = {}) {
-        const fetchOptions = { credentials: 'same-origin', ...options };
-
-        return fetch(url, fetchOptions).then(async response => {
-            const raw = await response.text();
-            const cleaned = normalizeJsonResponse(raw);
-
-            if (!response.ok) {
-                const error = new Error(cleaned || response.statusText || `HTTP ${response.status}`);
-                error.status = response.status;
-                error.raw = raw;
-                throw error;
-            }
-
-            if (!cleaned) {
-                return {};
-            }
-
-            try {
-                return JSON.parse(cleaned);
-            } catch (parseError) {
-                const error = new Error(`Invalid JSON response: ${parseError.message}`);
-                error.raw = raw;
-                error.status = response.status;
-                throw error;
-            }
-        });
-    }
+    // JSON fetch + CSRF header handling shared across pages (assets/js/amc-http.js)
+    const fetchJson = (url, options = {}) => window.AMC.fetchJson(url, options);
 
     const initialMovements = Array.isArray(config.initialMovements) ? config.initialMovements : [];
     const recommendationElements = {
@@ -232,8 +183,8 @@
             button.innerHTML = `
                 <div class="flex items-start justify-between mb-1">
                     <div class="flex items-center gap-1.5">
-                        <div class="w-5 h-5 rounded-full bg-white bg-opacity-30 flex items-center justify-center text-white font-bold text-xs">#${rank}</div>
-                        <div class="text-xl font-black text-white drop-shadow-lg">${stand}</div>
+                        <div class="w-5 h-5 rounded-full bg-white bg-opacity-30 flex items-center justify-center text-white font-bold text-xs">#${escapeHtml(rank)}</div>
+                        <div class="text-xl font-black text-white drop-shadow-lg">${escapeHtml(stand)}</div>
                     </div>
                     <div class="text-right">
                         <div class="text-lg font-bold text-white drop-shadow-md">${probability}</div>
@@ -244,7 +195,7 @@
                     <svg class="w-3 h-3 text-white text-opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
-                    <span class="text-xs text-white text-opacity-95 font-medium">Click to select ${stand}</span>
+                    <span class="text-xs text-white text-opacity-95 font-medium">Click to select ${escapeHtml(stand)}</span>
                 </div>
             `;
             button.dataset.stand = stand;
@@ -476,6 +427,11 @@ function refreshMovementsData() {
     return fetchJson(refreshMovementsEndpoint)
         .then(data => {
             if (data.success && data.movements) {
+                if (data.freehand) {
+                    freehandState = data.freehand;
+                    updateFreehandButtonUi();
+                }
+
                 // Clear existing stand data
                 Object.keys(standData).forEach(standCode => {
                     standData[standCode] = { current: null, planned: null };
@@ -521,6 +477,7 @@ function refreshMovementsData() {
                 });
 
                 console.log('Movements refreshed successfully');
+                touchLastUpdated();
                 return true;
             }
             return false;
@@ -531,23 +488,290 @@ function refreshMovementsData() {
         });
 }
 
+function refreshApronStatus() {
+    return fetchJson(refreshApronEndpoint)
+        .then(data => {
+            document.querySelector('#apron-total').textContent = data.total;
+            document.querySelector('#apron-available').textContent = data.available;
+            document.querySelector('#apron-occupied').textContent = data.occupied;
+            document.querySelector('#apron-ron').textContent = data.ron;
+        })
+        .catch(error => {
+            console.error('Failed to refresh apron status', error);
+        });
+}
+
+// ===== Real-time sync engine =====
+// Every save bumps a version counter on the server. Open tabs learn about it via:
+//   1. BroadcastChannel  — instant, same browser, zero server round-trip
+//   2. Server-Sent Events — near-instant (~1s), works across devices/browsers
+//   3. 30s polling        — fallback when EventSource is unavailable or disconnected
+let syncChannel = null;
+let lastRealtimeRefresh = 0;
+
+function refreshFromRealtimeSignal() {
+    // Collapse bursts (own save + channel + SSE) into one refresh
+    const now = Date.now();
+    if (now - lastRealtimeRefresh < 750) {
+        return;
+    }
+    lastRealtimeRefresh = now;
+    refreshMovementsData();
+    refreshApronStatus();
+}
+
+function notifyApronChanged() {
+    if (syncChannel) {
+        try {
+            syncChannel.postMessage({ type: 'apron-update', at: Date.now() });
+        } catch (e) {
+            // Channel closed — ignore
+        }
+    }
+}
+
+// ===== Live connection indicator =====
+function setConnectionStatus(state) {
+    const dot = document.getElementById('realtime-dot');
+    const label = document.getElementById('realtime-label');
+    if (!dot || !label) {
+        return;
+    }
+    if (state === 'live') {
+        dot.style.background = '#22c55e';
+        label.textContent = 'Live';
+    } else if (state === 'reconnecting') {
+        dot.style.background = '#ef4444';
+        label.textContent = 'Reconnecting…';
+    } else if (state === 'polling') {
+        dot.style.background = '#9ca3af';
+        label.textContent = 'Polling (30s)';
+    } else {
+        dot.style.background = '#9ca3af';
+        label.textContent = 'Connecting…';
+    }
+}
+
+function touchLastUpdated() {
+    const el = document.getElementById('realtime-updated');
+    if (!el) {
+        return;
+    }
+    const now = new Date();
+    el.textContent = '· updated ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
+function initRealtimeSync() {
+    if ('BroadcastChannel' in window) {
+        syncChannel = new BroadcastChannel('amc-apron-sync');
+        syncChannel.addEventListener('message', event => {
+            if (event.data && event.data.type === 'apron-update') {
+                refreshFromRealtimeSignal();
+            }
+        });
+    }
+
+    if ('EventSource' in window) {
+        const source = new EventSource(streamEndpoint);
+        source.addEventListener('open', () => setConnectionStatus('live'));
+        source.addEventListener('apron-update', () => {
+            refreshFromRealtimeSignal();
+        });
+        source.onerror = () => {
+            // EventSource reconnects automatically (server sends retry hint).
+            // The 30s poll below covers any gap in between.
+            setConnectionStatus('reconnecting');
+        };
+    } else {
+        setConnectionStatus('polling');
+    }
+
+    // Safety-net poll: catches missed events and browsers without EventSource
+    setInterval(() => {
+        refreshApronStatus();
+        if (!('EventSource' in window)) {
+            refreshMovementsData();
+        }
+        touchLastUpdated();
+    }, 30000);
+}
+
+// ===== Freehand positioning (event mode) =====
+// Shared across every open apron map (persisted server-side + pushed via SSE).
+// Independent state per view (A/B) — see App\Services\FreehandLayoutService.
+let freehandState = {
+    a: { active: false, positions: {} },
+    b: { active: false, positions: {} },
+    c: { active: false, positions: {} }
+};
+let apronScale = 1;
+
+function currentApronView() {
+    return window.currentApronView || 'a';
+}
+
+function isFreehandActive() {
+    const view = freehandState[currentApronView()];
+    return !!(view && view.active);
+}
+
+function updateFreehandButtonUi() {
+    const btn = document.getElementById('freehand-toggle');
+    if (!btn) {
+        return;
+    }
+    const active = isFreehandActive();
+    btn.textContent = active ? '✋ Freehand: ON' : '✋ Freehand: OFF';
+    btn.style.background = active ? '#f59e0b' : 'white';
+    btn.style.color = active ? 'white' : '#112D4E';
+    btn.style.border = active ? 'none' : '1px solid #ccc';
+}
+window.AMC_updateFreehandButtonUi = updateFreehandButtonUi;
+
+function toggleFreehand() {
+    const btn = document.getElementById('freehand-toggle');
+    if (!btn || userRole === 'viewer') {
+        return;
+    }
+    const view = currentApronView();
+    const activating = !isFreehandActive();
+
+    if (!activating) {
+        const proceed = confirm('Deactivating freehand mode will snap every plane icon back to its normal stand position. Continue?');
+        if (!proceed) {
+            return;
+        }
+    }
+
+    btn.disabled = true;
+    fetchJson(freehandEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            freehand_action: activating ? 'activate' : 'deactivate',
+            view
+        })
+    })
+    .then(data => {
+        if (data.success && data.freehand) {
+            freehandState = data.freehand;
+        }
+        updateFreehandButtonUi();
+        refreshMovementsData();
+        notifyApronChanged();
+    })
+    .catch(error => {
+        alert('Failed to toggle freehand mode: ' + (error.message || error));
+    })
+    .finally(() => {
+        btn.disabled = false;
+    });
+}
+
+function saveFreehandPosition(movementId, x, y) {
+    const view = currentApronView();
+    if (!freehandState[view]) {
+        freehandState[view] = { active: true, positions: {} };
+    }
+    freehandState[view].positions[String(movementId)] = { x, y };
+
+    fetchJson(freehandEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            freehand_action: 'positions',
+            view,
+            positions: { [movementId]: { x, y } }
+        })
+    })
+    .then(() => notifyApronChanged())
+    .catch(error => {
+        console.error('Failed to save freehand position', error);
+    });
+}
+
+// Attaches drag-to-reposition behavior to a plane icon. Only active while
+// freehand mode is on for the currently visible view; a small movement
+// threshold distinguishes a drag from a plain click (which still opens the
+// edit modal when freehand mode is off).
+function attachFreehandDrag(iconDiv, movementId) {
+    if (movementId === undefined || movementId === null) {
+        return;
+    }
+
+    let dragging = false;
+    let moved = false;
+    let startX = 0;
+    let startY = 0;
+    let originLeft = 0;
+    let originTop = 0;
+
+    iconDiv.addEventListener('mousedown', event => {
+        if (!isFreehandActive() || userRole === 'viewer') {
+            return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        dragging = true;
+        moved = false;
+        startX = event.clientX;
+        startY = event.clientY;
+        originLeft = parseFloat(iconDiv.style.left) || 0;
+        originTop = parseFloat(iconDiv.style.top) || 0;
+        iconDiv.classList.add('freehand-dragging');
+    });
+
+    document.addEventListener('mousemove', event => {
+        if (!dragging) {
+            return;
+        }
+        const scale = apronScale || 1;
+        const dx = (event.clientX - startX) / scale;
+        const dy = (event.clientY - startY) / scale;
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+            moved = true;
+        }
+        iconDiv.style.left = `${originLeft + dx}px`;
+        iconDiv.style.top = `${originTop + dy}px`;
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (!dragging) {
+            return;
+        }
+        dragging = false;
+        iconDiv.classList.remove('freehand-dragging');
+        if (moved) {
+            iconDiv.dataset.dragged = '1';
+            const finalLeft = parseFloat(iconDiv.style.left) || 0;
+            const finalTop = parseFloat(iconDiv.style.top) || 0;
+            saveFreehandPosition(movementId, finalLeft, finalTop);
+        }
+    });
+}
+
 // Call the function when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    loadMovementsFromDatabase();
+    fetchJson(freehandEndpoint)
+        .then(data => {
+            if (data && data.success && data.freehand) {
+                freehandState = data.freehand;
+            }
+        })
+        .catch(() => {
+            // Freehand state is best-effort; icons still render at stand positions.
+        })
+        .finally(() => {
+            loadMovementsFromDatabase();
+            updateFreehandButtonUi();
+            touchLastUpdated();
+            initRealtimeSync();
+        });
 
-    // Live refresh for apron status
-    setInterval(() => {
-        fetchJson(refreshApronEndpoint)
-            .then(data => {
-                document.querySelector('#apron-total').textContent = data.total;
-                document.querySelector('#apron-available').textContent = data.available;
-                document.querySelector('#apron-occupied').textContent = data.occupied;
-                document.querySelector('#apron-ron').textContent = data.ron;
-            })
-            .catch(error => {
-                console.error('Failed to refresh apron status', error);
-            });
-    }, 30000); // Refresh every 30s
+    const freehandBtn = document.getElementById('freehand-toggle');
+    if (freehandBtn) {
+        freehandBtn.addEventListener('click', toggleFreehand);
+    }
 });
         // ===== Responsive Apron Map Scaling (with 5% shrink) =====
         function resizeApron() {
@@ -572,7 +796,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (scale > 1) {
                 scale = 1;
             }
-            
+            apronScale = scale;
+
             container.style.transform = `scale(${scale})`;
             container.style.transformOrigin = 'top left';
             wrapper.style.height = `${1080 * scale}px`;
@@ -623,6 +848,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 iconDiv.className = `plane-icon ${type}`;
                 iconDiv.dataset.stand = standCode;
                 iconDiv.dataset.type = type;
+                if (movement.id !== undefined && movement.id !== null) {
+                    iconDiv.dataset.movementId = movement.id;
+                }
 
                 const iconSpan = document.createElement('span');
                 iconSpan.className = 'icon';
@@ -635,36 +863,60 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 const labelSpan = document.createElement('span');
                 labelSpan.className = 'label';
-                const reg = movement.registration || '';
-                const arr = movement.arr ? `Arr: ${movement.arr}` : '';
-                const remarks = movement.remarks ? `<b>${movement.remarks}</b>` : '';
+                const reg = escapeHtml(movement.registration || '');
+                const arr = movement.arr ? `Arr: ${escapeHtml(movement.arr)}` : '';
+                const remarks = movement.remarks ? `<b>${escapeHtml(movement.remarks)}</b>` : '';
                 labelSpan.innerHTML = [reg, arr, remarks].filter(Boolean).join('<br>');
                 iconDiv.appendChild(labelSpan);
 
-                // Position the icon and label
+                // Position the icon and label (label hugs the icon — no wasted space)
                 const leftPos = standLeft + standWidth / 2;
-                let iconTopPos, labelTopPos;
+                let iconTopPos;
                 const standHeight = standEl.offsetHeight || 28; // fallback if reflow not yet complete
                 if (type === 'planned') {
                     iconTopPos = standTop - 24; // Icon touches top of stand
-                    labelTopPos = iconTopPos - 40; // Label above icon
                 } else {
                     iconTopPos = standTop + standHeight; // Icon touches bottom of stand
-                    labelTopPos = iconTopPos + 24; // Label below icon
                 }
                 iconDiv.style.left = `${leftPos}px`;
                 iconDiv.style.top = `${iconTopPos}px`;
                 iconDiv.style.transform = 'translateX(-50%)';
+
+                // Freehand override: when event mode is active for this view and
+                // this movement has a stored position, place the icon there instead.
+                const viewState = freehandState[currentApronView()];
+                if (viewState && viewState.active && movement.id !== undefined) {
+                    const pos = viewState.positions[String(movement.id)];
+                    if (pos && typeof pos.x === 'number' && typeof pos.y === 'number') {
+                        iconDiv.style.left = `${pos.x}px`;
+                        iconDiv.style.top = `${pos.y}px`;
+                    }
+                    iconDiv.classList.add('freehand-draggable');
+                }
                 labelSpan.style.position = 'absolute';
-                labelSpan.style.top = `${labelTopPos - iconTopPos}px`;
                 labelSpan.style.left = '50%';
-                labelSpan.style.transform = 'translateX(-50%)';
                 labelSpan.style.whiteSpace = 'nowrap';
+                if (type === 'planned') {
+                    // Label sits right on top of the icon (bottom-anchored so
+                    // multi-line labels grow upward, never into the icon)
+                    labelSpan.style.top = '2px';
+                    labelSpan.style.transform = 'translate(-50%, -100%)';
+                } else {
+                    // Label directly under the icon, barely any gap
+                    labelSpan.style.top = '21px';
+                    labelSpan.style.transform = 'translateX(-50%)';
+                }
 
                 document.getElementById('apron-container').appendChild(iconDiv);
 
-                // Add click listener
+                attachFreehandDrag(iconDiv, movement.id);
+
+                // Add click listener (a drag that just ended must not open the modal)
                 iconDiv.addEventListener('click', () => {
+                    if (iconDiv.dataset.dragged === '1') {
+                        delete iconDiv.dataset.dragged;
+                        return;
+                    }
                     openModalForEdit(standCode, type);
                 });
             }
@@ -926,6 +1178,7 @@ if (sr) sr.addEventListener('click', () => {
                         })
                         .then(data => {
                             if (data.success) {
+                                notifyApronChanged();
                                 location.reload();
                             } else {
                                 alert('Error: ' + data.message);
@@ -1014,12 +1267,29 @@ if (sr) sr.addEventListener('click', () => {
                     alert('Off block timestamp is earlier than on block timestamp for the same date. Please verify. The input will still be processed.');
                 }
 
-                fetchJson(apronEndpoint, {
+                const performSave = savePayload => fetchJson(apronEndpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                })
+                    body: JSON.stringify(savePayload)
+                }).then(res => {
+                    if (res.needs_confirmation && res.conflict) {
+                        const proceed = confirm(
+                            'Stand ' + res.conflict.stand + ' is already occupied by ' +
+                            res.conflict.registration + '.\n\nSave this movement to the same stand anyway?'
+                        );
+                        if (proceed) {
+                            return performSave({ ...savePayload, confirm_conflict: true });
+                        }
+                        return { success: false, cancelled: true };
+                    }
+                    return res;
+                });
+
+                performSave(payload)
                 .then(res => {
+                    if (res.cancelled) {
+                        return;
+                    }
                     if (res.success) {
                         setDuplicateFlightHighlight(res.duplicate_flights || []);
                         if (Array.isArray(res.warnings) && res.warnings.length > 0) {
@@ -1039,18 +1309,10 @@ if (sr) sr.addEventListener('click', () => {
                         });
                         resetRecommendationPanel('Movement saved. Update inputs to fetch fresh recommendations.');
 
-                        // Refresh movements and status without full page reload
+                        // Refresh this tab and notify all other open tabs instantly
                         setTimeout(() => {
-                            refreshMovementsData();
-                            // Also refresh apron status counters
-                            fetchJson(refreshApronEndpoint)
-                                .then(data => {
-                                    document.querySelector('#apron-total').textContent = data.total;
-                                    document.querySelector('#apron-available').textContent = data.available;
-                                    document.querySelector('#apron-occupied').textContent = data.occupied;
-                                    document.querySelector('#apron-ron').textContent = data.ron;
-                                })
-                                .catch(error => console.error('Failed to refresh apron status', error));
+                            refreshFromRealtimeSignal();
+                            notifyApronChanged();
                         }, 300);
                     } else {
                         alert('Error saving movement: ' + res.message);
@@ -1242,6 +1504,8 @@ if (sr) sr.addEventListener('click', () => {
         // Listen for view-switch events dispatched by switchApronView() in index.php.
         // This keeps renderStandIcons and standData inside the closure — no scope leakage.
         document.addEventListener('apronViewSwitch', function() {
+            // Freehand mode is independent per view — refresh the button label
+            updateFreehandButtonUi();
             // Force a synchronous reflow so newly-shown stands have computed dimensions
             var apronCtr = document.getElementById('apron-container');
             if (apronCtr) { void apronCtr.offsetHeight; }

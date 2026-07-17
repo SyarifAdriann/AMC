@@ -12,6 +12,7 @@ public/mix-manifest.json
 # Framework caches/logs
 bootstrap/cache/
 logs/
+!logs/.gitkeep
 storage/cache/
 storage/logs/
 storage/framework/
@@ -35,3 +36,6 @@ pnpm-debug.log*
 
 # Docker
 docker-compose.override.yml
+
+# Database backup dumps
+backups/

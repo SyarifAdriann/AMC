@@ -3,13 +3,14 @@ $title = 'Dashboard - AMC MONITORING SYSTEM';
 $styles = [
     'assets/css/tailwind.css',
     'assets/css/styles.css',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css'
+    'assets/vendor/fontawesome/css/all.min.css'
 ];
 $head = '';;
 $bodyClass = 'gradient-bg min-h-screen font-sans';
 $bodyAttributes = 'id="dashboard-page"';
 $scripts = [
     'assets/js/mobile-adaptations.js',
+    'assets/js/amc-http.js?v=1.0',
     'assets/js/dashboard.js?v=' . time()
 ];
 ob_start();
@@ -25,11 +26,12 @@ $hasRole = function ($roles) use ($user_role) {
 ?>
     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>" data-role="csrf">    <script>
         window.dashboardConfig = {
-            userRole: <?= json_encode($user_role) ?>,
-            peakHourData: <?= json_encode($peakHourData) ?>,
+            userRole: <?= json_encode($user_role, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+            peakHourData: <?= json_encode($peakHourData, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
             endpoints: {
                 refreshApron: 'api/apron/status',
                 dashboardMovements: 'api/dashboard/movements',
+                report: 'api/dashboard/report',
                 mlMetrics: 'api/ml/metrics',
                 mlLogs: 'api/ml/logs',
                 userAdmin: 'api/admin/users',
@@ -251,7 +253,8 @@ $hasRole = function ($roles) use ($user_role) {
                         Automated Reporting Suite
                     </div>
                     <div class="p-4 lg:p-5">
-                        <form method="POST" class="space-y-4">
+                        <form method="POST" class="space-y-4" id="report-form">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
                                 <div class="flex flex-col gap-2">
                                     <label for="report-type" class="text-sm font-semibold text-amc-dark-blue">Report Type</label>
@@ -278,11 +281,9 @@ $hasRole = function ($roles) use ($user_role) {
                                 </div>
                             </div>
                         </form>
-                        <?php if (!empty($reportOutput)): ?>
-                        <div class="mt-4 bg-white rounded-md border border-gray-200 p-4 overflow-x-auto text-gray-800 text-sm">
+                        <div id="report-output" class="mt-4 bg-white rounded-md border border-gray-200 p-4 overflow-x-auto text-gray-800 text-sm<?= empty($reportOutput) ? ' hidden' : '' ?>">
                             <?= $reportOutput ?>
                         </div>
-                        <?php endif; ?>
                 <!-- ML Prediction Logbook -->
                 <div id="ml-logbook-card" class="bg-amc-bg rounded-xl shadow-lg border border-amc-light overflow-hidden">
                     <div class="bg-gradient-to-r from-blue-50 to-blue-100 text-amc-dark-blue px-4 py-3 lg:px-5 lg:py-4 font-bold text-sm lg:text-base border-b border-amc-light flex items-center justify-between">

@@ -23,7 +23,17 @@ class Response
     public static function json($data, int $status = 200, array $headers = []): self
     {
         $headers['Content-Type'] = 'application/json';
-        return new self(json_encode($data), $status, $headers);
+
+        // Substitute invalid UTF-8 instead of silently returning false, which
+        // would send an empty body the frontend cannot parse.
+        $content = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+
+        if ($content === false) {
+            $content = '{"success":false,"message":"Response encoding error."}';
+            $status = $status < 500 ? 500 : $status;
+        }
+
+        return new self($content, $status, $headers);
     }
 
     public static function redirect(string $url, int $status = 302): self

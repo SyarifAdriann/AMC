@@ -7,6 +7,41 @@
     const dashboardMovementsEndpoint = endpoints.dashboardMovements || 'api/dashboard/movements';
     const mlMetricsEndpoint = endpoints.mlMetrics || 'api/ml/metrics';
     const mlLogsEndpoint = endpoints.mlLogs || 'api/ml/logs';
+    const reportEndpoint = endpoints.report || 'api/dashboard/report';
+
+    // Shared: post report params, inject returned HTML in place (no page reload)
+    function runReport(formData, triggerBtn) {
+        const output = document.getElementById('report-output');
+        if (!output) {
+            return Promise.resolve();
+        }
+        const restore = triggerBtn ? triggerBtn.textContent : null;
+        if (triggerBtn) {
+            triggerBtn.disabled = true;
+            triggerBtn.textContent = 'Generating…';
+        }
+        output.classList.remove('hidden');
+        output.innerHTML = '<p class="text-gray-500 py-2">Generating report…</p>';
+
+        return fetchJson(reportEndpoint, { method: 'POST', body: formData })
+            .then(data => {
+                if (data.success) {
+                    output.innerHTML = data.html || '<p class="text-gray-500 py-2">No output.</p>';
+                    output.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    output.innerHTML = '<p class="text-red-600 py-2">' + (data.message || 'Report failed.') + '</p>';
+                }
+            })
+            .catch(error => {
+                output.innerHTML = '<p class="text-red-600 py-2">Report error: ' + error.message + '</p>';
+            })
+            .finally(() => {
+                if (triggerBtn) {
+                    triggerBtn.disabled = false;
+                    triggerBtn.textContent = restore;
+                }
+            });
+    }
     const userRole = config.userRole || 'viewer';
     const peakHourData = Array.isArray(config.peakHourData) ? config.peakHourData : [];
     const logControls = {
@@ -32,60 +67,8 @@
         return div.innerHTML;
     }
 
-    function normaliseJsonResponse(text) {
-        if (typeof text !== 'string') {
-            return '';
-        }
-
-        let cleaned = text.replace(/^\uFEFF/, '').trim();
-        const firstBrace = cleaned.indexOf('{');
-        const firstBracket = cleaned.indexOf('[');
-        let firstJsonIndex = -1;
-
-        if (firstBrace !== -1 && firstBracket !== -1) {
-            firstJsonIndex = Math.min(firstBrace, firstBracket);
-        } else if (firstBrace !== -1) {
-            firstJsonIndex = firstBrace;
-        } else if (firstBracket !== -1) {
-            firstJsonIndex = firstBracket;
-        }
-
-        if (firstJsonIndex > 0) {
-            cleaned = cleaned.slice(firstJsonIndex);
-        }
-
-        const firstChar = cleaned.charAt(0);
-        const secondChar = cleaned.charAt(1);
-        if ((firstChar === '"' || firstChar === "'") && (secondChar === '{' || secondChar === '[')) {
-            cleaned = cleaned.slice(1);
-            const lastChar = cleaned.charAt(cleaned.length - 1);
-            if (lastChar === firstChar) {
-                cleaned = cleaned.slice(0, -1);
-            }
-        }
-
-        return cleaned.trim();
-    }
-
-    function fetchJson(url, options = {}) {
-        const fetchOptions = { credentials: 'same-origin', ...options };
-        return fetch(url, fetchOptions).then(async response => {
-            const raw = await response.text();
-            const cleaned = normaliseJsonResponse(raw);
-            if (!response.ok) {
-                const message = cleaned || response.statusText || `HTTP ${response.status}`;
-                throw new Error(message);
-            }
-            if (!cleaned) {
-                return {};
-            }
-            try {
-                return JSON.parse(cleaned);
-            } catch (error) {
-                throw new Error(`Invalid JSON response: ${error.message}`);
-            }
-        });
-    }
+    // JSON fetch + CSRF header handling shared across pages (assets/js/amc-http.js)
+    const fetchJson = (url, options = {}) => window.AMC.fetchJson(url, options);
 
 // Update movement snapshots (category breakdown)
 function updateMovementSnapshots(snapshots) {
@@ -1305,14 +1288,36 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Charter form date handling
+    // Report suite: Generate = AJAX (inject in place); Export CSV = native download
+    const reportForm = document.getElementById('report-form');
+    if (reportForm) {
+        reportForm.addEventListener('submit', function(e) {
+            const btn = e.submitter;
+            // Let the CSV button submit natively (triggers a file download, no reload)
+            if (btn && btn.value === 'export_csv') {
+                return;
+            }
+            e.preventDefault();
+            const formData = new FormData(reportForm);
+            formData.set('action', 'generate');
+            runReport(formData, btn);
+        });
+    }
+
+    // Monthly Charter Report modal → AJAX into the same report output
     const charterForm = document.getElementById('charter-report-form');
     if (charterForm) {
         charterForm.addEventListener('submit', function(e) {
-            const monthYearInput = document.getElementById('charter-month');
-            const [year, month] = monthYearInput.value.split('-');
-            document.getElementById('charter-month-hidden').value = month;
-            document.getElementById('charter-year-hidden').value = year;
+            e.preventDefault();
+            const [year, month] = (document.getElementById('charter-month').value || '').split('-');
+            const formData = new FormData();
+            formData.set('report_type', 'monthly_charter');
+            formData.set('month', month || '');
+            formData.set('year', year || '');
+            if (window.modalManager) {
+                modalManager.closeModal(document.getElementById('charterModalBg'));
+            }
+            runReport(formData, e.submitter);
         });
     }
 

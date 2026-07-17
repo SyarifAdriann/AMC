@@ -5,6 +5,7 @@ namespace App\Core;
 use App\Core\Http\Request;
 use App\Core\Http\Response;
 use App\Core\View\View;
+use App\Security\CsrfManager;
 
 abstract class Controller
 {
@@ -13,6 +14,32 @@ abstract class Controller
     public function __construct(Application $app)
     {
         $this->app = $app;
+    }
+
+    /**
+     * Validate the CSRF token from the X-CSRF-Token header, form field, or JSON body.
+     */
+    protected function verifyCsrf(Request $request): bool
+    {
+        $token = $request->header('X-Csrf-Token');
+
+        if (!is_string($token) || $token === '') {
+            $token = $request->input('csrf_token');
+        }
+
+        if (!is_string($token) || $token === '') {
+            $token = $request->json('csrf_token');
+        }
+
+        return $this->app->make(CsrfManager::class)->validate(is_string($token) ? $token : null);
+    }
+
+    protected function csrfFailureResponse(): Response
+    {
+        return Response::json([
+            'success' => false,
+            'message' => 'Invalid or expired security token. Please refresh the page and try again.',
+        ], 403);
     }
 
     protected function request(): Request

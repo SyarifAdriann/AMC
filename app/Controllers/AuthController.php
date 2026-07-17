@@ -40,14 +40,7 @@ class AuthController extends Controller
             return Response::redirect('index.php');
         }
 
-        $error = '';
-        $showLockout = false;
-
-        if ($request->query('timeout')) {
-            $error = 'Your session has expired. Please log in again.';
-        }
-
-        return $this->renderLogin($request, $error, $showLockout);
+        return $this->renderLogin($request, '', false);
     }
 
     public function login(): Response

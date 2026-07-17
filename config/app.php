@@ -10,7 +10,6 @@ return [
         'operator',
         'viewer',
     ],
-    'session_timeout' => 1800,
     'login' => [
         'max_attempts' => 5,
         'lockout_seconds' => 900,

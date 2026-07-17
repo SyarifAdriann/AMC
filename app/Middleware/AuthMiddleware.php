@@ -26,14 +26,22 @@ class AuthMiddleware
             return $this->unauthenticated($request);
         }
 
-        $timeout = (int) $this->app->config('app.session_timeout', 1800);
-        $lastActivity = $_SESSION['last_activity'] ?? null;
-        if ($lastActivity && (time() - $lastActivity) > $timeout) {
-            $this->auth->logout();
-            return $this->timeoutResponse($request);
+        // 24/7 ops unit: no inactivity timeout. Sessions are 30 days,
+        // sliding — refresh the cookie expiry at most once a day so an
+        // in-use screen never gets logged out.
+        $lastRefresh = $_SESSION['cookie_refreshed_at'] ?? 0;
+        if (time() - $lastRefresh > 86400) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), session_id(), [
+                'expires' => time() + (int) $this->app->config('session.cookie.lifetime', 2592000),
+                'path' => $params['path'],
+                'domain' => $params['domain'],
+                'secure' => $params['secure'],
+                'httponly' => $params['httponly'],
+                'samesite' => $params['samesite'] ?? 'Lax',
+            ]);
+            $_SESSION['cookie_refreshed_at'] = time();
         }
-
-        $_SESSION['last_activity'] = time();
 
         return $next($request);
     }
@@ -45,15 +53,6 @@ class AuthMiddleware
         }
 
         return Response::redirect('login.php');
-    }
-
-    protected function timeoutResponse(Request $request)
-    {
-        if ($this->expectsJson($request)) {
-            return Response::json(['success' => false, 'message' => 'Session expired'], 440);
-        }
-
-        return Response::redirect('login.php?timeout=1');
     }
 
     protected function expectsJson(Request $request): bool

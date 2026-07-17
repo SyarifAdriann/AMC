@@ -53,3 +53,21 @@ final_checklist.md
 logic.md
 docs.md
 apron-experiment.html
+
+# Thesis drafts, datasets and office documents — never ship these in the image.
+# (reports/ stays in: the app reads reports/phase5_metrics.json at runtime.)
+*.docx
+*.doc
+*.xlsx
+*.gsheet
+DATASET AMC .csv
+DATASET_AMC_fields_used.csv
+DRAFT SKRIPSI SYARIF ADRIAN BARU.txt
+skripsi bab 4 5/
+db backup/
+sheets/
+gas/
+reports/skripsi/
+tests/
+STREAMLIT_PRD.md
+STREAMLIT_TECH_SPEC.md

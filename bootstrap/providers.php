@@ -82,6 +82,22 @@ $app->singleton(RonService::class, function (Application $app) {
     return new RonService($app->make(\PDO::class));
 });
 
+$app->singleton(App\Services\ApronChangeBroadcaster::class, function (Application $app) {
+    return new App\Services\ApronChangeBroadcaster($app);
+});
+
+$app->singleton(App\Services\FreehandLayoutService::class, function (Application $app) {
+    return new App\Services\FreehandLayoutService($app);
+});
+
+$app->singleton(App\Services\RecommendationService::class, function (Application $app) {
+    return new App\Services\RecommendationService(
+        $app,
+        $app->make(StandRepository::class),
+        $app->make(AircraftMovementRepository::class)
+    );
+});
+
 $app->singleton(SnapshotService::class, function (Application $app) {
     return new SnapshotService(
         $app->make(DailySnapshotRepository::class),
@@ -139,13 +155,17 @@ if (!function_exists('configureSession')) {
         $params = [
             'lifetime' => $cookie['lifetime'] ?? 0,
             'path' => $cookie['path'] ?? '/',
-            'domain' => $cookie['domain'] ?? ($_SERVER['HTTP_HOST'] ?? ''),
+            // Empty domain = host-only cookie. Never derive it from the Host
+            // header: it may contain a port (invalid) and is client-controlled.
+            'domain' => $cookie['domain'] ?? '',
             'secure' => $cookie['secure'] ?? $https,
             'httponly' => $cookie['httponly'] ?? true,
             'samesite' => $cookie['samesite'] ?? 'Lax',
         ];
         session_set_cookie_params($params);
         ini_set('session.use_strict_mode', '1');
+        // Server-side session data must live at least as long as the cookie
+        ini_set('session.gc_maxlifetime', (string) max(2592000, (int) ($params['lifetime'] ?? 0)));
         ini_set('session.cookie_httponly', $params['httponly'] ? '1' : '0');
         ini_set('session.cookie_secure', $params['secure'] ? '1' : '0');
     }

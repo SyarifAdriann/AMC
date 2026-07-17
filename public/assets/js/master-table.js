@@ -5,8 +5,79 @@
     const apronEndpoint = resolveEndpoint(endpoints.apron || 'api/apron');
     const resetUrl = config.resetUrl || null;
     const userRole = config.userRole || 'viewer';
+    const csrfToken = config.csrfToken || '';
     const isViewer = userRole === 'viewer';
     const warningStorageKey = 'amc_master_warning_seen';
+    const syncChannel = 'BroadcastChannel' in window ? new BroadcastChannel('amc-apron-sync') : null;
+
+    // Tell open apron-map tabs (same browser) that movements changed
+    function notifyApronChanged() {
+        if (syncChannel) {
+            try {
+                syncChannel.postMessage({ type: 'apron-update', at: Date.now() });
+            } catch (e) {
+                // Channel closed — ignore
+            }
+        }
+    }
+
+    // ── Toast notifications (same look as the apron page) ──────────────
+    function showToast(message, tone = 'info', duration = 4200) {
+        let host = document.getElementById('apron-toast-host');
+        if (!host) {
+            host = document.createElement('div');
+            host.id = 'apron-toast-host';
+            host.className = 'apron-toast-container';
+            document.body.appendChild(host);
+        }
+        const toast = document.createElement('div');
+        toast.className = 'apron-toast' + (tone === 'success' ? ' apron-toast-success' : '');
+        if (tone === 'error') {
+            toast.style.borderLeft = '4px solid #dc2626';
+        } else if (tone === 'warning') {
+            toast.style.borderLeft = '4px solid #f59e0b';
+        }
+        const title = document.createElement('div');
+        title.className = 'apron-toast-title';
+        title.style.whiteSpace = 'pre-line';
+        title.textContent = message;
+        toast.appendChild(title);
+        host.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add('apron-toast-visible'));
+        setTimeout(() => {
+            toast.classList.add('apron-toast-fade');
+            toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+        }, duration);
+    }
+
+    // ── Unsaved-changes tracking ────────────────────────────────────────
+    let skipUnloadWarning = false;
+
+    function hasUnsavedChanges() {
+        const tables = ['#master-movements-table', '#ron-data-table'];
+        for (const selector of tables) {
+            const dirty = document.querySelector(`${selector} input.cell-dirty, ${selector} select.cell-dirty`);
+            if (dirty) {
+                return true;
+            }
+        }
+        // New rows count as unsaved once a registration is typed
+        const newRows = document.querySelectorAll('#master-movements-table tbody tr[data-id="new"] input[data-field="registration"]');
+        for (const input of newRows) {
+            if (input.value.trim() !== '') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function refreshDirtyState(el) {
+        if (!el || !el.matches || !el.matches('input[data-field], select[data-field]')) {
+            return;
+        }
+        const original = el.getAttribute('data-original') ?? '';
+        el.classList.toggle('cell-dirty', (el.value ?? '') !== original);
+    }
 
     document.addEventListener('DOMContentLoaded', initialise);
 
@@ -22,80 +93,183 @@
         }
     }
 
-    function normaliseJsonResponse(text) {
-        if (typeof text !== 'string') {
-            return '';
-        }
-
-        let cleaned = text.replace(/^\uFEFF/, '').trim();
-        const firstBrace = cleaned.indexOf('{');
-        const firstBracket = cleaned.indexOf('[');
-        let firstJsonIndex = -1;
-
-        if (firstBrace !== -1 && firstBracket !== -1) {
-            firstJsonIndex = Math.min(firstBrace, firstBracket);
-        } else if (firstBrace !== -1) {
-            firstJsonIndex = firstBrace;
-        } else if (firstBracket !== -1) {
-            firstJsonIndex = firstBracket;
-        }
-
-        if (firstJsonIndex > 0) {
-            cleaned = cleaned.slice(firstJsonIndex);
-        }
-
-        const firstChar = cleaned.charAt(0);
-        const secondChar = cleaned.charAt(1);
-        if ((firstChar === '"' || firstChar === "'") && (secondChar === '{' || secondChar === '[')) {
-            cleaned = cleaned.slice(1);
-            const lastChar = cleaned.charAt(cleaned.length - 1);
-            if (lastChar === firstChar) {
-                cleaned = cleaned.slice(0, -1);
-            }
-        }
-
-        return cleaned.trim();
-    }
-
-    async function fetchJson(url, options = {}) {
-        const fetchOptions = { credentials: 'same-origin', ...options };
-        const response = await fetch(url, fetchOptions);
-        const raw = await response.text();
-        const cleaned = normaliseJsonResponse(raw);
-
-        if (!response.ok) {
-            const error = new Error(cleaned || response.statusText || `HTTP ${response.status}`);
-            error.status = response.status;
-            error.raw = raw;
-            throw error;
-        }
-
-        if (!cleaned) {
-            return {};
-        }
-
-        try {
-            return JSON.parse(cleaned);
-        } catch (parseError) {
-            const error = new Error(`Invalid JSON response: ${parseError.message}`);
-            error.raw = raw;
-            error.status = response.status;
-            throw error;
-        }
-    }
+    // JSON fetch + CSRF header handling shared across pages (assets/js/amc-http.js)
+    const fetchJson = (url, options = {}) => window.AMC.fetchJson(url, options);
 
     function initialise() {
         if (isViewer) {
+            // readOnly (not disabled): disabled inputs swallow mouse events,
+            // which would break range selection and copy for viewers.
             document.querySelectorAll('#master-movements-table input, #master-movements-table select, #ron-data-table input, #ron-data-table select').forEach(el => {
-                el.disabled = true;
+                if (el.tagName === 'SELECT') {
+                    el.disabled = true;
+                } else {
+                    el.readOnly = true;
+                }
                 el.classList.add('cursor-not-allowed');
             });
         }
 
-        enableTableNav('#master-movements-table');
-        enableTableNav('#ron-data-table');
-        setupSheetBehavior('#master-movements-table');
-        setupSheetBehavior('#ron-data-table');
+        setupExcelGrid('#master-movements-table', { canAddRows: true });
+        setupExcelGrid('#ron-data-table');
+
+        // Dirty-cell highlighting: mark cells that differ from their loaded value
+        ['#master-movements-table', '#ron-data-table'].forEach(selector => {
+            const body = document.querySelector(`${selector} tbody`);
+            if (!body) {
+                return;
+            }
+            body.addEventListener('input', event => refreshDirtyState(event.target));
+            body.addEventListener('change', event => refreshDirtyState(event.target));
+        });
+
+        // ── Auto-sync: every committed edit saves itself (gsheets-style) ──
+        // A committed change (leaving the cell, paste, delete, undo) queues the
+        // cell; the queue flushes 600ms after the last change. New rows create
+        // themselves once a registration is present.
+        const pendingCells = new Map();   // "id:field" -> { el, id, field }
+        const pendingNewRows = new Set(); // <tr data-id="new"> awaiting create
+        let syncTimer = null;
+        let syncChain = Promise.resolve();
+
+        function scheduleSync() {
+            clearTimeout(syncTimer);
+            syncTimer = setTimeout(() => {
+                syncChain = syncChain.then(flushSync);
+            }, 600);
+        }
+
+        async function flushSync() {
+            const cells = Array.from(pendingCells.values());
+            pendingCells.clear();
+            const creates = Array.from(pendingNewRows);
+            pendingNewRows.clear();
+
+            // Re-read values at flush time; skip cells already back at original
+            const changes = [];
+            cells.forEach(({ el, id, field }) => {
+                const original = el.getAttribute('data-original') ?? '';
+                if ((el.value ?? '') !== original) {
+                    changes.push({ id, field, value: el.value ?? '', el });
+                }
+            });
+
+            let synced = false;
+            try {
+                if (changes.length) {
+                    const res = await fetchJson(masterEndpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'save_all_changes',
+                            changes: changes.map(({ id, field, value }) => ({ id, field, value }))
+                        })
+                    });
+                    if (res.success) {
+                        changes.forEach(({ el, value }) => {
+                            el.setAttribute('data-original', value);
+                            refreshDirtyState(el);
+                        });
+                        applyDuplicateFlightHighlighting(res.duplicate_flights || []);
+                        if ((res.warnings || []).length) {
+                            showToast(res.warnings.join('\n'), 'warning', 6000);
+                        }
+                        synced = true;
+                    } else {
+                        showToast(res.message || 'Auto-sync failed — use Save to retry.', 'error', 6000);
+                    }
+                }
+
+                for (const tr of creates) {
+                    if (tr.dataset.id && tr.dataset.id !== 'new') {
+                        continue; // already created by an earlier flush
+                    }
+                    const movement = {};
+                    tr.querySelectorAll('input[data-field], select[data-field]').forEach(inp => {
+                        movement[inp.dataset.field] = inp.value ?? '';
+                    });
+                    if (!String(movement.registration || '').trim()) {
+                        continue; // not ready until a registration is typed
+                    }
+                    const res = await fetchJson(masterEndpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'create_new_movement', ...movement })
+                    });
+                    if (res.success && res.id) {
+                        tr.dataset.id = res.id; // future edits are updates now
+                        tr.querySelectorAll('input[data-field], select[data-field]').forEach(inp => {
+                            inp.setAttribute('data-original', inp.value ?? '');
+                            refreshDirtyState(inp);
+                        });
+                        if ((res.warnings || []).length) {
+                            showToast(res.warnings.join('\n'), 'warning', 6000);
+                        }
+                        synced = true;
+                    }
+                }
+
+                if (synced) {
+                    showToast('✓ Synced', 'success', 1400);
+                    notifyApronChanged();
+                }
+            } catch (err) {
+                showToast('Auto-sync failed: ' + err.message + ' — use Save to retry.', 'error', 6000);
+            }
+        }
+
+        if (!isViewer) {
+            ['#master-movements-table', '#ron-data-table'].forEach(selector => {
+                const body = document.querySelector(`${selector} tbody`);
+                if (!body) {
+                    return;
+                }
+                body.addEventListener('change', event => {
+                    const el = event.target;
+                    if (!el.matches || !el.matches('input[data-field], select[data-field]')) {
+                        return;
+                    }
+                    const tr = el.closest('tr[data-id]');
+                    if (!tr) {
+                        return;
+                    }
+                    const id = tr.dataset.id;
+                    if (id === 'new') {
+                        pendingNewRows.add(tr);
+                    } else if (id && id !== '0') {
+                        pendingCells.set(id + ':' + el.dataset.field, { el, id, field: el.dataset.field });
+                    } else {
+                        return;
+                    }
+                    scheduleSync();
+                });
+            });
+        }
+
+        // Warn before leaving with unsaved edits (paste/bulk changes are easy to lose)
+        window.addEventListener('beforeunload', event => {
+            if (!skipUnloadWarning && !isViewer && hasUnsavedChanges()) {
+                event.preventDefault();
+                event.returnValue = '';
+            }
+        });
+
+        // Ctrl+S saves the table instead of opening the browser save dialog
+        document.addEventListener('keydown', event => {
+            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+                event.preventDefault();
+                if (!isViewer) {
+                    saveAllData();
+                }
+            }
+        });
+
+        const refreshBtn = document.getElementById('refresh-master-table');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                window.location.reload();
+            });
+        }
 
         const resetFiltersBtn = document.getElementById('reset-filters');
         if (resetFiltersBtn) {
@@ -120,14 +294,16 @@
                     });
 
                     if (!data.success) {
-                        alert(data.message || 'Unable to set RON status.');
+                        showToast(data.message || 'Unable to set RON status.', 'error');
                         return;
                     }
 
+                    notifyApronChanged();
+                    skipUnloadWarning = true;
                     window.location.reload();
                 } catch (error) {
                     console.error('Set RON error:', error);
-                    alert('Failed to update RON status: ' + error.message);
+                    showToast('Failed to update RON status: ' + error.message, 'error');
                 }
             });
         }
@@ -309,7 +485,7 @@
         setSeenWarningKeys(prunedSeen);
 
         if (hasNewIssue && messages.length > 0) {
-            alert(messages.join('\n') + '\n\nThe system will still process your input.');
+            showToast(messages.join('\n'), 'warning', 7000);
         }
     }
 
@@ -422,7 +598,7 @@
 
     async function saveAllData() {
         if (isViewer) {
-            alert('You do not have permission to save changes.');
+            showToast('You do not have permission to save changes.', 'error');
             return;
         }
 
@@ -473,7 +649,7 @@
         });
 
         if (!changes.length && !newMovements.length) {
-            alert('No changes or new movements detected to save.');
+            showToast('No changes or new movements detected to save.');
             return;
         }
 
@@ -516,10 +692,12 @@
             applyDuplicateFlightHighlighting(Array.from(serverDuplicates));
             applyTimeOrderHighlighting();
 
+            notifyApronChanged();
+            skipUnloadWarning = true;
             window.location.reload();
         } catch (error) {
             console.error('Save error:', error);
-            alert('Error occurred while saving: ' + error.message);
+            showToast('Error occurred while saving: ' + error.message, 'error', 7000);
         } finally {
             if (saveButton) {
                 saveButton.textContent = saveButton.dataset.originalText || 'Save';
@@ -575,167 +753,700 @@
         }
     }
 
-    function enableTableNav(tableSelector) {
+    // =========================================================================
+    // Excel-like grid engine
+    //
+    // Two-mode model, like a real spreadsheet:
+    //   NAV mode  — a cell is selected; arrows/Tab/Enter move the active cell,
+    //               typing replaces the content, Delete clears the selection.
+    //   EDIT mode — entered via double-click, F2 or typing; arrows move the
+    //               text caret; Enter/Tab commit; Escape reverts the cell.
+    //
+    // Selection: drag, Shift+click, Shift+Arrows, Ctrl+Shift+Arrows, Ctrl+A,
+    //            row-number click (row), header click (column).
+    // Clipboard: Ctrl+C / Ctrl+X / Ctrl+V with real TSV — interoperates with
+    //            Excel and Google Sheets. Paste fills/tiles like Excel and
+    //            auto-appends empty rows when it overflows (master table).
+    // Undo:      Ctrl+Z / Ctrl+Y for typing, paste, cut, delete and fills.
+    // =========================================================================
+    function setupExcelGrid(tableSelector, options = {}) {
         const table = document.querySelector(tableSelector);
-        if (!table) {
+        if (!table || !table.tBodies.length) {
             return;
         }
 
-        table.addEventListener('keydown', event => {
-            const activeElement = document.activeElement;
-            if (!activeElement || (activeElement.tagName !== 'INPUT' && activeElement.tagName !== 'SELECT')) {
-                return;
+        const tbody = table.tBodies[0];
+        const canAddRows = !!options.canAddRows;
+        const UNDO_LIMIT = 100;
+
+        table.classList.add('sheet-grid');
+
+        const state = {
+            anchor: null,      // {r, c} where selection started
+            focus: null,       // {r, c} active cell
+            mode: 'nav',
+            editPrev: null,    // value before edit, for Escape
+            dragging: false
+        };
+        const undoStack = [];
+        const redoStack = [];
+        // Last committed value per control, so undo knows the "before" state
+        const committed = new WeakMap();
+        let suppressChangeCapture = false;
+
+        // --- geometry helpers (always read the live DOM: rows can be added) --
+        const rowCount = () => tbody.rows.length;
+        const colCount = () => (table.tHead && table.tHead.rows[0] ? table.tHead.rows[0].cells.length : (tbody.rows[0] ? tbody.rows[0].cells.length : 0));
+        const cellAt = (r, c) => (tbody.rows[r] ? tbody.rows[r].cells[c] : null) || null;
+        const controlAt = (r, c) => {
+            const cell = cellAt(r, c);
+            return cell ? cell.querySelector('input, select') : null;
+        };
+        const isEditableControl = el => {
+            if (isViewer || !el || !el.dataset || !el.dataset.field) {
+                return false;
             }
+            return true;
+        };
 
-            const cell = activeElement.closest('td');
-            if (!cell) {
-                return;
+        function rectFromSelection() {
+            if (!state.anchor || !state.focus) {
+                return null;
             }
-
-            const row = cell.parentElement;
-            const cellIndex = Array.from(row.children).indexOf(cell);
-            let nextRow = null;
-
-            switch (event.key) {
-                case 'ArrowUp':
-                    nextRow = row.previousElementSibling;
-                    if (nextRow) {
-                        const targetUp = nextRow.children[cellIndex]?.querySelector('input, select');
-                        if (targetUp) {
-                            targetUp.focus();
-                        }
-                    }
-                    break;
-                case 'ArrowDown':
-                case 'Enter':
-                    event.preventDefault();
-                    nextRow = row.nextElementSibling;
-                    if (nextRow) {
-                        const targetDown = nextRow.children[cellIndex]?.querySelector('input, select');
-                        if (targetDown) {
-                            targetDown.focus();
-                        }
-                    }
-                    break;
-                case 'ArrowLeft':
-                    if (activeElement.selectionStart === 0) {
-                        const previousCell = cell.previousElementSibling;
-                        if (previousCell) {
-                            const previousInput = previousCell.querySelector('input, select');
-                            if (previousInput) {
-                                previousInput.focus();
-                            }
-                        }
-                    }
-                    break;
-                case 'ArrowRight':
-                    if (activeElement.selectionStart === (activeElement.value || '').length) {
-                        const nextCell = cell.nextElementSibling;
-                        if (nextCell) {
-                            const nextInput = nextCell.querySelector('input, select');
-                            if (nextInput) {
-                                nextInput.focus();
-                            }
-                        }
-                    }
-                    break;
-                default:
-                    break;
-            }
-        });
-    }
-
-    function setupSheetBehavior(tableSelector) {
-        const table = document.querySelector(tableSelector);
-        if (!table) {
-            return;
+            return {
+                r1: Math.min(state.anchor.r, state.focus.r),
+                r2: Math.max(state.anchor.r, state.focus.r),
+                c1: Math.min(state.anchor.c, state.focus.c),
+                c2: Math.max(state.anchor.c, state.focus.c)
+            };
         }
 
-        let isMouseDown = false;
-        let startCell = null;
-
-        table.addEventListener('mousedown', event => {
-            const target = event.target;
-            if (target.tagName === 'INPUT' || target.tagName === 'SELECT') {
-                isMouseDown = true;
-                startCell = target.closest('td');
-                clearSelection();
-                selectCells(startCell, startCell);
-            }
-        });
-
-        table.addEventListener('mouseover', event => {
-            if (!isMouseDown) {
-                return;
-            }
-
-            const target = event.target;
-            if (target.tagName === 'INPUT' || target.tagName === 'SELECT') {
-                const endCell = target.closest('td');
-                selectCells(startCell, endCell);
-            }
-        });
-
-        window.addEventListener('mouseup', () => {
-            isMouseDown = false;
-            startCell = null;
-        });
-
-        document.addEventListener('copy', event => {
-            if (!table.querySelector('td.selected')) {
-                return;
-            }
-
-            const rows = new Map();
-            table.querySelectorAll('td.selected').forEach(td => {
-                const rowIndex = td.parentElement.rowIndex;
-                if (!rows.has(rowIndex)) {
-                    rows.set(rowIndex, []);
-                }
-
-                const input = td.querySelector('input, select');
-                rows.get(rowIndex).push(input ? input.value : '');
+        function renderSelection() {
+            table.querySelectorAll('td.selected, td.active-cell').forEach(td => {
+                td.classList.remove('selected', 'active-cell');
             });
-
-            let clipboardText = '';
-            rows.forEach(rowData => {
-                clipboardText += rowData.join('\t') + '\n';
-            });
-
-            event.clipboardData.setData('text/plain', clipboardText);
-            event.preventDefault();
-        });
-
-        function selectCells(start, end) {
-            clearSelection();
-            if (!start || !end) {
+            const rect = rectFromSelection();
+            if (!rect) {
                 return;
             }
-
-            const startRow = start.parentElement.rowIndex;
-            const startCol = start.cellIndex;
-            const endRow = end.parentElement.rowIndex;
-            const endCol = end.cellIndex;
-
-            const minRow = Math.min(startRow, endRow);
-            const maxRow = Math.max(startRow, endRow);
-            const minCol = Math.min(startCol, endCol);
-            const maxCol = Math.max(startCol, endCol);
-
-            for (let rowIndex = minRow; rowIndex <= maxRow; rowIndex++) {
-                const row = table.rows[rowIndex];
-                for (let colIndex = minCol; colIndex <= maxCol; colIndex++) {
-                    const cell = row?.cells[colIndex];
+            for (let r = rect.r1; r <= rect.r2; r++) {
+                for (let c = rect.c1; c <= rect.c2; c++) {
+                    const cell = cellAt(r, c);
                     if (cell) {
                         cell.classList.add('selected');
                     }
                 }
             }
+            const active = cellAt(state.focus.r, state.focus.c);
+            if (active) {
+                active.classList.add('active-cell');
+            }
         }
 
-        function clearSelection() {
-            table.querySelectorAll('td.selected').forEach(td => td.classList.remove('selected'));
+        function focusCell(r, c) {
+            const cell = cellAt(r, c);
+            if (!cell) {
+                return;
+            }
+            const control = cell.querySelector('input, select');
+            if (control) {
+                if (control.tagName === 'INPUT' && !control.classList.contains('grid-editing')) {
+                    control.readOnly = true;
+                }
+                control.focus({ preventScroll: true });
+            } else {
+                cell.tabIndex = -1;
+                cell.focus({ preventScroll: true });
+            }
+            cell.scrollIntoView({ block: 'nearest', inline: 'nearest' });
         }
+
+        function setSelection(anchor, focus) {
+            state.anchor = anchor;
+            state.focus = focus;
+            renderSelection();
+            focusCell(focus.r, focus.c);
+        }
+
+        function moveFocus(dr, dc, extend, toEdge) {
+            if (!state.focus) {
+                return;
+            }
+            let { r, c } = state.focus;
+            if (toEdge) {
+                r = dr === 0 ? r : (dr < 0 ? 0 : rowCount() - 1);
+                c = dc === 0 ? c : (dc < 0 ? 0 : colCount() - 1);
+            } else {
+                r = Math.max(0, Math.min(rowCount() - 1, r + dr));
+                c = Math.max(0, Math.min(colCount() - 1, c + dc));
+            }
+            const target = { r, c };
+            setSelection(extend ? state.anchor : target, target);
+        }
+
+        // --- edit mode -------------------------------------------------------
+        function beginEdit(clearFirst) {
+            if (!state.focus || isViewer) {
+                return false;
+            }
+            const control = controlAt(state.focus.r, state.focus.c);
+            if (!isEditableControl(control) || control.tagName !== 'INPUT') {
+                return false;
+            }
+            if (!committed.has(control)) {
+                committed.set(control, control.value);
+            }
+            state.mode = 'edit';
+            state.editPrev = control.value;
+            control.readOnly = false;
+            control.classList.add('grid-editing');
+            if (clearFirst) {
+                control.value = '';
+            }
+            control.focus();
+            const end = control.value.length;
+            try {
+                control.setSelectionRange(end, end);
+            } catch (e) { /* not all input types support it */ }
+            return true;
+        }
+
+        function endEdit(revert) {
+            if (state.mode !== 'edit') {
+                return;
+            }
+            const control = controlAt(state.focus.r, state.focus.c);
+            if (control && control.tagName === 'INPUT') {
+                if (revert && state.editPrev !== null) {
+                    control.value = state.editPrev;
+                    dispatchValueEvents(control);
+                } else if (control.value !== state.editPrev) {
+                    recordUndo([{ el: control, before: state.editPrev, after: control.value }]);
+                    committed.set(control, control.value);
+                    // Fire the change hooks (autofill, warnings) exactly once
+                    suppressChangeCapture = true;
+                    control.dispatchEvent(new Event('change', { bubbles: true }));
+                    suppressChangeCapture = false;
+                }
+                control.readOnly = true;
+                control.classList.remove('grid-editing');
+            }
+            state.mode = 'nav';
+            state.editPrev = null;
+        }
+
+        // --- mutations, events and undo --------------------------------------
+        function dispatchValueEvents(el) {
+            suppressChangeCapture = true;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+            suppressChangeCapture = false;
+        }
+
+        function normalizeForSelect(el, value) {
+            const lowered = String(value).trim().toLowerCase();
+            const truthy = ['1', 'yes', 'y', 'true'];
+            const falsy = ['0', 'no', 'n', 'false', ''];
+            if (truthy.includes(lowered)) {
+                return '1';
+            }
+            if (falsy.includes(lowered)) {
+                return '0';
+            }
+            return null; // unmappable — skip this cell
+        }
+
+        function applyBatch(items) {
+            const applied = [];
+            items.forEach(({ el, after }) => {
+                let value = after;
+                if (el.tagName === 'SELECT') {
+                    value = normalizeForSelect(el, after);
+                    if (value === null) {
+                        return;
+                    }
+                }
+                const before = committed.has(el) ? committed.get(el) : el.value;
+                if (before === value) {
+                    return;
+                }
+                el.value = value;
+                committed.set(el, value);
+                dispatchValueEvents(el);
+                applied.push({ el, before, after: value });
+            });
+            if (applied.length) {
+                recordUndo(applied);
+            }
+            return applied.length;
+        }
+
+        function recordUndo(itemsApplied) {
+            undoStack.push(itemsApplied);
+            if (undoStack.length > UNDO_LIMIT) {
+                undoStack.shift();
+            }
+            redoStack.length = 0;
+        }
+
+        function undo() {
+            const op = undoStack.pop();
+            if (!op) {
+                return;
+            }
+            op.forEach(({ el, before }) => {
+                el.value = before;
+                committed.set(el, before);
+                dispatchValueEvents(el);
+            });
+            redoStack.push(op);
+        }
+
+        function redo() {
+            const op = redoStack.pop();
+            if (!op) {
+                return;
+            }
+            op.forEach(({ el, after }) => {
+                el.value = after;
+                committed.set(el, after);
+                dispatchValueEvents(el);
+            });
+            undoStack.push(op);
+        }
+
+        // Capture direct user edits (e.g. select dropdown changes) for undo
+        tbody.addEventListener('change', event => {
+            if (suppressChangeCapture) {
+                return;
+            }
+            const el = event.target;
+            if (!el.matches || !el.matches('input[data-field], select[data-field]')) {
+                return;
+            }
+            const before = committed.has(el) ? committed.get(el) : (el.getAttribute('data-original') ?? '');
+            if (before !== el.value) {
+                recordUndo([{ el, before, after: el.value }]);
+            }
+            committed.set(el, el.value);
+        });
+
+        tbody.addEventListener('focusin', event => {
+            const el = event.target;
+            if (el.matches && el.matches('input[data-field], select[data-field]') && !committed.has(el)) {
+                committed.set(el, el.value);
+            }
+        });
+
+        // --- clipboard --------------------------------------------------------
+        function selectionToTsv() {
+            const rect = rectFromSelection();
+            if (!rect) {
+                return '';
+            }
+            const lines = [];
+            for (let r = rect.r1; r <= rect.r2; r++) {
+                const rowValues = [];
+                for (let c = rect.c1; c <= rect.c2; c++) {
+                    const control = controlAt(r, c);
+                    rowValues.push(control ? control.value : (cellAt(r, c)?.textContent.trim() ?? ''));
+                }
+                lines.push(rowValues.join('\t'));
+            }
+            return lines.join('\n');
+        }
+
+        function clearSelectionValues() {
+            const rect = rectFromSelection();
+            if (!rect || isViewer) {
+                return;
+            }
+            const items = [];
+            for (let r = rect.r1; r <= rect.r2; r++) {
+                for (let c = rect.c1; c <= rect.c2; c++) {
+                    const control = controlAt(r, c);
+                    if (isEditableControl(control)) {
+                        items.push({ el: control, after: control.tagName === 'SELECT' ? '0' : '' });
+                    }
+                }
+            }
+            applyBatch(items);
+        }
+
+        function parseClipboardMatrix(text) {
+            const rows = String(text).replace(/\r\n?/g, '\n').split('\n');
+            while (rows.length && rows[rows.length - 1] === '') {
+                rows.pop();
+            }
+            if (!rows.length) {
+                return null;
+            }
+            return rows.map(line => line.split('\t'));
+        }
+
+        function ensureRowCapacity(neededRows) {
+            if (!canAddRows || typeof loadMoreEmptyRows !== 'function') {
+                return;
+            }
+            let guard = 0;
+            while (rowCount() < neededRows && guard < 20) {
+                loadMoreEmptyRows();
+                guard += 1;
+            }
+        }
+
+        function pasteMatrix(matrix) {
+            const rect = rectFromSelection();
+            if (!rect || isViewer || !matrix) {
+                return;
+            }
+
+            const srcRows = matrix.length;
+            const srcCols = Math.max(...matrix.map(row => row.length));
+
+            // Excel rules: a range fills/tiles when it's an exact multiple of
+            // the copied block, otherwise the block pastes once at the top-left.
+            const selRows = rect.r2 - rect.r1 + 1;
+            const selCols = rect.c2 - rect.c1 + 1;
+            let repeatRows = 1;
+            let repeatCols = 1;
+            if (selRows % srcRows === 0 && selCols % srcCols === 0 && (selRows > srcRows || selCols > srcCols)) {
+                repeatRows = selRows / srcRows;
+                repeatCols = selCols / srcCols;
+            }
+
+            const totalRows = srcRows * repeatRows;
+            const totalCols = srcCols * repeatCols;
+
+            ensureRowCapacity(rect.r1 + totalRows);
+
+            const items = [];
+            let clippedBottom = false;
+            for (let i = 0; i < totalRows; i++) {
+                const r = rect.r1 + i;
+                if (r >= rowCount()) {
+                    clippedBottom = true;
+                    break;
+                }
+                for (let j = 0; j < totalCols; j++) {
+                    const c = rect.c1 + j;
+                    if (c >= colCount()) {
+                        continue; // clipped on the right
+                    }
+                    const control = controlAt(r, c);
+                    if (!isEditableControl(control)) {
+                        continue; // row-number column, role-locked, etc.
+                    }
+                    const srcRow = matrix[i % srcRows];
+                    items.push({ el: control, after: srcRow[j % srcCols] ?? '' });
+                }
+            }
+
+            applyBatch(items);
+
+            // Select the pasted rectangle, Excel-style
+            const lastRow = Math.min(rect.r1 + totalRows - 1, rowCount() - 1);
+            const lastCol = Math.min(rect.c1 + totalCols - 1, colCount() - 1);
+            setSelection({ r: rect.r1, c: rect.c1 }, { r: lastRow, c: lastCol });
+
+            if (clippedBottom) {
+                showToast('Pasted data was larger than the table and was clipped at the bottom.', 'warning');
+            }
+        }
+
+        function fillFromEdge(direction) {
+            // Ctrl+D fills down from the first row; Ctrl+R fills right
+            const rect = rectFromSelection();
+            if (!rect || isViewer) {
+                return;
+            }
+            const items = [];
+            if (direction === 'down') {
+                for (let c = rect.c1; c <= rect.c2; c++) {
+                    const source = controlAt(rect.r1, c);
+                    if (!source) {
+                        continue;
+                    }
+                    for (let r = rect.r1 + 1; r <= rect.r2; r++) {
+                        const control = controlAt(r, c);
+                        if (isEditableControl(control)) {
+                            items.push({ el: control, after: source.value });
+                        }
+                    }
+                }
+            } else {
+                for (let r = rect.r1; r <= rect.r2; r++) {
+                    const source = controlAt(r, rect.c1);
+                    if (!source) {
+                        continue;
+                    }
+                    for (let c = rect.c1 + 1; c <= rect.c2; c++) {
+                        const control = controlAt(r, c);
+                        if (isEditableControl(control)) {
+                            items.push({ el: control, after: source.value });
+                        }
+                    }
+                }
+            }
+            applyBatch(items);
+        }
+
+        const gridHasFocus = () => table.contains(document.activeElement) && state.focus !== null;
+
+        document.addEventListener('copy', event => {
+            if (!gridHasFocus() || state.mode !== 'nav') {
+                return;
+            }
+            event.clipboardData.setData('text/plain', selectionToTsv());
+            event.preventDefault();
+        });
+
+        document.addEventListener('cut', event => {
+            if (!gridHasFocus() || state.mode !== 'nav') {
+                return;
+            }
+            event.clipboardData.setData('text/plain', selectionToTsv());
+            event.preventDefault();
+            clearSelectionValues();
+        });
+
+        document.addEventListener('paste', event => {
+            if (!gridHasFocus() || state.mode !== 'nav' || isViewer) {
+                return;
+            }
+            const text = event.clipboardData.getData('text/plain');
+            if (!text) {
+                return;
+            }
+            event.preventDefault();
+            pasteMatrix(parseClipboardMatrix(text));
+        });
+
+        // --- mouse ------------------------------------------------------------
+        tbody.addEventListener('mousedown', event => {
+            const cell = event.target.closest('td');
+            if (!cell || !tbody.contains(cell)) {
+                return;
+            }
+            const r = cell.parentElement.sectionRowIndex;
+            const c = cell.cellIndex;
+
+            // Clicking the active cell while editing keeps native caret behavior
+            if (state.mode === 'edit' && state.focus && state.focus.r === r && state.focus.c === c) {
+                return;
+            }
+            endEdit(false);
+
+            // Native <select> needs its own mousedown to open the dropdown
+            if (event.target.tagName === 'SELECT') {
+                setSelection({ r, c }, { r, c });
+                return;
+            }
+
+            event.preventDefault();
+
+            if (event.shiftKey && state.anchor) {
+                setSelection(state.anchor, { r, c });
+                return;
+            }
+
+            if (c === 0) {
+                // Row-number column: select the whole row
+                setSelection({ r, c: 0 }, { r, c: colCount() - 1 });
+                return;
+            }
+
+            state.dragging = true;
+            setSelection({ r, c }, { r, c });
+        });
+
+        tbody.addEventListener('mouseover', event => {
+            if (!state.dragging) {
+                return;
+            }
+            const cell = event.target.closest('td');
+            if (!cell || !tbody.contains(cell)) {
+                return;
+            }
+            setSelection(state.anchor, {
+                r: cell.parentElement.sectionRowIndex,
+                c: cell.cellIndex
+            });
+        });
+
+        window.addEventListener('mouseup', () => {
+            state.dragging = false;
+        });
+
+        tbody.addEventListener('dblclick', event => {
+            const cell = event.target.closest('td');
+            if (!cell) {
+                return;
+            }
+            const r = cell.parentElement.sectionRowIndex;
+            const c = cell.cellIndex;
+            setSelection({ r, c }, { r, c });
+            beginEdit(false);
+        });
+
+        // Header click selects the whole column
+        if (table.tHead) {
+            table.tHead.addEventListener('click', event => {
+                const th = event.target.closest('th');
+                if (!th || rowCount() === 0) {
+                    return;
+                }
+                endEdit(false);
+                const c = th.cellIndex;
+                setSelection({ r: 0, c }, { r: rowCount() - 1, c });
+            });
+        }
+
+        // --- keyboard -----------------------------------------------------------
+        table.addEventListener('keydown', event => {
+            if (!state.focus) {
+                return;
+            }
+
+            const key = event.key;
+            const ctrl = event.ctrlKey || event.metaKey;
+            const arrows = {
+                ArrowUp: [-1, 0],
+                ArrowDown: [1, 0],
+                ArrowLeft: [0, -1],
+                ArrowRight: [0, 1]
+            };
+
+            if (state.mode === 'edit') {
+                if (arrows[key]) {
+                    // Always navigable: an arrow while typing commits the cell
+                    // and moves on, exactly like typing in Excel.
+                    event.preventDefault();
+                    endEdit(false);
+                    const [dr, dc] = arrows[key];
+                    moveFocus(dr, dc, event.shiftKey, ctrl);
+                } else if (key === 'Enter') {
+                    event.preventDefault();
+                    endEdit(false);
+                    moveFocus(event.shiftKey ? -1 : 1, 0, false, false);
+                } else if (key === 'Tab') {
+                    event.preventDefault();
+                    endEdit(false);
+                    moveFocus(0, event.shiftKey ? -1 : 1, false, false);
+                } else if (key === 'Escape') {
+                    event.preventDefault();
+                    endEdit(true);
+                    focusCell(state.focus.r, state.focus.c);
+                }
+                return; // everything else is native text editing
+            }
+
+            // --- NAV mode ---
+
+            if (arrows[key]) {
+                event.preventDefault();
+                const [dr, dc] = arrows[key];
+                moveFocus(dr, dc, event.shiftKey, ctrl);
+                return;
+            }
+
+            switch (key) {
+                case 'Tab':
+                    event.preventDefault();
+                    moveFocus(0, event.shiftKey ? -1 : 1, false, false);
+                    return;
+                case 'Enter':
+                    event.preventDefault();
+                    moveFocus(event.shiftKey ? -1 : 1, 0, false, false);
+                    return;
+                case 'Home':
+                    event.preventDefault();
+                    if (ctrl) {
+                        setSelection({ r: 0, c: 0 }, { r: 0, c: 0 });
+                    } else {
+                        setSelection({ r: state.focus.r, c: 0 }, { r: state.focus.r, c: 0 });
+                    }
+                    return;
+                case 'End': {
+                    event.preventDefault();
+                    const lastC = colCount() - 1;
+                    if (ctrl) {
+                        const lastR = rowCount() - 1;
+                        setSelection({ r: lastR, c: lastC }, { r: lastR, c: lastC });
+                    } else {
+                        setSelection({ r: state.focus.r, c: lastC }, { r: state.focus.r, c: lastC });
+                    }
+                    return;
+                }
+                case 'Delete':
+                case 'Backspace':
+                    if (!isViewer) {
+                        event.preventDefault();
+                        clearSelectionValues();
+                    }
+                    return;
+                case 'F2':
+                    event.preventDefault();
+                    beginEdit(false);
+                    return;
+                case 'Escape':
+                    event.preventDefault();
+                    setSelection(state.focus, state.focus);
+                    return;
+                default:
+                    break;
+            }
+
+            if (ctrl) {
+                const lowered = key.toLowerCase();
+                if (lowered === 'a') {
+                    event.preventDefault();
+                    setSelection({ r: 0, c: 0 }, { r: rowCount() - 1, c: colCount() - 1 });
+                } else if (lowered === 'z' && !isViewer) {
+                    event.preventDefault();
+                    if (event.shiftKey) {
+                        redo();
+                    } else {
+                        undo();
+                    }
+                } else if (lowered === 'y' && !isViewer) {
+                    event.preventDefault();
+                    redo();
+                } else if (lowered === 'd' && !isViewer) {
+                    event.preventDefault();
+                    fillFromEdge('down');
+                } else if (lowered === 'r' && !isViewer) {
+                    event.preventDefault();
+                    fillFromEdge('right');
+                }
+                // Ctrl+C/X/V are handled by the copy/cut/paste events above
+                return;
+            }
+
+            // Typing a printable character replaces the cell and starts editing
+            if (key.length === 1 && !event.altKey) {
+                if (beginEdit(true)) {
+                    // don't preventDefault: the keystroke lands in the input
+                }
+            }
+        });
+
+        // Commit the edit if focus leaves the grid entirely (e.g. clicking Save)
+        table.addEventListener('focusout', () => {
+            setTimeout(() => {
+                if (!table.contains(document.activeElement)) {
+                    endEdit(false);
+                    state.dragging = false;
+                }
+            }, 0);
+        });
+
+        // Lock all editable inputs into NAV mode initially
+        tbody.querySelectorAll('input[data-field]').forEach(input => {
+            if (!isViewer) {
+                input.readOnly = true;
+            }
+        });
     }
 
     window.saveAllData = saveAllData;

@@ -21,6 +21,7 @@ $bodyAttrString = $bodyAttributesParts ? ' ' . implode(' ', $bodyAttributesParts
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars($title ?? 'AMC'); ?></title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <?php if (!empty($styles)): ?>
         <?php foreach ($styles as $href): ?>
             <link rel="stylesheet" href="<?= htmlspecialchars($href); ?>">

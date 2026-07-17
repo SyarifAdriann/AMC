@@ -1,25 +1,52 @@
 # .htaccess – Security and performance settings
-# Deny direct access to config, SQL dumps, logs, etc.
-<FilesMatch "\.(sql|log|ini)$">
+
+# ---------------------------------------------------------------------------
+# Deny access to hidden files and directories (.git, .claude, .env, ...)
+# ---------------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule (^|/)\.(?!well-known/) - [F,L]
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# Deny direct access to sensitive file types anywhere in the tree:
+# dumps, logs, configs, datasets, documents, ML artifacts, shell scripts.
+# ---------------------------------------------------------------------------
+<FilesMatch "\.(sql|log|ini|md|markdown|csv|xlsx|xls|docx|doc|txt|pkl|joblib|py|pyc|ipynb|gsheet|json|lock|ya?ml|sh|bak|env|conf)$">
     Order Allow,Deny
     Deny from all
 </FilesMatch>
+
 # Deny direct access to auth middleware
 <Files "auth_check.php">
     Order Allow,Deny
     Deny from all
 </Files>
+
 # Security headers
 <IfModule mod_headers.c>
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set X-Content-Type-Options "nosniff"
     Header always set X-XSS-Protection "1; mode=block"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    # HSTS — only sent over HTTPS, harmless on plain HTTP
+    Header always set Strict-Transport-Security "max-age=31536000" "expr=%{HTTPS} == 'on'"
 </IfModule>
+
+# ---------------------------------------------------------------------------
+# HTTPS redirect — UNCOMMENT the 3 lines below once TLS is set up on the host.
+# ---------------------------------------------------------------------------
+# <IfModule mod_rewrite.c>
+#     RewriteEngine On
+#     RewriteCond %{HTTPS} !=on
+#     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+# </IfModule>
+
 # Enable text/CSS/JS compression
 <IfModule mod_deflate.c>
     AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript
 </IfModule>
+
 # Cache static assets
 <IfModule mod_expires.c>
     ExpiresActive On
@@ -29,9 +56,18 @@
     ExpiresByType image/jpg "access plus 1 month"
     ExpiresByType image/jpeg "access plus 1 month"
 </IfModule>
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
+
+    # Block application internals and non-web directories from direct access.
+    # Everything the browser needs lives in public/assets (aliased below).
+    RewriteRule ^(app|bootstrap|config|database|routes|storage|resources|tests|ml|data|docs|gas|sheets|reports|CLI|node_modules|logs|db\ backup|KDD\ SCREENSHOTS|skripsi\ bab\ 4\ 5)(/|$) - [F,L]
+
+    # Static assets
     RewriteRule ^assets/(.*)$ public/assets/$1 [L]
+
+    # Front controller
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^ index.php [L]

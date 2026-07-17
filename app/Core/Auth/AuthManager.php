@@ -49,7 +49,6 @@ class AuthManager
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['role'] = $user['role'];
-        $_SESSION['last_activity'] = time();
     }
 
     public function logout(): void

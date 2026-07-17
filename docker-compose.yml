@@ -27,16 +27,19 @@ services:
     ports:
       - "80:80"
     environment:
-      # Database — points to the 'db' service by container name
+      # Database — points to the 'db' service by container name.
+      # Override credentials for real hosting via a .env file next to this
+      # compose file (DB_PASSWORD=... APP_URL=...); defaults keep local dev working.
       DB_HOST: db
       DB_PORT: 3306
       DB_DATABASE: amc
       DB_USERNAME: root
-      DB_PASSWORD: root
-      # Application
-      APP_ENV: docker
-      APP_DEBUG: "true"
-      APP_URL: "http://localhost"
+      DB_PASSWORD: ${DB_PASSWORD:-root}
+      # Application — debug must stay OFF in production: with APP_DEBUG=true
+      # the API returns raw database error messages to the browser.
+      APP_ENV: ${APP_ENV:-docker}
+      APP_DEBUG: ${APP_DEBUG:-"false"}
+      APP_URL: ${APP_URL:-"http://localhost"}
       # Python binary inside the venv
       PYTHON_PATH: /opt/venv/bin/python3
     depends_on:
@@ -56,7 +59,7 @@ services:
     image: mariadb:10.4
     container_name: amc_db
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
       MYSQL_DATABASE: amc
       MYSQL_CHARACTER_SET: utf8mb4
       MYSQL_COLLATION: utf8mb4_unicode_ci
@@ -66,11 +69,38 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD}"]
       interval: 5s
       timeout: 5s
       retries: 15
       start_period: 10s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # db-backup — daily mysqldump into ./backups on the host, 14-day retention.
+  # Restore with:  mysql -h127.0.0.1 -P3307 -uroot -p amc < backups/amc_<date>.sql
+  # ---------------------------------------------------------------------------
+  db-backup:
+    image: mariadb:10.4
+    container_name: amc_db_backup
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      MYSQL_PWD: ${DB_PASSWORD:-root}
+    volumes:
+      - ./backups:/backups
+    entrypoint: >
+      sh -c 'while true; do
+        ts=$$(date +%Y-%m-%d_%H%M);
+        if mysqldump -h db -uroot --single-transaction --routines amc > "/backups/amc_$$ts.sql" 2>/backups/last_error.log; then
+          echo "[db-backup] OK amc_$$ts.sql";
+        else
+          echo "[db-backup] FAILED — see backups/last_error.log";
+        fi;
+        find /backups -name "amc_*.sql" -mtime +14 -delete;
+        sleep 86400;
+      done'
     restart: unless-stopped
 
 # =============================================================================

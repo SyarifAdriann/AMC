@@ -2,40 +2,45 @@
 $title = 'Master Table - AMC MONITORING SYSTEM';
 $styles = [
     'assets/css/tailwind.css',
-    'assets/css/styles.css?v=1.6',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css'
+    'assets/css/styles.css?v=2.5',
+    'assets/vendor/fontawesome/css/all.min.css'
 ];
 $head = '';
 $bodyClass = 'gradient-bg min-h-screen font-sans';
 $scripts = [
     'assets/js/mobile-adaptations.js',
-    'assets/js/master-table.js'
+    'assets/js/amc-http.js?v=1.0',
+    'assets/js/master-table.js?v=2.3'
 ];
 ob_start();
 ?>
     <div class="p-4 lg:p-5 min-h-screen">
-        <div class="max-w-7xl mx-auto container-bg rounded-xl p-4 lg:p-8 shadow-2xl">
+        <div class="w-full container-bg rounded-xl p-4 lg:p-8 shadow-2xl">
             
             <?php require __DIR__ . '/../partials/nav.php'; ?>
 
 
 
             <!-- FILTER CONTAINER -->
-            <div class="bg-amc-bg rounded-xl p-4 lg:p-6 mb-6 border border-amc-light shadow-lg">
-                <h3 class="text-lg font-bold text-amc-dark-blue mb-4">Filter Data</h3>
+            <div class="bg-amc-bg rounded-xl p-3 mb-4 border border-amc-light shadow-lg">
+                <h3 class="text-base font-bold text-amc-dark-blue mb-2">Filter Data</h3>
                 <form action="master-table.php" method="GET" id="filter-form">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-2 mb-2">
                         <div class="flex flex-col gap-2">
-                            <label for="filter-date-from" class="text-sm font-semibold text-gray-700">From Date</label>
-                            <input type="date" id="filter-date-from" name="date_from" value="<?= htmlspecialchars($filters['date_from'] ?? '', ENT_QUOTES, 'UTF-8') ?>" class="text-sm border border-gray-300 rounded-md px-3 py-2 focus:border-amc-blue focus:shadow-sm transition-all duration-300">
+                            <label for="filter-registration" class="text-xs font-semibold text-gray-700">Registration</label>
+                            <input type="text" id="filter-registration" name="registration" placeholder="e.g. PK-ABC" value="<?= htmlspecialchars($filters['registration'] ?? '', ENT_QUOTES, 'UTF-8') ?>" class="text-xs border border-gray-300 rounded-md px-2 py-1 focus:border-amc-blue focus:shadow-sm transition-all duration-300">
                         </div>
                         <div class="flex flex-col gap-2">
-                            <label for="filter-date-to" class="text-sm font-semibold text-gray-700">To Date</label>
-                            <input type="date" id="filter-date-to" name="date_to" value="<?= htmlspecialchars($filters['date_to'] ?? '', ENT_QUOTES, 'UTF-8') ?>" class="text-sm border border-gray-300 rounded-md px-3 py-2 focus:border-amc-blue focus:shadow-sm transition-all duration-300">
+                            <label for="filter-date-from" class="text-xs font-semibold text-gray-700">From Date</label>
+                            <input type="date" id="filter-date-from" name="date_from" value="<?= htmlspecialchars($filters['date_from'] ?? '', ENT_QUOTES, 'UTF-8') ?>" class="text-xs border border-gray-300 rounded-md px-2 py-1 focus:border-amc-blue focus:shadow-sm transition-all duration-300">
                         </div>
                         <div class="flex flex-col gap-2">
-                            <label for="filter-category" class="text-sm font-semibold text-gray-700">Category</label>
-                            <select id="filter-category" name="category" class="text-sm border border-gray-300 rounded-md px-3 py-2 focus:border-amc-blue focus:shadow-sm transition-all duration-300">
+                            <label for="filter-date-to" class="text-xs font-semibold text-gray-700">To Date</label>
+                            <input type="date" id="filter-date-to" name="date_to" value="<?= htmlspecialchars($filters['date_to'] ?? '', ENT_QUOTES, 'UTF-8') ?>" class="text-xs border border-gray-300 rounded-md px-2 py-1 focus:border-amc-blue focus:shadow-sm transition-all duration-300">
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label for="filter-category" class="text-xs font-semibold text-gray-700">Category</label>
+                            <select id="filter-category" name="category" class="text-xs border border-gray-300 rounded-md px-2 py-1 focus:border-amc-blue focus:shadow-sm transition-all duration-300">
                                 <option value="">All</option>
                                 <option value="Commercial" <?= ($filters['category'] ?? '') == 'Commercial' ? 'selected' : '' ?>>Commercial</option>
                                 <option value="Cargo" <?= ($filters['category'] ?? '') == 'Cargo' ? 'selected' : '' ?>>Cargo</option>
@@ -43,17 +48,17 @@ ob_start();
                             </select>
                         </div>
                         <div class="flex flex-col gap-2">
-                            <label for="filter-airline" class="text-sm font-semibold text-gray-700">Airline/Operator</label>
-                            <input type="text" id="filter-airline" name="airline" placeholder="Enter airline" value="<?= htmlspecialchars($filters['airline'] ?? '', ENT_QUOTES, 'UTF-8') ?>" class="text-sm border border-gray-300 rounded-md px-3 py-2 focus:border-amc-blue focus:shadow-sm transition-all duration-300">
+                            <label for="filter-airline" class="text-xs font-semibold text-gray-700">Airline/Operator</label>
+                            <input type="text" id="filter-airline" name="airline" placeholder="Enter airline" value="<?= htmlspecialchars($filters['airline'] ?? '', ENT_QUOTES, 'UTF-8') ?>" class="text-xs border border-gray-300 rounded-md px-2 py-1 focus:border-amc-blue focus:shadow-sm transition-all duration-300">
                         </div>
                         <div class="flex flex-col gap-2">
-                            <label for="filter-flight" class="text-sm font-semibold text-gray-700">Flight Number</label>
-                            <input type="text" id="filter-flight" name="flight_no" placeholder="Enter flight number" value="<?= htmlspecialchars($filters['flight_no'] ?? '', ENT_QUOTES, 'UTF-8') ?>" class="text-sm border border-gray-300 rounded-md px-3 py-2 focus:border-amc-blue focus:shadow-sm transition-all duration-300">
+                            <label for="filter-flight" class="text-xs font-semibold text-gray-700">Flight Number</label>
+                            <input type="text" id="filter-flight" name="flight_no" placeholder="Enter flight number" value="<?= htmlspecialchars($filters['flight_no'] ?? '', ENT_QUOTES, 'UTF-8') ?>" class="text-xs border border-gray-300 rounded-md px-2 py-1 focus:border-amc-blue focus:shadow-sm transition-all duration-300">
                         </div>
                     </div>
-                    <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-amc-light">
-                        <button type="button" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md font-semibold transition-colors duration-300" id="reset-filters">Reset Filters</button>
-                        <button type="submit" class="bg-amc-blue hover:bg-amc-dark-blue text-white px-4 py-2 rounded-md font-semibold transition-colors duration-300">Apply Filters</button>
+                    <div class="flex flex-col sm:flex-row justify-end gap-2 pt-2 border-t border-amc-light">
+                        <button type="button" class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 text-sm rounded-md font-semibold transition-colors duration-300" id="reset-filters">Reset Filters</button>
+                        <button type="submit" class="bg-amc-blue hover:bg-amc-dark-blue text-white px-3 py-1 text-sm rounded-md font-semibold transition-colors duration-300">Apply Filters</button>
                     </div>
                 </form>
             </div>
@@ -216,8 +221,8 @@ ob_start();
                                 <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-16">PARKING STAND</th>
                                 <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-16">FROM</th>
                                 <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-16">TO</th>
-                                <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-16">ARR FLIGHT</th>
-                                <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-16">DEP. TIME</th>
+                                <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-16">ARRIVAL</th>
+                                <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-16">DEPARTURE</th>
                                 <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-24">OPERATOR/AIRLINE</th>
                                 <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-24">REMARKS</th>
                                 <th class="border border-gray-300 px-1 py-1 font-semibold text-gray-700 uppercase text-xs w-16">STATUS</th>
@@ -425,6 +430,7 @@ ob_start();
     <script>
         window.masterTableConfig = {
             userRole: '<?= htmlspecialchars($user_role, ENT_QUOTES, 'UTF-8'); ?>',
+            csrfToken: '<?= htmlspecialchars($csrf_token ?? '', ENT_QUOTES, 'UTF-8'); ?>',
             resetUrl: 'master-table.php',
             endpoints: {
                 master: 'api/master-table',

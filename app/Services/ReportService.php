@@ -16,34 +16,32 @@ class ReportService
 
     public function fetchReportData(string $type, string $dateFrom, string $dateTo): array
     {
-        $query = "SELECT * FROM aircraft_movements WHERE movement_date BETWEEN :from AND :to";
-        $params = [
-            ':from' => $dateFrom,
-            ':to' => $dateTo,
-        ];
+        // Movement-detail reports share a base query; category lives on
+        // aircraft_details, so the row reports LEFT JOIN it in.
+        $base = "SELECT m.* FROM aircraft_movements m
+                 LEFT JOIN aircraft_details d ON m.registration = d.registration
+                 WHERE m.movement_date BETWEEN :from AND :to";
+        $order = " ORDER BY m.movement_date, m.on_block_time";
+        $params = [':from' => $dateFrom, ':to' => $dateTo];
 
         switch ($type) {
             case 'charter_log':
-                $query .= " AND operator_airline LIKE :airline";
-                $params[':airline'] = '%Charter%';
+                // Charter is a category on aircraft_details, not a word in the
+                // airline name. NULL category counts as charter (matches dashboards).
+                $query = $base . " AND LOWER(COALESCE(d.category, 'charter')) = 'charter'" . $order;
                 break;
             case 'ron_report':
-                $query .= " AND is_ron = 1";
-                break;
-            case 'daily_log_am':
-                $query .= " AND HOUR(STR_TO_DATE(on_block_time, '%H%i')) BETWEEN 0 AND 11";
-                break;
-            case 'daily_log_pm':
-                $query .= " AND HOUR(STR_TO_DATE(on_block_time, '%H%i')) BETWEEN 12 AND 23";
+                $query = $base . " AND m.is_ron = 1" . $order;
                 break;
             case 'monthly_summary':
                 $query = "SELECT COUNT(*) AS total, DATE(movement_date) AS date
                           FROM aircraft_movements
                           WHERE movement_date BETWEEN :from AND :to
-                          GROUP BY DATE(movement_date)";
+                          GROUP BY DATE(movement_date)
+                          ORDER BY date";
                 break;
             case 'logbook_narrative':
-                // Use base query without additional filters.
+                $query = $base . $order;
                 break;
             default:
                 throw new InvalidArgumentException("Unsupported report type: {$type}");
@@ -60,7 +58,19 @@ class ReportService
 
     public function buildHtml(string $type, array $data): string
     {
-        $html = "<div class='report-output'><h3>Generated Report: " . htmlspecialchars($type, ENT_QUOTES, 'UTF-8') . "</h3>";
+        $labels = [
+            'charter_log' => 'Charter / VVIP Flight Log',
+            'ron_report' => 'Daily RON Report',
+            'monthly_summary' => 'Monthly Movement Summary',
+            'logbook_narrative' => 'Logbook AMC Narrative',
+        ];
+        $title = $labels[$type] ?? $type;
+
+        $html = "<div class='report-output'><h3 style='font-weight:700;margin-bottom:8px;'>" . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . " <span style='font-weight:400;color:#6b7280;'>(" . count($data) . " rows)</span></h3>";
+
+        if (empty($data)) {
+            return $html . "<p style='color:#6b7280;padding:8px 0;'>No records found for the selected report type and date range.</p></div>";
+        }
 
         if ($type === 'monthly_summary') {
             $html .= "<table border='1'><tr><th>Date</th><th>Total Movements</th></tr>";

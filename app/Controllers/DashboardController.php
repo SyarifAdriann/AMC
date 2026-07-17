@@ -83,6 +83,65 @@ class DashboardController extends Controller
         ]);
     }
 
+    /**
+     * AJAX report generation — returns the report HTML as JSON so the
+     * dashboard can inject it in place without a full page reload.
+     */
+    public function report(): Response
+    {
+        $request = $this->request();
+
+        if (!$this->verifyCsrf($request)) {
+            return $this->csrfFailureResponse();
+        }
+
+        if ($denied = $this->requireRoleJson(['admin', 'operator'])) {
+            return $denied;
+        }
+
+        $type = trim((string) $request->input('report_type', ''));
+
+        try {
+            if ($type === 'monthly_charter') {
+                $month = $this->normalizeMonth($request->input('month'), date('m'));
+                $year = $this->normalizeYear($request->input('year'), date('Y'));
+                $data = $this->reports->fetchMonthlyCharterData($month, $year);
+                $html = $this->reports->buildMonthlyCharterHtml($data, $month, $year);
+                return Response::json(['success' => true, 'html' => $html]);
+            }
+
+            if ($type === '') {
+                return Response::json(['success' => false, 'message' => 'Please select a report type.'], 422);
+            }
+
+            $today = date('Y-m-d');
+            $dateFrom = $this->normalizeDate($request->input('date_from'), $today);
+            $dateTo = $this->normalizeDate($request->input('date_to'), $today);
+
+            $data = $this->reports->fetchReportData($type, $dateFrom, $dateTo);
+            $html = $this->reports->buildHtml($type, $data);
+
+            return Response::json(['success' => true, 'html' => $html, 'rows' => count($data)]);
+        } catch (InvalidArgumentException $e) {
+            return Response::json(['success' => false, 'message' => $e->getMessage()], 422);
+        } catch (Throwable $e) {
+            error_log('DashboardController::report error: ' . $e->getMessage());
+            return Response::json([
+                'success' => false,
+                'message' => $this->app->config('app.debug') ? $e->getMessage() : 'Unable to generate the report right now.',
+            ], 500);
+        }
+    }
+
+    protected function requireRoleJson(array $roles): ?Response
+    {
+        if ($this->hasRole($roles)) {
+            return null;
+        }
+
+        return Response::json(['success' => false, 'message' => 'Unauthorized.'], 403);
+    }
+
     public function handle(): Response
     {
         $request = $this->request();

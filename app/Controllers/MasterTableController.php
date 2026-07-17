@@ -45,6 +45,7 @@ class MasterTableController extends Controller
         return $this->view('master-table/index', [
             'username' => $user['username'] ?? '',
             'user_role' => $user['role'] ?? 'viewer',
+            'csrf_token' => $this->app->make(\App\Security\CsrfManager::class)->token(),
             'current_page' => 'master-table.php',
             'filters' => $filters,
             'movements_data' => $mainData['records'],
@@ -70,6 +71,10 @@ class MasterTableController extends Controller
         $user = $this->auth->user() ?: [];
         $userId = (int) ($user['id'] ?? 0);
 
+        if (!$this->verifyCsrf($request)) {
+            return $this->csrfFailureResponse();
+        }
+
         try {
             switch ($action) {
                 case 'save_all_changes':
@@ -92,6 +97,7 @@ class MasterTableController extends Controller
                     }
 
                     $updated = $this->ronService->setRonForOpenMovements($userId);
+                    $this->broadcaster()->bump('master-table:setron');
 
                     return Response::json([
                         'success' => true,
@@ -110,8 +116,9 @@ class MasterTableController extends Controller
 
             return Response::json([
                 'success' => false,
-                'message' => 'Database error: ' . $e->getMessage(),
-                'sqlstate' => $e->getCode(),
+                'message' => $this->app->config('app.debug')
+                    ? 'Database error: ' . $e->getMessage()
+                    : 'A database error occurred. Please try again or contact an administrator.',
             ], 500);
         } catch (Throwable $e) {
 
@@ -119,7 +126,9 @@ class MasterTableController extends Controller
 
             return Response::json([
                 'success' => false,
-                'message' => 'Server error: ' . $e->getMessage(),
+                'message' => $this->app->config('app.debug')
+                    ? 'Server error: ' . $e->getMessage()
+                    : 'A server error occurred. Please try again or contact an administrator.',
             ], 500);
         }
     }
@@ -127,6 +136,7 @@ class MasterTableController extends Controller
     protected function collectFilters(Request $request): array
     {
         return [
+            'registration' => trim((string) $request->query('registration', '')),
             'date_from' => trim((string) $request->query('date_from', '')),
             'date_to' => trim((string) $request->query('date_to', '')),
             'category' => trim((string) $request->query('category', '')),
@@ -169,6 +179,7 @@ class MasterTableController extends Controller
         }
 
         $this->movements->bulkUpdate($changes, $userId);
+        $this->broadcaster()->bump('master-table:bulk_update');
 
         $warnings = [];
         $duplicateFlights = [];
@@ -222,14 +233,31 @@ class MasterTableController extends Controller
             'is_ron' => filter_var($payload['is_ron'] ?? false, FILTER_VALIDATE_BOOLEAN),
         ];
 
+        // Double-booking check runs BEFORE the insert so the new row itself
+        // doesn't count as the occupant; reported as a warning, not a block.
+        $conflictWarning = null;
+        if ($movementData['parking_stand'] !== '') {
+            $occupant = $this->movements->findOpenMovementOnStand($movementData['parking_stand']);
+            if ($occupant && strcasecmp((string) $occupant['registration'], $registration) !== 0) {
+                $conflictWarning = 'Stand ' . strtoupper($movementData['parking_stand'])
+                    . ' is already occupied by ' . $occupant['registration'] . '.';
+            }
+        }
+
         $result = $this->movements->saveMovement($movementData, $userId);
+        $this->broadcaster()->bump('master-table:create_movement');
         $validation = $this->movements->evaluateInputWarnings($movementData);
+
+        $warnings = $validation['warnings'] ?? [];
+        if ($conflictWarning) {
+            $warnings[] = $conflictWarning;
+        }
 
         return [
             'success' => true,
             'message' => 'Movement created successfully.',
             'id' => $result['id'],
-            'warnings' => $validation['warnings'] ?? [],
+            'warnings' => $warnings,
             'duplicate_flights' => $validation['duplicate_flights'] ?? [],
         ];
     }
@@ -247,6 +275,11 @@ class MasterTableController extends Controller
         return $this->movements->findDuplicateFlights(date('Y-m-d'));
     }
 
+
+    protected function broadcaster(): \App\Services\ApronChangeBroadcaster
+    {
+        return $this->app->make(\App\Services\ApronChangeBroadcaster::class);
+    }
 
     protected function hasRole($roles): bool
     {

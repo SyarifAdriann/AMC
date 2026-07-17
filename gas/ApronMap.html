@@ -75,6 +75,13 @@ html, body {
 
 #date-lbl { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.9); white-space: nowrap; }
 
+#day-sel {
+  padding: 5px 8px; font-size: 14px; font-weight: 700;
+  border-radius: 6px; border: 1px solid rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.15); color: white; cursor: pointer;
+}
+#day-sel option { color: #112D4E; background: white; }
+
 /* ── Main ──────────────────────────────────────────────────── */
 #main { flex: 1; position: relative; overflow: hidden; display: flex; min-height: 0; }
 
@@ -279,6 +286,7 @@ html, body {
 <div id="hdr">
   <div id="hdr-left">
     <h1>🛫 AMC LIVE APRON MAP</h1>
+    <select id="day-sel" onchange="switchDay(this.value)" title="Day of month"></select>
     <span id="date-lbl">Loading...</span>
     <span class="badge green"><span id="s-av">–</span> Free</span>
     <span class="badge red"><span id="s-oc">–</span> Occupied</span>
@@ -294,6 +302,7 @@ html, body {
       <button class="zbtn" onclick="zoomIn()" title="Zoom In">+</button>
       <button class="zbtn fit" onclick="fitMap()" title="Fit to screen">↺ Fit</button>
     </div>
+    <button class="zbtn" onclick="toggleFullscreen()" title="Full screen (like F11)">⛶</button>
   </div>
 </div>
 
@@ -451,8 +460,11 @@ var VB = {
 // ══════════════════════════════════════════════════════════════
 var view    = 'a';
 var sheet   = null;
-var smap    = {};        // stand data map
+var smap    = {};        // stand data map (latest movement per stand)
 var selSt   = null;      // selected stand code
+var selRow  = null;      // sheet row of the movement being edited (null = new movement -> append)
+var appendBusy = false;  // an append save is in flight — queue follow-up saves
+var pendingFm  = null;   // latest queued fieldMap while appendBusy
 var editing = false;
 var zoom    = 1.0;
 var MIN_Z = 0.1, MAX_Z = 5.0, STEP_Z = 0.1;
@@ -482,17 +494,42 @@ window.addEventListener('load', function() {
     .withFailureHandler(function() {})
     .getDBData();
 
-  // Load active sheet and stand data
+  // Day selector 01..31
+  var sel = document.getElementById('day-sel');
+  for (var i = 1; i <= 31; i++) {
+    var v = (i < 10 ? '0' : '') + i;
+    var o = document.createElement('option');
+    o.value = v; o.textContent = 'Day ' + v;
+    sel.appendChild(o);
+  }
+
+  // Load active sheet and stand data. In the full-screen web app there
+  // is no active sheet — fall back to today's day of month.
+  var today = (function(){ var d = new Date().getDate(); return (d < 10 ? '0' : '') + d; })();
   google.script.run
     .withSuccessHandler(function(name) {
       var ok = /^(0[1-9]|[12][0-9]|3[01])$/.test(name);
-      sheet = ok ? name : '01';
-      loadDate();
-      loadStands(true);
+      startDay(ok ? name : today);
     })
-    .withFailureHandler(function() { sheet = '01'; loadStands(true); })
+    .withFailureHandler(function() { startDay(today); })
     .getActiveSheetName();
 });
+
+function startDay(day) {
+  sheet = day;
+  document.getElementById('day-sel').value = day;
+  // RON carry-over from the previous day (idempotent), then load
+  google.script.run
+    .withSuccessHandler(function() { loadDate(); loadStands(true); })
+    .withFailureHandler(function() { loadDate(); loadStands(true); })
+    .carryOverForDay(day);
+}
+
+function switchDay(day) {
+  if (day === sheet) return;
+  closePanel();
+  startDay(day);
+}
 
 // ══════════════════════════════════════════════════════════════
 //  DATA LOADING
@@ -547,13 +584,16 @@ function buildMap() {
     canvas.appendChild(el);
   });
 
-  canvas.addEventListener('click', function(e) {
-    if (e.target === canvas) closePanel();
-  });
+  if (!window._mapWired) {
+    window._mapWired = true;
+    canvas.addEventListener('click', function(e) {
+      if (e.target === canvas) closePanel();
+    });
+    setupDrag();
+  }
 
   renderAllIcons();
   fitMap();
-  setupDrag();
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -577,10 +617,18 @@ function switchView(v) {
 //  COLOR / STATUS
 // ══════════════════════════════════════════════════════════════
 function status(d) {
+  // NOTE: the sheet's STATUS column (O) says "RON" for ANY row whose
+  // off-block is blank — including planned and freshly-arrived aircraft —
+  // so it can't distinguish states. RON (carried over from a previous
+  // day) is detected from the on-block content instead: '-', 'EX RON',
+  // or a '(date)' suffix, matching manual practice.
   if (!d || !d.registration || !d.registration.trim()) return 'av';
-  if (d.status === 'RON') return 'ro';
   if (d.offBlock && d.offBlock.trim()) return 'de';   // departed
-  if (d.onBlock  && d.onBlock.trim())  return 'oc';   // occupied
+  var ob = (d.onBlock || '').trim().toUpperCase();
+  if (ob) {
+    var carried = ob === '-' || ob.indexOf('RON') >= 0 || ob.indexOf('(') >= 0;
+    return carried ? 'ro' : 'oc';                     // RON carry-over | occupied
+  }
   return 'pl';                                          // planned
 }
 
@@ -678,6 +726,8 @@ function updateBar() {
 function openPanel(code) {
   selSt = code;
   editing = true;
+  appendBusy = false;
+  pendingFm  = null;
 
   document.querySelectorAll('.stand').forEach(function(e){ e.classList.remove('sel'); });
   var el = document.querySelector('.stand[data-c="'+code+'"]');
@@ -685,6 +735,11 @@ function openPanel(code) {
 
   var d  = smap[code] || {};
   var st = status(d);
+
+  // Row anchor: edit the existing movement's exact row. Departed stands
+  // (and stands with no record today) start a NEW movement — the first
+  // save appends a fresh row to the day's log.
+  selRow = (d.row && st !== 'de') ? d.row : null;
 
   document.getElementById('ptitle').textContent = 'Stand: ' + code;
 
@@ -728,6 +783,7 @@ function closePanel() {
   panel.classList.remove('open');
   document.querySelectorAll('.stand').forEach(function(e){ e.classList.remove('sel'); });
   selSt = null;
+  selRow = null;
   editing = false;
 }
 
@@ -737,8 +793,33 @@ function clearStand() {
     .forEach(function(id){ document.getElementById(id).value = ''; });
   document.getElementById('dep-banner').style.display = 'none';
   document.getElementById('f-reg').focus();
-  // Save the cleared state to sheet
-  saveToSheet(buildMap2());
+
+  // Nothing written to the sheet yet — nothing to clear server-side
+  if (!selRow) return;
+
+  // Reset the movement row back to template state (stand code included)
+  var clearedStand = selSt, clearedRow = selRow;
+  setSave('saving', '💾 Clearing...');
+  google.script.run
+    .withSuccessHandler(function(r) {
+      if (!r || !r.success) {
+        var msg = r && r.error ? r.error : 'Unknown error';
+        setSave('error', '⚠ ' + msg);
+        toast('❌ Clear failed [' + clearedStand + '@' + sheet + ']: ' + msg, 'e');
+        return;
+      }
+      setSave('saved', '✓ Cleared → ' + sheet);
+      delete smap[clearedStand];
+      if (clearedStand === selSt) { selRow = null; updatePanelStatus('av'); }
+      renderOneIcon(clearedStand);
+      updateBar();
+    })
+    .withFailureHandler(function(err) {
+      var msg = err && err.message ? err.message : String(err);
+      setSave('error', '⚠ ' + msg);
+      toast('❌ GAS error: ' + msg, 'e');
+    })
+    .clearMovementRow(sheet, clearedStand, clearedRow);
 }
 
 function updatePanelStatus(st) {
@@ -844,25 +925,47 @@ function setupAutoSave() {
 }
 
 function saveToSheet(fm) {
-  setSave('saving', '💾 Saving...');
-
-  // Capture selSt at call time — user might close panel before callback returns
+  // Capture selection at call time — user might close panel before callback returns
   var savedStand = selSt;
+  var savedRow   = selRow;
+
+  if (savedRow === null) {
+    // Nothing entered yet — don't append an empty row to the log
+    var hasData = fm.registration || fm.onBlock || fm.offBlock ||
+                  fm.flightArr || fm.flightDep || fm.remarks ||
+                  fm.type || fm.operator || fm.from || fm.to;
+    if (!hasData) return;
+
+    // If a row-append is already in flight for this panel, queue this save —
+    // firing it now would append a SECOND row. The latest snapshot wins
+    // (each fm carries all raw fields).
+    if (appendBusy) { pendingFm = fm; return; }
+    appendBusy = true;
+  }
+
+  setSave('saving', '💾 Saving...');
 
   google.script.run
     .withSuccessHandler(function(r) {
+      appendBusy = false;
       if (!r || !r.success) {
         var errMsg = r && r.error ? r.error : 'Unknown save error';
         setSave('error', '⚠ ' + errMsg);
         // Prominent red toast so the error is never missed
         toast('❌ Save failed [' + savedStand + '@' + sheet + ']: ' + errMsg, 'e');
+        pendingFm = null;
         return;
       }
-      setSave('saved', '✓ Saved → ' + sheet);
+      setSave('saved', '✓ Saved → ' + sheet + ' row ' + r.row);
 
-      // Update local state so map icon re-renders immediately
-      if (!smap[savedStand]) smap[savedStand] = { stand: savedStand };
+      // Anchor follow-up saves to the row the server resolved/appended
+      if (savedStand === selSt) selRow = r.row;
+
+      // Update local state so map icon re-renders immediately.
+      // A new movement replaces the stand's previous (departed) record.
+      if (!smap[savedStand] || r.appended) smap[savedStand] = { stand: savedStand, status: '' };
       var d = smap[savedStand];
+      d.row = r.row;
       d.registration = fm.registration;
       d.onBlock   = fm.onBlock;
       d.offBlock  = fm.offBlock;
@@ -874,22 +977,32 @@ function saveToSheet(fm) {
       if (fm.from)     d.from     = fm.from;
       if (fm.to)       d.to       = fm.to;
       // Also capture whatever is currently showing in autofill fields
-      var tv = g('f-type'), ov2 = g('f-op'), fv = g('f-from'), tov = g('f-to');
-      if (tv)  d.type     = tv;
-      if (ov2) d.operator = ov2;
-      if (fv)  d.from     = fv;
-      if (tov) d.to       = tov;
+      if (savedStand === selSt) {
+        var tv = g('f-type'), ov2 = g('f-op'), fv = g('f-from'), tov = g('f-to');
+        if (tv)  d.type     = tv;
+        if (ov2) d.operator = ov2;
+        if (fv)  d.from     = fv;
+        if (tov) d.to       = tov;
+      }
 
       renderOneIcon(savedStand);
       updateBar();
       if (savedStand === selSt) updatePanelStatus(status(smap[savedStand]));
+
+      // Flush any save queued while the append was in flight
+      if (pendingFm) {
+        var queued = pendingFm; pendingFm = null;
+        if (savedStand === selSt) saveToSheet(queued);
+      }
     })
     .withFailureHandler(function(err) {
+      appendBusy = false;
+      pendingFm  = null;
       var errMsg = err && err.message ? err.message : String(err);
       setSave('error', '⚠ ' + errMsg);
       toast('❌ GAS error [' + savedStand + '@' + sheet + ']: ' + errMsg, 'e');
     })
-    .updateStandField(sheet, savedStand, fm);
+    .updateStandField(sheet, savedStand, savedRow, fm);
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -919,6 +1032,9 @@ function flash(id) {
 //  POLLING
 // ══════════════════════════════════════════════════════════════
 function startPoll() {
+  // Idempotent — day switches re-init the map
+  if (pollId)     clearInterval(pollId);
+  if (syncDispId) clearInterval(syncDispId);
   pollId = setInterval(function() {
     if (editing) return;
     google.script.run
@@ -966,6 +1082,18 @@ function applyZoom() {
 
 function zoomIn()  { zoom = Math.min(MAX_Z, +(zoom+STEP_Z).toFixed(2)); applyZoom(); }
 function zoomOut() { zoom = Math.max(MIN_Z, +(zoom-STEP_Z).toFixed(2)); applyZoom(); }
+
+// True browser fullscreen (works in the web-app tab; the in-sheet dialog
+// iframe blocks it — in that case point the user to the full-screen mode)
+function toggleFullscreen() {
+  if (document.fullscreenElement) { document.exitFullscreen(); return; }
+  var p = document.documentElement.requestFullscreen &&
+          document.documentElement.requestFullscreen();
+  if (p && p.catch) p.catch(function() {
+    toast('Full screen is blocked inside the sheet dialog — use AMC Tools → Open Apron Map after deploying the web app (opens in its own tab)', 'w');
+  });
+  setTimeout(fitMap, 350);
+}
 
 window.addEventListener('resize', fitMap);
 

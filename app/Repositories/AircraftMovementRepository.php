@@ -528,6 +528,41 @@ class AircraftMovementRepository extends Repository
         return array_values(array_unique(array_merge($arrivals, $departures)));
     }
 
+    /**
+     * Returns the open movement (aircraft still on the ground) currently
+     * occupying a stand, if any. Used for double-booking warnings.
+     */
+    public function findOpenMovementOnStand(string $stand, ?int $excludeId = null): ?array
+    {
+        $stand = trim($stand);
+        if ($stand === '') {
+            return null;
+        }
+
+        $sql = "SELECT id, registration, aircraft_type, on_block_time, is_ron
+                FROM aircraft_movements
+                WHERE UPPER(parking_stand) = UPPER(:stand)
+                  AND (
+                      (movement_date = CURDATE() AND on_block_time IS NOT NULL AND on_block_time != ''
+                       AND (off_block_time IS NULL OR off_block_time = '')) OR
+                      (is_ron = 1 AND ron_complete = 0)
+                  )";
+        $params = [':stand' => $stand];
+
+        if ($excludeId !== null && $excludeId > 0) {
+            $sql .= ' AND id != :exclude_id';
+            $params[':exclude_id'] = $excludeId;
+        }
+
+        $sql .= ' ORDER BY id DESC LIMIT 1';
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row ?: null;
+    }
+
     public function findById(int $id): ?array
     {
         if ($id <= 0) {
@@ -647,19 +682,41 @@ class AircraftMovementRepository extends Repository
         $conditions = [];
         $params = [];
 
+        if (!empty($filters['registration'])) {
+            $conditions[] = 'am.registration LIKE :registration';
+            $params[':registration'] = '%' . $filters['registration'] . '%';
+        }
+
+        // Legacy rows have NULL on_block_date — fall back to movement_date so
+        // the date filter doesn't silently drop them.
         if (!empty($filters['date_from'])) {
-            $conditions[] = 'am.on_block_date >= :date_from';
+            $conditions[] = 'COALESCE(am.on_block_date, am.movement_date) >= :date_from';
             $params[':date_from'] = $filters['date_from'];
         }
 
         if (!empty($filters['date_to'])) {
-            $conditions[] = 'am.on_block_date <= :date_to';
+            $conditions[] = 'COALESCE(am.on_block_date, am.movement_date) <= :date_to';
             $params[':date_to'] = $filters['date_to'];
         }
 
         if (!empty($filters['category'])) {
-            $conditions[] = 'ad.category = :category';
-            $params[':category'] = $filters['category'];
+            // aircraft_details.category holds mixed spellings/casings
+            // ('Komersial', 'commercial', 'charter', ...) — match by group.
+            $categoryGroups = [
+                'commercial' => ['commercial', 'komersial'],
+                'cargo' => ['cargo', 'kargo'],
+                'charter' => ['charter', 'private', ''],
+            ];
+            $group = $categoryGroups[strtolower($filters['category'])] ?? [strtolower($filters['category'])];
+
+            $placeholders = [];
+            foreach (array_values($group) as $index => $value) {
+                $placeholder = ':category' . $index;
+                $placeholders[] = $placeholder;
+                $params[$placeholder] = $value;
+            }
+            // NULL category counts as charter, matching the dashboards
+            $conditions[] = "LOWER(COALESCE(ad.category, 'charter')) IN (" . implode(', ', $placeholders) . ')';
         }
 
         if (!empty($filters['airline'])) {
