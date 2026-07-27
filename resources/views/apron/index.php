@@ -154,10 +154,39 @@ ob_start();
                     <div class="apron-section-label apron-view apron-view--c" style="left:1665px; top:455px; display:none;">New South Apron</div>
                     <div class="apron-section-label apron-view apron-view--c" style="left:1030px; top:1038px; display:none;">Main Apron</div>
 
-                    <!-- View A: section labels only -->
+                    <!-- View A: schematic markings — NOT geographically accurate, they just
+                         group the operational layout the same way View B groups the real one. -->
+                    <!-- Section zones -->
+                    <div class="apron-decor apron-zone apron-view apron-view--a" style="left:50px; top:88px; width:1300px; height:372px;"></div>
+                    <div class="apron-decor apron-zone apron-view apron-view--a" style="left:1425px; top:108px; width:487px; height:262px;"></div>
+                    <div class="apron-decor apron-zone apron-view apron-view--a" style="left:80px; top:592px; width:130px; height:405px;"></div>
+                    <div class="apron-decor apron-zone apron-view apron-view--a" style="left:265px; top:665px; width:1465px; height:110px;"></div>
+                    <div class="apron-decor apron-zone apron-view apron-view--a" style="left:275px; top:885px; width:1590px; height:95px;"></div>
+
+                    <!-- Taxiway connectors: south/new-south aprons ↓ runway -->
+                    <div class="apron-decor apron-taxiway apron-view apron-view--a" style="left:250px; top:460px; width:70px; height:60px;"></div>
+                    <div class="apron-decor apron-taxiway apron-view apron-view--a" style="left:700px; top:460px; width:70px; height:60px;"></div>
+                    <div class="apron-decor apron-taxiway apron-view apron-view--a" style="left:1150px; top:460px; width:70px; height:60px;"></div>
+                    <div class="apron-decor apron-taxiway apron-view apron-view--a" style="left:1600px; top:370px; width:70px; height:150px;"></div>
+                    <!-- runway ↓ remote row -->
+                    <div class="apron-decor apron-taxiway apron-view apron-view--a" style="left:400px; top:596px; width:70px; height:69px;"></div>
+                    <div class="apron-decor apron-taxiway apron-view apron-view--a" style="left:1300px; top:596px; width:70px; height:69px;"></div>
+                    <!-- remote row ↓ main apron -->
+                    <div class="apron-decor apron-taxiway apron-view apron-view--a" style="left:600px; top:775px; width:70px; height:110px;"></div>
+                    <div class="apron-decor apron-taxiway apron-view apron-view--a" style="left:1400px; top:775px; width:70px; height:110px;"></div>
+
+                    <!-- Runway -->
+                    <div class="apron-decor apron-runway apron-view apron-view--a" style="left:0; top:520px; width:1920px; height:76px;">
+                        <div class="apron-runway-centerline"></div>
+                        <div class="apron-runway-text">Runway</div>
+                    </div>
+
+                    <!-- View A: section labels -->
                     <div class="apron-section-label apron-view apron-view--a" style="left:640px; top:10px;">South Apron</div>
                     <div class="apron-section-label apron-view apron-view--a" style="left:1665px; top:455px;">New South Apron</div>
                     <div class="apron-section-label apron-view apron-view--a" style="left:1030px; top:1038px;">Main Apron</div>
+                    <div class="apron-section-label apron-view apron-view--a" style="left:997px; top:632px; font-size:13px; letter-spacing:5px;">Remote</div>
+                    <div class="apron-section-label apron-view apron-view--a" style="left:145px; top:1002px; font-size:13px; letter-spacing:5px;">West Remote</div>
 
                     <!-- View B: real-layout markings — section zones, taxiways, runway -->
                     <!-- Section zones (tinted + dashed boundary) -->
