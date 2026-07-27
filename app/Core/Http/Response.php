@@ -41,18 +41,6 @@ class Response
         return new self('', $status, ['Location' => $url]);
     }
 
-    public function setStatus(int $status): self
-    {
-        $this->status = $status;
-        return $this;
-    }
-
-    public function header(string $name, string $value): self
-    {
-        $this->headers[$name] = $value;
-        return $this;
-    }
-
     public function send(): void
     {
         http_response_code($this->status);

@@ -38,9 +38,11 @@ var DAY_SHEETS = (function() {
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('AMC Tools')
-    .addItem('🛫 Open Apron Map', 'openApronMap')
-    .addItem('🖥️ Open Apron Map (Full Screen)', 'openApronMapFullScreen')
-    .addItem('🗺️ Build Native Map (in-sheet, quota-free)', 'buildNativeMap')
+    .addItem('🗺️ Build Native Map', 'buildNativeMap')
+    .addItem('🔎 Build Search Tab', 'buildSearchTab')
+    .addItem('📈 Build Dashboard', 'buildDashboard')
+    .addSeparator()
+    .addItem('🌙 Enable Daily RON Carry-Over', 'enableDailyRon')
     .addItem('📊 Generate Charter Report', 'generateCharterReport')
     .addSeparator()
     .addItem('ℹ️ About', 'showAbout')
@@ -50,14 +52,13 @@ function onOpen() {
 function showAbout() {
   SpreadsheetApp.getUi().alert(
     'AMC Live Apron Map v1.0\n\n' +
-    'Interactive visual apron map for Halim Perdanakusuma.\n' +
-    'Reads from and writes to the daily movement sheets.\n\n' +
-    'Color codes:\n' +
-    '• Blue stand = Available\n' +
-    '• Yellow ✈ above = Planned (no on-block yet)\n' +
-    '• Red ✈ below = Occupied (on-block, no off-block)\n' +
-    '• Yellow border = RON (remain overnight)\n\n' +
-    'Changes auto-save as you type.'
+    'Peta apron visual interaktif untuk Halim Perdanakusuma.\n' +
+    'Membaca dan menulis langsung ke sheet pergerakan harian.\n\n' +
+    'Kode warna (tab MAP):\n' +
+    '• Stand biru = Kosong\n' +
+    '• 🟡 Kuning = Rencana (belum on-block)\n' +
+    '• 🔴 Merah = Terisi / RON (ada pesawat di stand)\n\n' +
+    'Edit lewat panel samping tab MAP atau langsung di sheet harian.'
   );
 }
 
@@ -147,6 +148,32 @@ function carryOverForDay(sheetName) {
   } catch (e) {
     Logger.log('RON carry-over error: ' + e.message);
   }
+}
+
+
+// ── 2c. Daily RON Carry-Over (time trigger) ──────────────────
+/** Trigger handler: carries yesterday's RON aircraft into today's sheet. */
+function dailyRonCarryOver() {
+  var d = new Date().getDate();
+  carryOverForDay((d < 10 ? '0' : '') + d);
+}
+
+/**
+ * Menu: installs the daily trigger (idempotent — re-running replaces it).
+ * Runs once between 00:00-01:00. Day 01 is skipped by design (the previous
+ * day lives in last month's workbook).
+ */
+function enableDailyRon() {
+  ScriptApp.getProjectTriggers().forEach(function(t) {
+    if (t.getHandlerFunction() === 'dailyRonCarryOver') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('dailyRonCarryOver').timeBased().everyDays(1).atHour(0).create();
+  SpreadsheetApp.getUi().alert(
+    'Carry-over RON harian AKTIF.\n\n' +
+    'Setiap malam antara pukul 00:00-01:00, pesawat RON yang masih di ground ' +
+    'otomatis disalin ke sheet hari baru.\n\n' +
+    'PENTING: trigger TIDAK ikut tersalin saat workbook diduplikasi untuk ' +
+    'bulan baru — jalankan menu ini lagi di file bulan barunya.');
 }
 
 
@@ -252,7 +279,7 @@ function updateStandField(sheetName, stand, row, fieldMap) {
     var sheet = ss.getSheetByName(sheetName);
 
     if (!sheet) {
-      var msg = 'Sheet "' + sheetName + '" not found. Available: ' +
+      var msg = 'Sheet "' + sheetName + '" tidak ditemukan. Tersedia: ' +
                 ss.getSheets().map(function(s){ return s.getName(); }).join(', ');
       Logger.log('[AMC] ERROR: ' + msg);
       return { success: false, error: msg };
@@ -280,7 +307,7 @@ function updateStandField(sheetName, stand, row, fieldMap) {
       // New movement — append at first empty template row
       targetRow = findFirstEmptyRow(sheet);
       if (!targetRow) {
-        return { success: false, error: 'No empty rows left in sheet "' + sheetName + '" — extend the template.' };
+        return { success: false, error: 'Baris kosong habis di sheet "' + sheetName + '" — tambah baris template.' };
       }
       sheet.getRange(targetRow, COL.STAND).setValue(target);
       appended = true;
@@ -326,8 +353,9 @@ function updateStandField(sheetName, stand, row, fieldMap) {
       sheet.getRange(targetRow, COL.TO).setValue(fieldMap.to);
     }
 
-    SpreadsheetApp.flush();
-    Logger.log('[AMC]   Write committed to row ' + targetRow + '.');
+    // No flush() — Apps Script auto-commits when the execution ends, and the
+    // extra forced round-trip only made every save slower.
+    Logger.log('[AMC]   Write queued for row ' + targetRow + '.');
 
     return { success: true, row: targetRow, appended: appended };
 
@@ -350,14 +378,14 @@ function clearMovementRow(sheetName, stand, row) {
   try {
     var ss    = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName(sheetName);
-    if (!sheet) return { success: false, error: 'Sheet "' + sheetName + '" not found.' };
+    if (!sheet) return { success: false, error: 'Sheet "' + sheetName + '" tidak ditemukan.' };
 
     var target = stand.toString().trim().toUpperCase();
-    if (!row || row < DATA_START_ROW) return { success: false, error: 'Invalid row.' };
+    if (!row || row < DATA_START_ROW) return { success: false, error: 'Baris tidak valid.' };
 
     var hVal = safeStr(sheet.getRange(row, COL.STAND).getValue()).trim().toUpperCase();
     if (hVal !== target) {
-      return { success: false, error: 'Row ' + row + ' holds stand "' + hVal + '", not "' + target + '" — refresh the map.' };
+      return { success: false, error: 'Baris ' + row + ' berisi stand "' + hVal + '", bukan "' + target + '" — muat ulang peta.' };
     }
 
     sheet.getRange(row, COL.REGISTRATION).setValue('');
@@ -369,7 +397,6 @@ function clearMovementRow(sheetName, stand, row) {
     sheet.getRange(row, COL.FLIGHT_ARR).setValue('');
     sheet.getRange(row, COL.FLIGHT_DEP).setValue('');
     sheet.getRange(row, COL.REMARKS).setValue('');
-    SpreadsheetApp.flush();
 
     Logger.log('[AMC] clearMovementRow: sheet=' + sheetName + ', stand=' + target + ', row=' + row);
     return { success: true };
@@ -692,7 +719,7 @@ function generateCharterReport() {
 
   // ── Excluded-operator list from DB!H (seed if absent) ─────────
   var db = ss.getSheetByName('DB');
-  if (!db) { ui.alert('DB sheet not found — cannot generate the charter report.'); return; }
+  if (!db) { ui.alert('Sheet DB tidak ditemukan — laporan charter tidak bisa dibuat.'); return; }
   if (!safeStr(db.getRange(4, 8).getValue()).trim()) {
     db.getRange(3, 8).setValue('EXCLUDED OPERATORS').setFontWeight('bold');
     db.getRange(4, 8, EXCLUDED_OPERATORS.length, 1)
@@ -803,9 +830,9 @@ function generateCharterReport() {
   });
 
   writeCharterSheet(ss, rows, monthDate);
-  ui.alert('Charter report generated: ' + rows.length + ' visits.\n\n' +
-           'Re-run "Generate Charter Report" anytime to refresh it.\n' +
-           'Excluded operators are listed in DB column H (editable).');
+  ui.alert('Laporan charter selesai: ' + rows.length + ' kunjungan.\n\n' +
+           'Jalankan "Generate Charter Report" lagi kapan saja untuk memperbarui.\n' +
+           'Daftar operator yang dikecualikan ada di kolom H sheet DB (bisa diedit).');
 }
 
 /** Writes and formats the CHARTER FLIGHT tab in the PERGERAKAN layout. */
@@ -890,10 +917,13 @@ function writeCharterSheet(ss, rows, monthDate) {
 // ══════════════════════════════════════════════════════════════
 
 var MAP_SHEET_NAME = 'MAP';
-var MAP_SCALE      = 20;   // px per grid cell (source coords are 1920x1080)
+var MAP_SCALE      = 20;   // source-coord units per grid cell (coords are 1920x1080)
+var CELL_PX        = 15;   // px per cell column — map ≈1470px wide, leaving room for the side panel
+var CELL_PY        = 12;   // px per cell row — map ≈540px tall so it fits on screen with no vertical scroll
+var MAP_Y_TRIM     = 5;    // empty grid rows shaved off the top of the source layout
 var MAP_ROW_OFFSET = 4;    // map area starts below the control rows
-var MAP_BLOCK_COLS = 3;    // each stand = 3 cols x 2 rows
-var MAP_BLOCK_ROWS = 2;
+var MAP_BLOCK_COLS = 3;    // each stand = 3 cols x 3 rows (code / reg / arr flight)
+var MAP_BLOCK_ROWS = 3;    // 3 x 12px rows = 36px — still shorter than the original 40px blocks
 
 // View A coordinates (same as the HTML map)
 var MAP_COORDS = {
@@ -921,30 +951,33 @@ var MAP_COORDS = {
   'RW09':[1107,700],'RW10':[1039,700],'RW11':[970,700]
 };
 
-function buildNativeMap() {
+function buildNativeMap() { buildMapSheet(MAP_SHEET_NAME, MAP_COORDS, 'VIEW A'); }
+
+/** Core map-tab builder: grid, engine, edit panel, stand blocks. */
+function buildMapSheet(name, coords, title) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var ui = SpreadsheetApp.getUi();
 
-  var old = ss.getSheetByName(MAP_SHEET_NAME);
+  var old = ss.getSheetByName(name);
   if (old) {
-    var resp = ui.alert('A MAP sheet already exists. Rebuild it?', ui.ButtonSet.YES_NO);
+    var resp = ui.alert('Sheet ' + name + ' sudah ada. Bangun ulang?', ui.ButtonSet.YES_NO);
     if (resp !== ui.Button.YES) return;
     ss.deleteSheet(old);
   }
-  var sh = ss.insertSheet(MAP_SHEET_NAME, 0);
+  var sh = ss.insertSheet(name, 0);
 
-  var codes = Object.keys(MAP_COORDS);
+  var codes = Object.keys(coords);
   var n     = codes.length;                 // 83
   var lastCodeRow = 1 + n;                  // helper rows 2..(n+1)
 
   // ── Grid geometry ─────────────────────────────────────────────
-  var mapCols = 98, mapRows = 55;
-  if (sh.getMaxColumns() < 120) sh.insertColumnsAfter(sh.getMaxColumns(), 120 - sh.getMaxColumns());
-  if (sh.getMaxRows() < mapRows + MAP_ROW_OFFSET + 5) {
-    sh.insertRowsAfter(sh.getMaxRows(), mapRows + MAP_ROW_OFFSET + 5 - sh.getMaxRows());
+  var mapCols = 98, mapRows = 45;   // 45: top dead-space is trimmed via MAP_Y_TRIM
+  if (sh.getMaxColumns() < 150) sh.insertColumnsAfter(sh.getMaxColumns(), 150 - sh.getMaxColumns());
+  if (sh.getMaxRows() < 355) {      // the staging spill reaches down to row 351
+    sh.insertRowsAfter(sh.getMaxRows(), 355 - sh.getMaxRows());
   }
-  sh.setColumnWidths(1, mapCols, MAP_SCALE);
-  sh.setRowHeights(MAP_ROW_OFFSET, mapRows, MAP_SCALE);
+  sh.setColumnWidths(1, mapCols, CELL_PX);
+  sh.setRowHeights(MAP_ROW_OFFSET, mapRows, CELL_PY);
   sh.setRowHeight(1, 30);
   sh.setRowHeights(2, 2, 24);
   sh.setFrozenRows(3);
@@ -954,11 +987,11 @@ function buildNativeMap() {
   sh.getRange(MAP_ROW_OFFSET, 1, mapRows, mapCols).setBackground('#dbe7f4');
 
   // ── Header / controls ─────────────────────────────────────────
-  sh.getRange(1, 1, 1, mapCols).merge().setValue('🛫  AMC LIVE APRON MAP — VIEW A')
+  sh.getRange(1, 1, 1, mapCols).merge().setValue('🛫  AMC LIVE APRON MAP — ' + title)
     .setFontWeight('bold').setFontSize(13).setFontColor('white')
     .setBackground('#112D4E').setHorizontalAlignment('left').setVerticalAlignment('middle');
 
-  sh.getRange(2, 2, 1, 2).merge().setValue('DAY:')
+  sh.getRange(2, 2, 1, 2).merge().setValue('TGL:')
     .setFontWeight('bold').setHorizontalAlignment('right');
   var dayCell = sh.getRange(2, 4, 1, 3).merge();
   var dayList = [];
@@ -976,23 +1009,23 @@ function buildNativeMap() {
 
   // Live counters
   sh.getRange(2, 20, 1, 7).merge()
-    .setFormula('="🟦 FREE: "&(COUNTIF($DF$2:$DF$' + lastCodeRow + ',"av")+COUNTIF($DF$2:$DF$' + lastCodeRow + ',"de"))')
+    .setFormula('="🟦 KOSONG: "&(COUNTIF($DF$2:$DF$' + lastCodeRow + ',"av")+COUNTIF($DF$2:$DF$' + lastCodeRow + ',"de"))')
     .setFontWeight('bold').setHorizontalAlignment('center').setBackground('#dcfce7');
   sh.getRange(2, 28, 1, 7).merge()
-    .setFormula('="🔴 OCCUPIED: "&COUNTIF($DF$2:$DF$' + lastCodeRow + ',"oc")')
+    .setFormula('="🔴 TERISI: "&COUNTIF($DF$2:$DF$' + lastCodeRow + ',"oc")')
     .setFontWeight('bold').setHorizontalAlignment('center').setBackground('#fee2e2');
   sh.getRange(2, 36, 1, 7).merge()
     .setFormula('="🌙 RON: "&COUNTIF($DF$2:$DF$' + lastCodeRow + ',"ro")')
     .setFontWeight('bold').setHorizontalAlignment('center').setBackground('#fef9c3');
   sh.getRange(2, 44, 1, 7).merge()
-    .setFormula('="🟡 PLANNED: "&COUNTIF($DF$2:$DF$' + lastCodeRow + ',"pl")')
+    .setFormula('="🟡 RENCANA: "&COUNTIF($DF$2:$DF$' + lastCodeRow + ',"pl")')
     .setFontWeight('bold').setHorizontalAlignment('center').setBackground('#ffedd5');
 
   sh.getRange(3, 2, 1, 60).merge()
-    .setValue('Click a stand → it loads in the EDIT PANEL. Type in the yellow fields — each entry saves straight to the day sheet. Colors & counts update live.')
+    .setValue('Klik stand → panel samping langsung menampilkan datanya. Ketik di kolom kuning — setiap isian langsung tersimpan ke sheet harian. Warna & hitungan diperbarui otomatis.')
     .setFontStyle('italic').setFontColor('#555555');
 
-  // ── Hidden formula engine (columns DA..DL = 105..116) ─────────
+  // ── Hidden formula engine (columns DA..DS = 105..123) ─────────
   var C_CODE = 105, C_GNAME = 113, C_EMPTY = 115, C_GIDA = 116;
 
   sh.getRange(1, C_CODE).setValue('code');
@@ -1001,39 +1034,63 @@ function buildNativeMap() {
   var R = '$DA$2:$DA$' + lastCodeRow;
   var dayRef = '"\'"&$D$2&"\'!';
 
+  // ── Staging spill (cols ED..ER = 134..148): ONE volatile INDIRECT pulls
+  // the whole day block A18:O367; every other engine formula reads this
+  // local spill. INDIRECT recalcs on every edit anywhere in the workbook —
+  // one copy instead of thirteen is what keeps the map refresh fast.
+  sh.getRange(1, 134).setValue('day A18:O367');
+  sh.getRange(2, 134).setFormula('=IFERROR(INDIRECT(' + dayRef + '$A$18:$O$367"),"")');
+
   sh.getRange(2, C_CODE + 1).setFormula(   // DB: latest row index per stand (0 = none)
-    '=MAP(' + R + ',LAMBDA(c,IFERROR(MAX(IF(TRIM(UPPER(IFERROR(TO_TEXT(INDIRECT(' + dayRef + '$H$18:$H$367")),"")))=c,SEQUENCE(350),)),0)))');
-  sh.getRange(2, C_CODE + 2).setFormula(   // DC: registration
-    '=MAP($DB$2:$DB$' + lastCodeRow + ',LAMBDA(i,IF(i=0,"",TO_TEXT(INDEX(INDIRECT(' + dayRef + '$B$18:$B$367"),i)))))');
-  sh.getRange(2, C_CODE + 3).setFormula(   // DD: on-block
-    '=MAP($DB$2:$DB$' + lastCodeRow + ',LAMBDA(i,IF(i=0,"",TO_TEXT(INDEX(INDIRECT(' + dayRef + '$D$18:$D$367"),i)))))');
-  sh.getRange(2, C_CODE + 4).setFormula(   // DE: off-block
-    '=MAP($DB$2:$DB$' + lastCodeRow + ',LAMBDA(i,IF(i=0,"",TO_TEXT(INDEX(INDIRECT(' + dayRef + '$F$18:$F$367"),i)))))');
+    // XMATCH bottom-up (match 0, search -1) over spill col H (EK) — native
+    // range lookup, case-insensitive, no array-broadcast needed.
+    // ponytail: no TRIM on col H — a stand code typed with stray spaces won't match
+    '=MAP(' + R + ',LAMBDA(c,IFERROR(XMATCH(c,$EK$2:$EK$351,0,-1),0)))');
+  sh.getRange(2, C_CODE + 2).setFormula(   // DC: registration (spill col B = EE)
+    '=MAP($DB$2:$DB$' + lastCodeRow + ',LAMBDA(i,IF(i=0,"",TO_TEXT(INDEX($EE$2:$EE$351,i)))))');
+  // On/off block: real time values must render hh:mm, not the raw serial
+  // (TO_TEXT(0.576…) is what showed "0.5763888889" in the panel)
+  sh.getRange(2, C_CODE + 3).setFormula(   // DD: on-block (D = EG)
+    '=MAP($DB$2:$DB$' + lastCodeRow + ',LAMBDA(i,IF(i=0,"",LET(v,INDEX($EG$2:$EG$351,i),IF(ISNUMBER(v),TEXT(v,"hh:mm"),TO_TEXT(v))))))');
+  sh.getRange(2, C_CODE + 4).setFormula(   // DE: off-block (F = EI)
+    '=MAP($DB$2:$DB$' + lastCodeRow + ',LAMBDA(i,IF(i=0,"",LET(v,INDEX($EI$2:$EI$351,i),IF(ISNUMBER(v),TEXT(v,"hh:mm"),TO_TEXT(v))))))');
   sh.getRange(2, C_CODE + 5).setFormula(   // DF: status av/pl/oc/ro/de
     '=MAP($DC$2:$DC$' + lastCodeRow + ',$DD$2:$DD$' + lastCodeRow + ',$DE$2:$DE$' + lastCodeRow +
     ',LAMBDA(rg,onv,offv,IF(TRIM(rg)="","av",IF(TRIM(offv)<>"","de",' +
     'LET(o,TRIM(UPPER(onv)),IF(o="","pl",IF(OR(o="-",REGEXMATCH(o,"RON"),REGEXMATCH(o,"\\(")),"ro","oc")))))))');
   sh.getRange(2, C_CODE + 6).setFormula(   // DG: display text with status marker
-    '=MAP(' + R + ',$DC$2:$DC$' + lastCodeRow + ',$DF$2:$DF$' + lastCodeRow +
-    ',LAMBDA(c,rg,st,IF(OR(st="av",st="de"),c,' +
-    'IFS(st="pl","🟡 "&c&CHAR(10)&rg,st="oc","🔴 "&c&CHAR(10)&rg,st="ro","🌙 "&c&CHAR(10)&rg))))');
+    // RON renders red like any occupied stand (distinct gold was confusing);
+    // the RON counter and the panel status line still identify it.
+    // Line 3 = arrival flight number, when present (DQ).
+    '=MAP(' + R + ',$DC$2:$DC$' + lastCodeRow + ',$DF$2:$DF$' + lastCodeRow + ',$DQ$2:$DQ$' + lastCodeRow +
+    ',LAMBDA(c,rg,st,fa,IF(OR(st="av",st="de"),c,' +
+    'IF(st="pl","🟡 ","🔴 ")&c&CHAR(10)&rg&IF(fa="","",CHAR(10)&fa))))');
 
   // DM/DN/DO/DP (117-120): type / from / to / operator at the latest row —
-  // live read-only fields for the edit panel
+  // live read-only fields for the edit panel (spill cols C=EF, I=EL, J=EM, M=EP)
   sh.getRange(2, 117).setFormula(
-    '=MAP($DB$2:$DB$' + lastCodeRow + ',LAMBDA(i,IF(i=0,"",TO_TEXT(INDEX(INDIRECT(' + dayRef + '$C$18:$C$367"),i)))))');
+    '=MAP($DB$2:$DB$' + lastCodeRow + ',LAMBDA(i,IF(i=0,"",TO_TEXT(INDEX($EF$2:$EF$351,i)))))');
   sh.getRange(2, 118).setFormula(
-    '=MAP($DB$2:$DB$' + lastCodeRow + ',LAMBDA(i,IF(i=0,"",TO_TEXT(INDEX(INDIRECT(' + dayRef + '$I$18:$I$367"),i)))))');
+    '=MAP($DB$2:$DB$' + lastCodeRow + ',LAMBDA(i,IF(i=0,"",TO_TEXT(INDEX($EL$2:$EL$351,i)))))');
   sh.getRange(2, 119).setFormula(
-    '=MAP($DB$2:$DB$' + lastCodeRow + ',LAMBDA(i,IF(i=0,"",TO_TEXT(INDEX(INDIRECT(' + dayRef + '$J$18:$J$367"),i)))))');
+    '=MAP($DB$2:$DB$' + lastCodeRow + ',LAMBDA(i,IF(i=0,"",TO_TEXT(INDEX($EM$2:$EM$351,i)))))');
   sh.getRange(2, 120).setFormula(
-    '=MAP($DB$2:$DB$' + lastCodeRow + ',LAMBDA(i,IF(i=0,"",TO_TEXT(INDEX(INDIRECT(' + dayRef + '$M$18:$M$367"),i)))))');
+    '=MAP($DB$2:$DB$' + lastCodeRow + ',LAMBDA(i,IF(i=0,"",TO_TEXT(INDEX($EP$2:$EP$351,i)))))');
+
+  // DQ/DR/DS (121-123): flight arr / flight dep / remarks at the latest row —
+  // live sources for the side panel's input fields (spill cols K=EN, L=EO, N=EQ)
+  sh.getRange(2, 121).setFormula(
+    '=MAP($DB$2:$DB$' + lastCodeRow + ',LAMBDA(i,IF(i=0,"",TO_TEXT(INDEX($EN$2:$EN$351,i)))))');
+  sh.getRange(2, 122).setFormula(
+    '=MAP($DB$2:$DB$' + lastCodeRow + ',LAMBDA(i,IF(i=0,"",TO_TEXT(INDEX($EO$2:$EO$351,i)))))');
+  sh.getRange(2, 123).setFormula(
+    '=MAP($DB$2:$DB$' + lastCodeRow + ',LAMBDA(i,IF(i=0,"",TO_TEXT(INDEX($EQ$2:$EQ$351,i)))))');
 
   // DK: first empty template row (link target for free stands)
   sh.getRange(2, C_EMPTY).setFormula(
     '=IFERROR(MIN(FILTER(SEQUENCE(350)+17,' +
-    'TRIM(IFERROR(TO_TEXT(INDIRECT(' + dayRef + '$B$18:$B$367")),"x"))="",' +
-    'TRIM(IFERROR(TO_TEXT(INDIRECT(' + dayRef + '$H$18:$H$367")),"x"))="")),18)');
+    'ARRAYFORMULA(TRIM(IFERROR(TO_TEXT($EE$2:$EE$351),"x"))=""),' +
+    'ARRAYFORMULA(TRIM(IFERROR(TO_TEXT($EK$2:$EK$351),"x"))=""))),18)');
 
   // DI/DJ: day-sheet GID table, DL: active gid
   var gidRows = [];
@@ -1046,21 +1103,18 @@ function buildNativeMap() {
   sh.getRange(2, C_GIDA).setFormula(
     '=IFERROR(VLOOKUP($D$2,$DI$2:$DJ$' + (1 + gidRows.length) + ',2,0),"")');
 
-  // ── EDIT PANEL (rows 26-36, cols 13-34 — verified clear of stands) ──
+  // ── EDIT PANEL ──────────────────────────────────────────────
   buildEditPanel(sh, codes, lastCodeRow);
 
   // ── Place the stands ──────────────────────────────────────────
   var items = codes.map(function(c) {
     return { code: c,
-             col: Math.round(MAP_COORDS[c][0] / MAP_SCALE) + 1,
-             row: Math.round(MAP_COORDS[c][1] / MAP_SCALE) + MAP_ROW_OFFSET };
+             col: Math.round(coords[c][0] / MAP_SCALE) + 1,
+             row: Math.round(coords[c][1] / MAP_SCALE) + MAP_ROW_OFFSET - MAP_Y_TRIM };
   });
   items.sort(function(a, b) { return a.row - b.row || a.col - b.col; });
 
   var occ = {};
-  // Reserve the edit-panel card region so no stand can be shifted into it
-  for (var pr = 26; pr <= 36; pr++)
-    for (var pc = 13; pc <= 34; pc++) occ[pr + '_' + pc] = true;
 
   items.forEach(function(it) {
     // greedy collision avoidance (verified offline: no shifts needed for View A)
@@ -1099,102 +1153,142 @@ function buildNativeMap() {
     SpreadsheetApp.newConditionalFormatRule().whenTextContains('🔴')
       .setBackground('#c62828').setFontColor('#ffffff').setRanges([mapRange]).build(),
     SpreadsheetApp.newConditionalFormatRule().whenTextContains('🟡')
-      .setBackground('#f59e0b').setFontColor('#111111').setRanges([mapRange]).build(),
-    SpreadsheetApp.newConditionalFormatRule().whenTextContains('🌙')
-      .setBackground('#EAB308').setFontColor('#111111').setRanges([mapRange]).build()
+      .setBackground('#f59e0b').setFontColor('#111111').setRanges([mapRange]).build()
   ];
   sh.setConditionalFormatRules(rules);
 
-  // Hide the formula engine + trailing columns
-  sh.hideColumns(mapCols + 1, 120 - mapCols);
+  // Hide the gap + engine (99-124) and the staging spill etc. (133-150)
+  sh.hideColumns(mapCols + 1, PANEL_COL0 - mapCols - 1);
+  sh.hideColumns(PANEL_COL0 + 8, 150 - PANEL_COL0 - 7);
 
-  ui.alert('Native map built.\n\n' +
-    '• Viewing is pure formulas — zero quota while the map sits open 24/7.\n' +
-    '• Click a stand → it loads in the EDIT PANEL on the map. Type in the ' +
-    'yellow fields — each entry saves straight to the day sheet.\n' +
-    '• Edits use event triggers: a fraction of a second of script time per ' +
-    'actual keystroke, billed to whoever edits. No polling, no idle cost.\n' +
-    '• Pick the day in the dropdown (cell D2). Rebuild anytime from AMC Tools.');
+  ui.alert('Sheet ' + name + ' selesai dibangun.\n\n' +
+    '• Tampilan murni formula — nol kuota walau dibuka 24 jam.\n' +
+    '• Klik stand (atau pilih di panel samping) — datanya langsung tampil di ' +
+    'panel. Ketik di kolom kuning — setiap isian langsung tersimpan ke sheet harian.\n' +
+    '• Pilih tanggal di dropdown (sel D2). Bangun ulang kapan saja dari AMC Tools.');
 }
 
 
 // ══════════════════════════════════════════════════════════════
-//  12. IN-MAP EDIT PANEL + EVENT TRIGGERS
-//  Click a stand on the MAP tab → onSelectionChange loads it into
-//  the panel. Type into a panel input → onEdit commits it to the
-//  day sheet via the same row-anchored write path as the HTML map.
-//  Event-driven: script runs ONLY on actual clicks/edits (fractions
-//  of a second each, as the acting user) — never in the background.
+//  12. SIDE EDIT PANEL + EVENT TRIGGERS
+//  The panel sits to the RIGHT of the map (cols 125-132), always
+//  visible. Every panel field is a LIVE FORMULA over the engine —
+//  clicking a stand shows its current movement instantly, with
+//  zero script latency, and the fields keep tracking the day sheet
+//  as others edit it. Typing into a yellow input fires onEdit,
+//  which commits the value to the day sheet and then restores the
+//  live formula, so the cell goes right back to tracking the sheet.
+//  Script runs ONLY on actual edits — never in the background.
 // ══════════════════════════════════════════════════════════════
 
 // Fixed panel cell addresses — builder and triggers must agree.
-var PANEL_DAY    = { r: 2,  c: 4  };   // D2  (day dropdown)
-var PANEL_STAND  = { r: 27, c: 18 };   // R27 (stand dropdown)
-var PANEL_CLR    = { r: 35, c: 18 };   // R35 (clear checkbox)
-var PANEL_ANCHOR = { r: 3,  c: 116 };  // DL3 (hidden row anchor, like selRow)
-// input cell -> updateStandField field key
+var PANEL_COL0   = 125;                // first visible panel column (DU = labels)
+var PANEL_DAY    = { r: 2,  c: 4   };  // D2  (day dropdown)
+var PANEL_STAND  = { r: 6,  c: 126 };  // DV6 (stand dropdown)
+var PANEL_CLR    = { r: 32, c: 126 };  // clear checkbox
+var PANEL_ANCHOR = { r: 2,  c: 124 };  // DT2 (hidden row anchor for follow-up saves)
+// input cell (row_col of the merged top-left) -> updateStandField field key
 var PANEL_FIELDS = {
-  '29_18': 'registration',
-  '30_18': 'onBlock',   '30_28': 'offBlock',
-  '31_18': 'flightArr', '31_28': 'flightDep',
-  '34_18': 'remarks'
+  '12_126': 'registration',
+  '16_126': 'onBlock',   '18_126': 'offBlock',
+  '20_126': 'flightArr', '22_126': 'flightDep',
+  '30_126': 'remarks'
 };
 
-/** Lays out the edit panel card on the MAP sheet (called by buildNativeMap). */
+/** Live formulas for the panel input cells (set at build, restored after every edit). */
+function panelFormulas(lastCodeRow) {
+  var S = '$DV$6';
+  function live(col) {
+    return '=IF(' + S + '="","",IFERROR(XLOOKUP(' + S + ',$DA$2:$DA$' + lastCodeRow +
+           ',$' + col + '$2:$' + col + '$' + lastCodeRow + '),""))';
+  }
+  return {
+    registration: live('DC'), onBlock: live('DD'), offBlock: live('DE'),
+    flightArr: live('DQ'), flightDep: live('DR'), remarks: live('DS')
+  };
+}
+
+/** Lays out the fixed side panel (called by buildNativeMap). */
 function buildEditPanel(sh, codes, lastCodeRow) {
-  var A = '$DA$2:$DA$' + lastCodeRow;   // engine ranges
-  function X(col) { return 'XLOOKUP($R$27,' + A + ',$' + col + '$2:$' + col + '$' + lastCodeRow + ')'; }
+  var P = PANEL_COL0;   // label column; values merge P+1..P+7
+  var S = '$DV$6';
+  function X(col) {
+    return 'IFERROR(XLOOKUP(' + S + ',$DA$2:$DA$' + lastCodeRow +
+           ',$' + col + '$2:$' + col + '$' + lastCodeRow + '),"")';
+  }
 
-  // Card background + frame
-  sh.getRange(26, 13, 11, 22).setBackground('#ffffff')
+  sh.setColumnWidth(P, 66);
+  sh.setColumnWidths(P + 1, 7, 38);
+
+  // Card background + frame + header
+  sh.getRange(4, P, 30, 8).setBackground('#ffffff')
     .setBorder(true, true, true, true, false, false, '#112D4E', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
+  sh.getRange(4, P, 2, 8).merge().setValue('✏  PANEL EDIT')
+    .setFontWeight('bold').setFontSize(10).setFontColor('white').setBackground('#112D4E')
+    .setHorizontalAlignment('left').setVerticalAlignment('middle');
 
-  function label(r, c, w, txt) {
-    sh.getRange(r, c, 1, w).merge().setValue(txt)
+  // Each panel line spans 2 of the CELL_PY map rows (~24px tall).
+  function label(r, txt) {
+    sh.getRange(r, P, 2, 1).merge().setValue(txt)
       .setFontWeight('bold').setFontSize(8).setFontColor('#4b5563')
       .setHorizontalAlignment('right').setVerticalAlignment('middle');
   }
-  function input(r, c, w) {
-    return sh.getRange(r, c, 1, w).merge().setBackground('#FFFDE7')
+  function input(r, formula) {
+    return sh.getRange(r, P + 1, 2, 7).merge().setBackground('#FFFDE7')
+      .setFormula(formula)
       .setFontSize(9).setHorizontalAlignment('center').setVerticalAlignment('middle')
       .setBorder(true, true, true, true, false, false, '#9aa5b1', SpreadsheetApp.BorderStyle.SOLID);
   }
-  function display(r, c, w, formula) {
-    sh.getRange(r, c, 1, w).merge().setFormula(formula)
+  function display(r, formula) {
+    sh.getRange(r, P + 1, 2, 7).merge().setFormula(formula)
       .setBackground('#EEF3FA').setFontStyle('italic').setFontSize(9)
       .setHorizontalAlignment('center').setVerticalAlignment('middle');
   }
 
-  sh.getRange(26, 13, 1, 22).merge().setValue('✏  EDIT PANEL — click a stand or pick one:')
-    .setFontWeight('bold').setFontSize(9).setFontColor('white').setBackground('#112D4E')
-    .setHorizontalAlignment('left').setVerticalAlignment('middle');
+  var F = panelFormulas(lastCodeRow);
 
-  label(27, 14, 4, 'STAND:');
-  input(27, 18, 3).setFontWeight('bold')
+  label(6, 'STAND:');
+  sh.getRange(6, P + 1, 2, 7).merge().setBackground('#FFFDE7')
+    .setFontWeight('bold').setFontSize(10)
+    .setHorizontalAlignment('center').setVerticalAlignment('middle')
+    .setBorder(true, true, true, true, false, false, '#9aa5b1', SpreadsheetApp.BorderStyle.SOLID)
     .setDataValidation(SpreadsheetApp.newDataValidation()
       .requireValueInList(codes.slice().sort(), true).setAllowInvalid(false).build());
-  display(27, 23, 5,
-    '=IF($R$27="","–",SWITCH(' + X('DF') + ',"av","🟩 AVAILABLE","pl","🟡 PLANNED","oc","🔴 OCCUPIED","ro","🌙 RON","de","⬜ DEPARTED — FREE","–"))');
-  display(27, 30, 5,
-    '=IF($R$27="","",LET(i,' + X('DB') + ',IF(i=0,"new → row "&$DK$2,"row "&(i+17))))');
 
-  label(29, 14, 4, 'REG:');       input(29, 18, 6);
-  label(29, 25, 3, 'TYPE:');      display(29, 28, 6, '=IF($R$27="","",' + X('DM') + ')');
-  label(30, 14, 4, 'ON BLK:');    input(30, 18, 3);
-  label(30, 25, 3, 'OFF BLK:');   input(30, 28, 3);
-  label(31, 14, 4, 'FLT ARR:');   input(31, 18, 3);
-  label(31, 25, 3, 'FLT DEP:');   input(31, 28, 3);
-  label(32, 14, 4, 'FROM:');      display(32, 18, 3, '=IF($R$27="","",' + X('DN') + ')');
-  label(32, 25, 3, 'TO:');        display(32, 28, 6, '=IF($R$27="","",' + X('DO') + ')');
-  label(33, 14, 4, 'OPERATOR:');  display(33, 18, 16, '=IF($R$27="","",' + X('DP') + ')');
-  label(34, 14, 4, 'REMARKS:');   input(34, 18, 16);
+  label(8, 'STATUS:');
+  display(8, '=IF(' + S + '="","–",SWITCH(' + X('DF') + ',"av","🟩 KOSONG","pl","🟡 RENCANA","oc","🔴 TERISI","ro","🌙 RON","de","⬜ BERANGKAT — KOSONG","–"))');
+  label(10, 'ROW:');
+  display(10, '=IF(' + S + '="","",LET(i,' + X('DB') + ',IF(i=0,"baru → baris "&$DK$2,"baris "&(i+17))))');
 
-  label(35, 14, 4, 'CLEAR ROW:');
-  sh.getRange(35, 18).insertCheckboxes().setHorizontalAlignment('center');
-  sh.getRange(35, 19, 1, 15).merge()
-    .setValue('tick to reset this stand\'s movement row (like the Clear Stand button)')
+  label(12, 'REG:');       input(12, F.registration);
+  label(14, 'TYPE:');      display(14, '=IF(' + S + '="","",' + X('DM') + ')');
+  label(16, 'ON BLK:');    input(16, F.onBlock);
+  label(18, 'OFF BLK:');   input(18, F.offBlock);
+  label(20, 'FLT ARR:');   input(20, F.flightArr);
+  label(22, 'FLT DEP:');   input(22, F.flightDep);
+  label(24, 'FROM:');      display(24, '=IF(' + S + '="","",' + X('DN') + ')');
+  label(26, 'TO:');        display(26, '=IF(' + S + '="","",' + X('DO') + ')');
+  label(28, 'OPERATOR:');  display(28, '=IF(' + S + '="","",' + X('DP') + ')');
+  label(30, 'REMARKS:');   input(30, F.remarks);
+
+  label(32, 'CLEAR:');
+  sh.getRange(32, P + 1, 2, 1).merge().insertCheckboxes().setHorizontalAlignment('center');
+  sh.getRange(32, P + 2, 2, 6).merge()
+    .setValue('centang untuk mengosongkan baris movement stand ini')
     .setFontSize(8).setFontStyle('italic').setFontColor('#777777')
     .setVerticalAlignment('middle');
+}
+
+/**
+ * Latest OPEN movement row for a stand — the row follow-up edits should
+ * land on. A departed latest row (off-block set) means the next edit
+ * starts a NEW movement (append), so it returns null.
+ */
+function currentMovementRow(sheet, stand) {
+  var row = findLatestStandRow(sheet, stand);
+  if (!row) return null;
+  var off = safeStr(sheet.getRange(row, COL.OFF_BLOCK).getValue()).trim();
+  return off ? null : row;
 }
 
 /** Reads the currently selected panel stand. */
@@ -1202,73 +1296,67 @@ function getPanelStand(sh) {
   return safeStr(sh.getRange(PANEL_STAND.r, PANEL_STAND.c).getValue()).trim().toUpperCase();
 }
 
-/** Loads a stand's current movement into the panel input cells. */
-function loadPanel(sh, stand) {
-  var inputs = {
-    registration: sh.getRange(29, 18), onBlock: sh.getRange(30, 18),
-    offBlock: sh.getRange(30, 28), flightArr: sh.getRange(31, 18),
-    flightDep: sh.getRange(31, 28), remarks: sh.getRange(34, 18)
-  };
-  var anchor = sh.getRange(PANEL_ANCHOR.r, PANEL_ANCHOR.c);
-
-  function clearInputs() {
-    for (var k in inputs) inputs[k].setValue('');
-    anchor.setValue('');
-  }
-  if (!stand) { clearInputs(); return; }
-
-  var day = safeStr(sh.getRange(PANEL_DAY.r, PANEL_DAY.c).getValue()).trim();
-  var ds  = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(day);
-  if (!ds) { clearInputs(); return; }
-
-  var row = findLatestStandRow(ds, stand);
-  if (!row) { clearInputs(); return; }              // no record today → new movement
-
-  var v = ds.getRange(row, 1, 1, 15).getValues()[0];
-  var offBlock = safeStr(v[COL.OFF_BLOCK - 1]).trim();
-  if (offBlock) { clearInputs(); return; }          // departed → start fresh (append)
-
-  inputs.registration.setValue(safeStr(v[COL.REGISTRATION - 1]));
-  inputs.onBlock.setValue(safeStr(v[COL.ON_BLOCK - 1]));
-  inputs.offBlock.setValue(offBlock);
-  inputs.flightArr.setValue(safeStr(v[COL.FLIGHT_ARR - 1]));
-  inputs.flightDep.setValue(safeStr(v[COL.FLIGHT_DEP - 1]));
-  inputs.remarks.setValue(safeStr(v[COL.REMARKS - 1]));
-  anchor.setValue(row);
-}
-
 /** Simple trigger: routes panel edits to the day sheet. */
 function onEdit(e) {
   try {
     if (!e || !e.range) return;
     var sh = e.range.getSheet();
-    if (sh.getName() !== MAP_SHEET_NAME) return;
     var r = e.range.getRow(), c = e.range.getColumn();
+
+    // SEARCH tab: after a new query, auto-fit columns + border the results
+    if (sh.getName() === SEARCH_SHEET_NAME) {
+      if (r === 2 && c === 2) styleSearchResults(sh);
+      return;
+    }
+    if (sh.getName() !== MAP_SHEET_NAME) return;
     var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-    // Day or stand changed → (re)load the panel
+    // Day or stand changed → just drop the row anchor; the panel fields are
+    // live formulas and follow the new selection on their own.
     if ((r === PANEL_DAY.r && c === PANEL_DAY.c) ||
         (r === PANEL_STAND.r && c === PANEL_STAND.c)) {
-      loadPanel(sh, getPanelStand(sh));
+      sh.getRange(PANEL_ANCHOR.r, PANEL_ANCHOR.c).setValue('');
       return;
     }
 
-    // Panel input edited → commit that field
+    // Panel input edited → commit that field, then restore the live formula
     var key = PANEL_FIELDS[r + '_' + c];
     if (key) {
+      var formula = panelFormulas(1 + Object.keys(MAP_COORDS).length)[key];
       var stand = getPanelStand(sh);
-      if (!stand) { ss.toast('Pick a stand first', 'AMC Map', 4); return; }
+      if (!stand) {
+        e.range.setFormula(formula);
+        ss.toast('Pilih stand dulu', 'AMC Map', 4);
+        return;
+      }
       var day = safeStr(sh.getRange(PANEL_DAY.r, PANEL_DAY.c).getValue()).trim();
-      var anchorCell = sh.getRange(PANEL_ANCHOR.r, PANEL_ANCHOR.c);
-      var anchor = parseInt(anchorCell.getValue(), 10) || null;
+      var val = safeStr(e.range.getValue()).trim();
+      // Normalize times to HH:MM — "930", "0930" and time-parsed entries all
+      // land as "09:30", matching how times are typed in the day sheets.
+      if ((key === 'onBlock' || key === 'offBlock') && /^\d{1,4}$/.test(val)) {
+        val = ('000' + val).slice(-4);
+        val = val.slice(0, 2) + ':' + val.slice(2);
+      }
 
-      var fm = {}; fm[key] = safeStr(e.range.getValue()).trim();
-      var res = updateStandField(day, stand, anchor, fm);
+      // Row anchor: sticky per stand so follow-up edits (incl. typo fixes
+      // after an off-block) land on the same row; otherwise the latest open
+      // movement, or null → append a new movement.
+      var anchorCell = sh.getRange(PANEL_ANCHOR.r, PANEL_ANCHOR.c);
+      var row = parseInt(anchorCell.getValue(), 10) || null;
+      if (!row) {
+        var ds = ss.getSheetByName(day);
+        row = ds ? currentMovementRow(ds, stand) : null;
+      }
+      if (!row && !val) { e.range.setFormula(formula); return; }   // nothing to write
+
+      var fm = {}; fm[key] = val;
+      var res = updateStandField(day, stand, row, fm);
+      e.range.setFormula(formula);   // back to tracking the sheet
       if (res && res.success) {
         anchorCell.setValue(res.row);
-        ss.toast('✓ ' + stand + ' saved → ' + day + ' row ' + res.row, 'AMC Map', 3);
+        ss.toast('✓ ' + stand + ' tersimpan → ' + day + ' baris ' + res.row, 'AMC Map', 3);
       } else {
-        ss.toast('❌ ' + (res && res.error ? res.error : 'save failed'), 'AMC Map', 6);
+        ss.toast('❌ ' + (res && res.error ? res.error : 'gagal menyimpan'), 'AMC Map', 6);
       }
       return;
     }
@@ -1278,14 +1366,16 @@ function onEdit(e) {
       e.range.setValue(false);
       var st2 = getPanelStand(sh);
       var day2 = safeStr(sh.getRange(PANEL_DAY.r, PANEL_DAY.c).getValue()).trim();
-      var a2 = parseInt(sh.getRange(PANEL_ANCHOR.r, PANEL_ANCHOR.c).getValue(), 10) || null;
-      if (!st2 || !a2) { ss.toast('Nothing to clear', 'AMC Map', 3); return; }
+      var ds2 = ss.getSheetByName(day2);
+      var a2 = parseInt(sh.getRange(PANEL_ANCHOR.r, PANEL_ANCHOR.c).getValue(), 10) ||
+               (ds2 && st2 ? currentMovementRow(ds2, st2) : null);
+      if (!st2 || !a2) { ss.toast('Tidak ada yang dihapus', 'AMC Map', 3); return; }
       var res2 = clearMovementRow(day2, st2, a2);
+      sh.getRange(PANEL_ANCHOR.r, PANEL_ANCHOR.c).setValue('');
       if (res2 && res2.success) {
-        loadPanel(sh, st2);
-        ss.toast('✓ ' + st2 + ' cleared', 'AMC Map', 3);
+        ss.toast('✓ ' + st2 + ' dibersihkan', 'AMC Map', 3);
       } else {
-        ss.toast('❌ ' + (res2 && res2.error ? res2.error : 'clear failed'), 'AMC Map', 6);
+        ss.toast('❌ ' + (res2 && res2.error ? res2.error : 'gagal menghapus'), 'AMC Map', 6);
       }
     }
   } catch (err) {
@@ -1312,8 +1402,356 @@ function onSelectionChange(e) {
     var standCell = sh.getRange(PANEL_STAND.r, PANEL_STAND.c);
     if (safeStr(standCell.getValue()).trim().toUpperCase() === m[1]) return;   // already loaded
     standCell.setValue(m[1]);
-    loadPanel(sh, m[1]);
+    // Script-made edits don't fire onEdit — clear the anchor here ourselves.
+    // The panel fields are live formulas; they show the stand instantly.
+    sh.getRange(PANEL_ANCHOR.r, PANEL_ANCHOR.c).setValue('');
   } catch (err) {
     Logger.log('onSelectionChange error: ' + err.message);
   }
+}
+
+
+// ══════════════════════════════════════════════════════════════
+//  13. SEARCH TAB + DASHBOARD TAB (pure formulas, quota-free)
+//  Menu: AMC Tools → Build Search Tab / Build Dashboard.
+//  One-time builders like the maps — afterwards no script runs.
+// ══════════════════════════════════════════════════════════════
+
+var SEARCH_SHEET_NAME = 'SEARCH';
+var DASH_SHEET_NAME   = 'DASH';
+// Fixed SEARCH column widths — builder sets them, styleSearchResults
+// re-applies them (autofit blew up DATE/OFF BLK on junk cell text).
+var SEARCH_COL_WIDTHS = [40, 90, 70, 58, 28, 58, 28, 60, 58, 58, 70, 70, 110, 180, 55];
+
+// Operator → movement category (seeded into DB!J:K, editable in-sheet).
+// Anything not listed counts as Charter — same airline groups the charter
+// report uses.
+var OPERATOR_CATEGORIES = [
+  ['GARUDA', 'Commercial'], ['BATIK AIR', 'Commercial'], ['CITILINK', 'Commercial'],
+  ['PELITA', 'Commercial'], ['SUSI AIR', 'Commercial'],
+  ['AIRNESIA', 'Cargo'], ['JAYAWIJAYA', 'Cargo'], ['TRI MG', 'Cargo'], ['TRIGANA', 'Cargo'],
+  ['TNI AU', 'Military']
+];
+
+/** Confirm-and-replace an existing tab; returns the fresh sheet or null. */
+function freshSheet(ss, ui, name, index) {
+  var old = ss.getSheetByName(name);
+  if (old) {
+    var resp = ui.alert('Sheet ' + name + ' sudah ada. Bangun ulang?', ui.ButtonSet.YES_NO);
+    if (resp !== ui.Button.YES) return null;
+    ss.deleteSheet(old);
+  }
+  return ss.insertSheet(name, index);
+}
+
+/**
+ * SEARCH tab: type anything (date / registration / stand / flight no /
+ * operator) in B2 → INSTANT formula results. DATE column = day sheet
+ * (tanggal 01-31) the movement came from.
+ *
+ * v4 design — every array op here is a pattern PROVEN working in this
+ * workbook: the haystack for matching is built per day sheet from REAL
+ * RANGE concatenation inside ARRAYFORMULA (same as the dashboard's
+ * busiest-stands filter), stacked with VSTACK. No LAMBDA, no BYROW, no
+ * INDEX-slicing of in-memory arrays (v3's failure: INDEX(all,,n) on a
+ * LET array misbehaved → size-mismatch #N/A → looked like "no results").
+ * The date token is part of each row's haystack, so searching "18" finds
+ * everything on the 18th. IFNA keeps real error codes visible.
+ * onEdit only styles: borders + auto-fit after each query.
+ */
+function buildSearchTab() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ui = SpreadsheetApp.getUi();
+
+  var parts = [], hays = [];
+  for (var d = 1; d <= 31; d++) {
+    var nm = d < 10 ? '0' + d : '' + d;
+    if (ss.getSheetByName(nm)) {
+      // Date column: ARRAYFORMULA(IF(SEQUENCE(350),"nm")) — 350 truthy rows,
+      // each "nm". (EXPAND's pad didn't work in Sheets: padded cells came out
+      // #N/A, and element-wise IFNA rendered every DATE cell "Tidak ada hasil".)
+      parts.push('HSTACK(ARRAYFORMULA(IF(SEQUENCE(350),"' + nm + '")),\'' + nm + '\'!$B$18:$O$367)');
+      // Searchable text per row: date + reg + stand + flights + operator
+      hays.push('ARRAYFORMULA("' + nm + ' "&\'' + nm + '\'!$B$18:$B$367&" "&\'' + nm +
+                '\'!$H$18:$H$367&" "&\'' + nm + '\'!$K$18:$K$367&" "&\'' + nm +
+                '\'!$L$18:$L$367&" "&\'' + nm + '\'!$M$18:$M$367)');
+    }
+  }
+  if (!parts.length) { ui.alert('Sheet harian (01-31) tidak ditemukan.'); return; }
+
+  var sh = freshSheet(ss, ui, SEARCH_SHEET_NAME, 1);
+  if (!sh) return;
+  sh.setHiddenGridlines(true);
+
+  sh.getRange(1, 1, 1, 15).merge().setValue('🔎  CARI PERGERAKAN — SEMUA TANGGAL')
+    .setFontWeight('bold').setFontSize(13).setFontColor('white')
+    .setBackground('#112D4E').setHorizontalAlignment('left').setVerticalAlignment('middle');
+  sh.setRowHeight(1, 30);
+
+  sh.getRange(2, 1).setValue('CARI:').setFontWeight('bold').setHorizontalAlignment('right');
+  sh.getRange(2, 2, 1, 3).merge().setNumberFormat('@').setBackground('#FFFDE7')
+    .setFontWeight('bold').setHorizontalAlignment('center')
+    .setBorder(true, true, true, true, false, false, '#9aa5b1', SpreadsheetApp.BorderStyle.SOLID);
+  sh.getRange(2, 6, 1, 10).merge()
+    .setValue('tanggal / registrasi / stand / no. penerbangan / operator — hasil langsung tampil. Kolom DATE = tanggal (sheet harian) asal pergerakan.')
+    .setFontStyle('italic').setFontColor('#555555');
+
+  var headers = ['DATE', 'REG', 'TYPE', 'ON BLK', '✓', 'OFF BLK', '✓', 'STAND',
+                 'FROM', 'TO', 'FLT ARR', 'FLT DEP', 'OPERATOR', 'REMARKS', 'STATUS'];
+  sh.getRange(4, 1, 1, 15).setValues([headers])
+    .setFontWeight('bold').setBackground('#DBE2EF').setHorizontalAlignment('center');
+  sh.setFrozenRows(4);
+
+  // `all` and `hay` are built from identical 350-row blocks, so their row
+  // counts always match. ARRAY_CONSTRAIN caps output at 900 rows.
+  sh.getRange(5, 1).setFormula(
+    '=LET(q,TRIM(UPPER($B$2)),IF(q="","",LET(' +
+    'all,VSTACK(' + parts.join(',') + '),' +
+    'hay,VSTACK(' + hays.join(',') + '),' +
+    'IFNA(ARRAY_CONSTRAIN(FILTER(all,ARRAYFORMULA(ISNUMBER(SEARCH(q,UPPER(hay))))),900,15),' +
+    '"Tidak ada hasil"))))');
+
+  // Real time values render hh:mm (text like "0930" passes through)
+  sh.getRange('D5:D').setNumberFormat('hh:mm');
+  sh.getRange('F5:F').setNumberFormat('hh:mm');
+
+  SEARCH_COL_WIDTHS.forEach(function(w, i) { sh.setColumnWidth(i + 1, w); });
+  if (sh.getMaxColumns() > 15) sh.hideColumns(16, sh.getMaxColumns() - 15);
+
+  ui.alert('Tab pencarian selesai dibangun.\n\n' +
+    'Ketik apa saja di sel kuning — tanggal (misal 18), registrasi, stand, ' +
+    'nomor penerbangan, atau operator — hasil langsung tampil.\n' +
+    'Kolom DATE = tanggal (sheet harian) asal pergerakan.\n\n' +
+    'Kalau hasil menampilkan kode error (#...), screenshot dan laporkan.');
+}
+
+/**
+ * Borders + auto-fits the current results. Runs from onEdit only when the
+ * query cell (B2) changes — a fraction of a second per search.
+ */
+function styleSearchResults(sh) {
+  SpreadsheetApp.flush();   // make sure the FILTER spill is computed
+  var vals = sh.getRange(5, 1, 900, 1).getDisplayValues();
+  var n = 0;
+  for (var i = vals.length - 1; i >= 0; i--) {
+    if (vals[i][0] !== '') { n = i + 1; break; }
+  }
+  sh.getRange(5, 1, 900, 15).setBorder(false, false, false, false, false, false);
+  if (!n) return;
+  var first = vals[0][0];
+  if (first === 'Tidak ada hasil' || first.charAt(0) === '#') return;
+  sh.getRange(5, 1, n, 15).setBorder(true, true, true, true, true, true);
+  // No autofit — it sized columns to junk text; fixed widths stay stable.
+  SEARCH_COL_WIDTHS.forEach(function(w, i) { sh.setColumnWidth(i + 1, w); });
+}
+
+/**
+ * DASH tab — the PHP dashboard's metrics as pure formulas:
+ *   • KPI row 1: movements / arrivals / departures / on-ground
+ *   • KPI row 2: live apron status (stands free/occupied/RON/planned),
+ *     computed by a per-stand engine identical to the map's rules
+ *   • arrivals/departures by category  • busiest stands (top 10)
+ *   • movements by hour (table + column chart)
+ *   • stand-usage GANTT: stands used today × hours 00-23, red = occupied
+ * Day dropdown in D2. One INDIRECT staging spill; everything else local.
+ */
+function buildDashboard() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ui = SpreadsheetApp.getUi();
+
+  var sh = freshSheet(ss, ui, DASH_SHEET_NAME, 1);
+  if (!sh) return;
+
+  // Seed operator→category into DB!J:K (editable; unlisted = Charter)
+  var db = ss.getSheetByName('DB');
+  if (db && !safeStr(db.getRange(4, 10).getValue()).trim()) {
+    db.getRange(3, 10).setValue('OPERATOR').setFontWeight('bold');
+    db.getRange(3, 11).setValue('CATEGORY').setFontWeight('bold');
+    db.getRange(4, 10, OPERATOR_CATEGORIES.length, 2).setValues(OPERATOR_CATEGORIES);
+  }
+
+  if (sh.getMaxRows() < 355) sh.insertRowsAfter(sh.getMaxRows(), 355 - sh.getMaxRows());
+  if (sh.getMaxColumns() < 80) sh.insertColumnsAfter(sh.getMaxColumns(), 80 - sh.getMaxColumns());
+  sh.setHiddenGridlines(true);
+  sh.setFrozenRows(2);
+
+  // ── Header + day selector ─────────────────────────────────────
+  sh.getRange(1, 1, 1, 26).merge().setValue('📈  AMC DAILY DASHBOARD')
+    .setFontWeight('bold').setFontSize(13).setFontColor('white')
+    .setBackground('#112D4E').setHorizontalAlignment('left').setVerticalAlignment('middle');
+  sh.setRowHeight(1, 30);
+
+  sh.getRange(2, 2, 1, 2).merge().setValue('TGL:').setFontWeight('bold').setHorizontalAlignment('right');
+  var dayList = [];
+  for (var d = 1; d <= 31; d++) dayList.push(d < 10 ? '0' + d : '' + d);
+  sh.getRange(2, 4).setNumberFormat('@')
+    .setDataValidation(SpreadsheetApp.newDataValidation()
+      .requireValueInList(dayList, true).setAllowInvalid(false).build())
+    .setValue(dayList[Math.min(new Date().getDate(), 31) - 1])
+    .setFontWeight('bold').setHorizontalAlignment('center').setBackground('#F9F7F7')
+    .setBorder(true, true, true, true, false, false);
+  sh.getRange(2, 6, 1, 8).merge()
+    .setFormula('=IFERROR("📅 "&TEXT(INDIRECT("\'"&$D$2&"\'!$C$8"),"ddd, dd mmm yyyy"),"—")')
+    .setFontWeight('bold');
+
+  // ── Hidden engine ─────────────────────────────────────────────
+  // Spill AO..BC (41-55 = day cols A..O); hour/category helpers BE..BG
+  // (57-59); per-stand status engine BI..BN (61-66); Gantt bounds BO/BP.
+  sh.getRange(2, 41).setFormula('=IFERROR(INDIRECT("\'"&$D$2&"\'!$A$18:$O$367"),"")');
+
+  // Hour-of-day extractor: real times → HOUR, "09:30" → 9, "0930" → 9,
+  // "-"/"EX RON"/blank → nothing
+  function hourExpr(col) {
+    return '=MAP($' + col + '$2:$' + col + '$351,LAMBDA(v,LET(t,TRIM(TO_TEXT(v)),' +
+      'IF(t="",,IF(ISNUMBER(v),HOUR(v),' +
+      'IF(REGEXMATCH(t,"^\\d{1,2}[:.]\\d{2}"),VALUE(REGEXEXTRACT(t,"^(\\d{1,2})")),' +
+      'IF(REGEXMATCH(t,"^\\d{3,4}$"),VALUE(LEFT(t,LEN(t)-2)),)))))))';
+  }
+  sh.getRange(2, 57).setFormula(hourExpr('AR'));   // BE: arrival hour   (on-block, D)
+  sh.getRange(2, 58).setFormula(hourExpr('AT'));   // BF: departure hour (off-block, F)
+  sh.getRange(2, 59).setFormula(                   // BG: category per movement row
+    '=MAP($BA$2:$BA$351,$AP$2:$AP$351,LAMBDA(op,rg,' +
+    'IF(TRIM(TO_TEXT(rg))="",,LET(o,TRIM(UPPER(TO_TEXT(op))),' +
+    'IF(o="","Charter",IFERROR(VLOOKUP(o,\'DB\'!$J$4:$K$200,2,0),"Charter"))))))');
+
+  // Per-stand status engine (same rules as the map): BI codes, BJ latest
+  // row, BK/BL/BM reg-on-off at that row, BN status av/pl/oc/ro/de
+  var codes = Object.keys(MAP_COORDS);
+  var lastC = 1 + codes.length;
+  sh.getRange(2, 61, codes.length, 1).setValues(codes.map(function(c){ return [c]; }));
+  sh.getRange(2, 62).setFormula(
+    '=MAP($BI$2:$BI$' + lastC + ',LAMBDA(c,IFERROR(XMATCH(c,$AV$2:$AV$351,0,-1),0)))');
+  sh.getRange(2, 63).setFormula(
+    '=MAP($BJ$2:$BJ$' + lastC + ',LAMBDA(i,IF(i=0,"",TO_TEXT(INDEX($AP$2:$AP$351,i)))))');
+  sh.getRange(2, 64).setFormula(
+    '=MAP($BJ$2:$BJ$' + lastC + ',LAMBDA(i,IF(i=0,"",TO_TEXT(INDEX($AR$2:$AR$351,i)))))');
+  sh.getRange(2, 65).setFormula(
+    '=MAP($BJ$2:$BJ$' + lastC + ',LAMBDA(i,IF(i=0,"",TO_TEXT(INDEX($AT$2:$AT$351,i)))))');
+  sh.getRange(2, 66).setFormula(
+    '=MAP($BK$2:$BK$' + lastC + ',$BL$2:$BL$' + lastC + ',$BM$2:$BM$' + lastC +
+    ',LAMBDA(rg,onv,offv,IF(TRIM(rg)="","av",IF(TRIM(offv)<>"","de",' +
+    'LET(o,TRIM(UPPER(onv)),IF(o="","pl",IF(OR(o="-",REGEXMATCH(o,"RON"),REGEXMATCH(o,"\\(")),"ro","oc")))))))');
+
+  // Gantt occupancy bounds per movement row: effOn/effOff hour. Blank when
+  // the row has no stand or hasn't arrived; "-"/"EX RON" count from 00;
+  // still on the ground counts until 23.
+  sh.getRange(2, 67).setFormula(
+    '=MAP($AV$2:$AV$351,$AR$2:$AR$351,$BE$2:$BE$351,LAMBDA(st,onv,h,' +
+    'IF(OR(TRIM(TO_TEXT(st))="",TRIM(TO_TEXT(onv))=""),,IF(ISNUMBER(h),h,0))))');
+  sh.getRange(2, 68).setFormula(
+    '=MAP($AV$2:$AV$351,$AR$2:$AR$351,$BF$2:$BF$351,LAMBDA(st,onv,h,' +
+    'IF(OR(TRIM(TO_TEXT(st))="",TRIM(TO_TEXT(onv))=""),,IF(ISNUMBER(h),h,23))))');
+
+  // ── KPI rows ──────────────────────────────────────────────────
+  function kpi(row, col, label, formula, color) {
+    sh.getRange(row, col, 1, 4).merge().setValue(label)
+      .setFontWeight('bold').setFontSize(9).setFontColor('#4b5563').setHorizontalAlignment('center');
+    sh.getRange(row + 1, col, 2, 4).merge().setFormula(formula)
+      .setFontWeight('bold').setFontSize(20).setHorizontalAlignment('center')
+      .setVerticalAlignment('middle').setBackground(color);
+  }
+  // Row 1: today's movements
+  kpi(4, 2,  'MOVEMENTS',
+    '=IFERROR(ROWS(FILTER($AP$2:$AP$351,ARRAYFORMULA(TRIM(TO_TEXT($AP$2:$AP$351))<>""))),0)', '#DBE2EF');
+  kpi(4, 7,  'ARRIVALS',   '=COUNT($BE$2:$BE$351)', '#dcfce7');
+  kpi(4, 12, 'DEPARTURES', '=COUNT($BF$2:$BF$351)', '#ffedd5');
+  kpi(4, 17, 'ON GROUND',
+    '=IFERROR(ROWS(FILTER($AP$2:$AP$351,ARRAYFORMULA((TRIM(TO_TEXT($AP$2:$AP$351))<>"")*' +
+    '(TRIM(TO_TEXT($AR$2:$AR$351))<>"")*(TRIM(TO_TEXT($AT$2:$AT$351))="")))),0)', '#fee2e2');
+  // Row 2: live apron status (the PHP dashboard's status card)
+  kpi(8, 2,  'STANDS FREE',
+    '=COUNTIF($BN$2:$BN$' + lastC + ',"av")+COUNTIF($BN$2:$BN$' + lastC + ',"de")', '#dcfce7');
+  kpi(8, 7,  'STANDS OCCUPIED', '=COUNTIF($BN$2:$BN$' + lastC + ',"oc")', '#fee2e2');
+  kpi(8, 12, 'STANDS RON',      '=COUNTIF($BN$2:$BN$' + lastC + ',"ro")', '#fef9c3');
+  kpi(8, 17, 'STANDS PLANNED',  '=COUNTIF($BN$2:$BN$' + lastC + ',"pl")', '#ffedd5');
+
+  // ── By category (rows 12-16) ──────────────────────────────────
+  sh.getRange(12, 2, 1, 3).setValues([['CATEGORY', 'ARR', 'DEP']])
+    .setFontWeight('bold').setBackground('#DBE2EF').setHorizontalAlignment('center');
+  ['Commercial', 'Cargo', 'Military', 'Charter'].forEach(function(cat, i) {
+    var r = 13 + i;
+    sh.getRange(r, 2).setValue(cat).setFontWeight('bold');
+    sh.getRange(r, 3).setFormula('=COUNTIFS($BG$2:$BG$351,"' + cat + '",$BE$2:$BE$351,">=0")')
+      .setHorizontalAlignment('center');
+    sh.getRange(r, 4).setFormula('=COUNTIFS($BG$2:$BG$351,"' + cat + '",$BF$2:$BF$351,">=0")')
+      .setHorizontalAlignment('center');
+  });
+
+  // ── Busiest stands (rows 19-29) ───────────────────────────────
+  sh.getRange(19, 2, 1, 3).merge().setValue('BUSIEST STANDS (TOP 10)')
+    .setFontWeight('bold').setBackground('#DBE2EF').setHorizontalAlignment('center');
+  sh.getRange(20, 2).setFormula(
+    '=IFERROR(ARRAY_CONSTRAIN(SORT(LET(' +
+    's,FILTER($AV$2:$AV$351,ARRAYFORMULA(TRIM(TO_TEXT($AV$2:$AV$351))<>"")),' +
+    'u,UNIQUE(s),HSTACK(u,MAP(u,LAMBDA(x,COUNTIF(s,x))))),2,FALSE),10,2),"—")');
+
+  // ── Movements by hour: table G12:I36 + chart ──────────────────
+  sh.getRange(12, 7, 1, 3).setValues([['HOUR', 'ARR', 'DEP']])
+    .setFontWeight('bold').setBackground('#DBE2EF').setHorizontalAlignment('center');
+  var hrs = [], fArr = [], fDep = [];
+  for (var h = 0; h < 24; h++) {
+    var r2 = 13 + h;
+    hrs.push([h]);
+    fArr.push(['=COUNTIF($BE$2:$BE$351,$G$' + r2 + ')']);
+    fDep.push(['=COUNTIF($BF$2:$BF$351,$G$' + r2 + ')']);
+  }
+  sh.getRange(13, 7, 24, 1).setValues(hrs).setHorizontalAlignment('center');
+  sh.getRange(13, 8, 24, 1).setFormulas(fArr).setHorizontalAlignment('center');
+  sh.getRange(13, 9, 24, 1).setFormulas(fDep).setHorizontalAlignment('center');
+
+  sh.insertChart(sh.newChart().asColumnChart()
+    .addRange(sh.getRange(12, 7, 25, 3))
+    .setPosition(12, 11, 0, 0)
+    .setOption('title', 'Movements by hour')
+    .setOption('legend', { position: 'top' })
+    .build());
+
+  // ── Stand-usage Gantt chart (floats below, from row 31) ───────
+  // Sheets has no native Gantt chart type — classic trick instead: a
+  // STACKED BAR per stand, with an invisible (white) lead segment = start
+  // hour and a red segment = occupied duration. Data table at BS:BU.
+  // ALL 83 stands are listed (static values, map order); unused stands
+  // get 0/0 = a zero-length bar, so the chart can never drop their rows.
+  // ponytail: one bar per stand (earliest arrival → latest departure);
+  // gaps between two visits on the same stand merge into one bar
+  sh.getRange(1, 71, 1, 3).setValues([['STAND', 'MULAI', 'DURASI']]);
+  var allCodes = Object.keys(MAP_COORDS);
+  sh.getRange(2, 71, allCodes.length, 1).setValues(allCodes.map(function(c){ return [c]; }));
+  // MULAI/DURASI per row with COUNTIFS/MINIFS/MAXIFS — static native
+  // formulas, no LAMBDA anywhere in the chart's data path (the MAP/FILTER
+  // version rendered once and then went blank on recalc).
+  var GHAS = 'COUNTIFS($AV$2:$AV$351,$BS$ROW,$BO$2:$BO$351,">=0")=0';
+  var fStart = [], fDur = [];
+  for (var g = 2; g < 2 + allCodes.length; g++) {
+    var has = GHAS.replace(/ROW/g, g);
+    fStart.push(['=IF(' + has + ',0,MINIFS($BO$2:$BO$351,$AV$2:$AV$351,$BS$' + g + '))']);
+    fDur.push(['=IF(' + has + ',0,MAXIFS($BP$2:$BP$351,$AV$2:$AV$351,$BS$' + g + ')-$BT$' + g + '+1)']);
+  }
+  sh.getRange(2, 72, allCodes.length, 1).setFormulas(fStart);
+  sh.getRange(2, 73, allCodes.length, 1).setFormulas(fDur);
+
+  sh.insertChart(sh.newChart().asBarChart()
+    .addRange(sh.getRange(1, 71, 1 + allCodes.length, 3))
+    .setPosition(31, 2, 0, 0)
+    .setOption('title', 'Stand Usage — Gantt (jam 00-23, semua stand)')
+    .setOption('isStacked', true)
+    .setOption('legend', { position: 'none' })
+    .setOption('series', { 0: { color: 'white' }, 1: { color: '#c62828' } })
+    .setOption('hAxis', { minValue: 0, maxValue: 24, ticks: [0, 4, 8, 12, 16, 20, 24] })
+    .setOption('height', 1400)
+    .build());
+
+  sh.setColumnWidth(2, 90);
+
+  // Charts ignore hidden columns — the Gantt data (BS:BU, 71-73) must stay
+  // visible. It lands right after the dashboard content as a small table.
+  sh.hideColumns(27, 44);   // 27-70: gap + spill + helpers + stand engine
+  sh.hideColumns(74, 7);    // 74-80
+  sh.getRange(1, 71, 1, 3).setFontWeight('bold').setBackground('#EEF3FA');
+
+  ui.alert('Dashboard selesai dibangun.\n\n' +
+    '• Pilih tanggal di D2 — semua angka, grafik jam, dan Gantt langsung diperbarui.\n' +
+    '• Pemetaan operator→kategori ada di kolom J:K sheet DB (bisa diedit; ' +
+    'operator di luar daftar dihitung Charter).\n' +
+    '• Murni formula — nol kuota, aman dibuka seharian.');
 }

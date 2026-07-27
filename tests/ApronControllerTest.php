@@ -21,15 +21,6 @@ final class TestApplication extends Application
         ];
         $this->router = new Router($this);
     }
-
-    public function basePath(string $path = ''): string
-    {
-        if ($path === '') {
-            return $this->basePath;
-        }
-
-        return $this->basePath . DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR);
-    }
 }
 
 final class FakeAuthManager extends AuthManager

@@ -49,11 +49,4 @@ class CsrfManager
 
         return $_SESSION[$this->sessionKey];
     }
-
-    public function inputField(string $name = 'csrf_token'): string
-    {
-        $token = $this->token();
-
-        return '<input type="hidden" name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '" value="' . htmlspecialchars($token, ENT_QUOTES, 'UTF-8') . '">';
-    }
 }

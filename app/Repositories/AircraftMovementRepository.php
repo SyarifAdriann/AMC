@@ -10,6 +10,12 @@ use Throwable;
 class AircraftMovementRepository extends Repository
 {
     /**
+     * Stands that can hold an aircraft. Movements parked anywhere else (HGR,
+     * retired codes) are excluded from arrival/departure counts.
+     */
+    private const ACTIVE_STANDS = '(SELECT stand_name FROM stands WHERE capacity > 0)';
+
+    /**
      * @return AircraftMovement[]
      */
     public function findByDateWithDetails(string $date): array
@@ -49,16 +55,15 @@ class AircraftMovementRepository extends Repository
     {
         // Arrivals: counted on on_block_date (COALESCE fallback for legacy records without on_block_date)
         // Departures: counted on off_block_date so RON departures appear on the correct day
-        // Note: capacity column does not exist on stands table; use status = 'active' instead
         $stmt = $this->pdo->prepare(
             "SELECT
                 SUM(CASE WHEN COALESCE(am.on_block_date, am.movement_date) = ?
                          AND am.on_block_time IS NOT NULL AND am.on_block_time != '' AND am.on_block_time != 'EX RON'
-                         AND am.parking_stand IN (SELECT stand_name FROM stands WHERE capacity > 0)
+                         AND am.parking_stand IN " . self::ACTIVE_STANDS . "
                     THEN 1 ELSE 0 END) AS total_arrivals,
                 SUM(CASE WHEN am.off_block_date = ?
                          AND am.off_block_time IS NOT NULL AND am.off_block_time != ''
-                         AND am.parking_stand IN (SELECT stand_name FROM stands WHERE capacity > 0)
+                         AND am.parking_stand IN " . self::ACTIVE_STANDS . "
                     THEN 1 ELSE 0 END) AS total_departures
              FROM aircraft_movements am
              WHERE (COALESCE(am.on_block_date, am.movement_date) = ? OR am.off_block_date = ?)"
@@ -105,7 +110,7 @@ class AircraftMovementRepository extends Repository
                  FROM aircraft_movements
                  WHERE COALESCE(on_block_date, movement_date) = ?
                    AND on_block_time IS NOT NULL AND on_block_time != '' AND on_block_time != 'EX RON'
-                   AND parking_stand IN (SELECT stand_name FROM stands WHERE capacity > 0)
+                   AND parking_stand IN " . self::ACTIVE_STANDS . "
                  UNION ALL
                  SELECT
                      CAST(SUBSTRING_INDEX(off_block_time, ':', 1) AS UNSIGNED) AS hour_val,
@@ -113,7 +118,7 @@ class AircraftMovementRepository extends Repository
                  FROM aircraft_movements
                  WHERE off_block_date = ?
                    AND off_block_time IS NOT NULL AND off_block_time != ''
-                   AND parking_stand IN (SELECT stand_name FROM stands WHERE capacity > 0)
+                   AND parking_stand IN " . self::ACTIVE_STANDS . "
              ) combined
              GROUP BY FLOOR(hour_val/2)
              ORDER BY time_range"
@@ -132,11 +137,11 @@ class AircraftMovementRepository extends Repository
                 COALESCE(ad.category, 'charter') AS category,
                 SUM(CASE WHEN COALESCE(am.on_block_date, am.movement_date) = ?
                          AND am.on_block_time IS NOT NULL AND am.on_block_time != '' AND am.on_block_time != 'EX RON'
-                         AND am.parking_stand IN (SELECT stand_name FROM stands WHERE capacity > 0)
+                         AND am.parking_stand IN " . self::ACTIVE_STANDS . "
                     THEN 1 ELSE 0 END) AS arrivals,
                 SUM(CASE WHEN am.off_block_date = ?
                          AND am.off_block_time IS NOT NULL AND am.off_block_time != ''
-                         AND am.parking_stand IN (SELECT stand_name FROM stands WHERE capacity > 0)
+                         AND am.parking_stand IN " . self::ACTIVE_STANDS . "
                     THEN 1 ELSE 0 END) AS departures
              FROM aircraft_movements am
              LEFT JOIN aircraft_details ad ON am.registration = ad.registration
@@ -670,7 +675,7 @@ class AircraftMovementRepository extends Repository
             "SELECT COUNT(DISTINCT parking_stand)
              FROM aircraft_movements
              WHERE is_ron = 1 AND ron_complete = 0
-               AND parking_stand IN (SELECT stand_name FROM stands WHERE capacity > 0)"
+               AND parking_stand IN " . self::ACTIVE_STANDS
         );
         $stmt->execute();
 

@@ -5,7 +5,7 @@ namespace App\Core;
 class Container
 {
     /**
-     * @var array<string, callable|mixed>
+     * @var array<string, callable>
      */
     protected array $bindings = [];
 
@@ -15,19 +15,12 @@ class Container
     protected array $instances = [];
 
     /**
-     * Register a binding.
-     */
-    public function bind(string $abstract, callable $concrete, bool $shared = false): void
-    {
-        $this->bindings[$abstract] = ['factory' => $concrete, 'shared' => $shared];
-    }
-
-    /**
-     * Register a singleton binding.
+     * Register a singleton binding. Every binding is shared: the factory runs
+     * once and make() returns that same instance thereafter.
      */
     public function singleton(string $abstract, callable $concrete): void
     {
-        $this->bind($abstract, $concrete, true);
+        $this->bindings[$abstract] = $concrete;
     }
 
     /**
@@ -51,14 +44,7 @@ class Container
             throw new \RuntimeException("No binding registered for {$abstract}");
         }
 
-        $binding = $this->bindings[$abstract];
-        $object = ($binding['factory'])($this);
-
-        if ($binding['shared']) {
-            $this->instances[$abstract] = $object;
-        }
-
-        return $object;
+        return $this->instances[$abstract] = ($this->bindings[$abstract])($this);
     }
 
     /**
@@ -69,4 +55,3 @@ class Container
         $this->instances[$abstract] = $instance;
     }
 }
-

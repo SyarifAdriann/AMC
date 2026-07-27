@@ -58,14 +58,6 @@ class Application extends Container
     }
 
     /**
-     * Merge additional configuration.
-     */
-    public function mergeConfig(array $config): void
-    {
-        $this->config = array_replace_recursive($this->config, $config);
-    }
-
-    /**
      * Access the router instance.
      */
     public function router(): Router

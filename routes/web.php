@@ -6,13 +6,6 @@ use App\Controllers\MasterTableController;
 use App\Controllers\DashboardController;
 use App\Middleware\AuthMiddleware;
 
-$legacyPage = function (string $script) {
-    return function () use ($script) {
-        require dirname(__DIR__) . '/' . ltrim($script, '/');
-        return '';
-    };
-};
-
 foreach (["/login", "/login.php"] as $path) {
     $router->get($path, [AuthController::class, 'showLoginForm']);
     $router->post($path, [AuthController::class, 'login']);

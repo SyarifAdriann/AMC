@@ -13,9 +13,6 @@
   "author": "",
   "license": "ISC",
   "description": "",
-  "dependencies": {
-    "puppeteer": "^24.26.1"
-  },
   "devDependencies": {
     "autoprefixer": "^10.4.22",
     "jsdom": "^29.1.1",

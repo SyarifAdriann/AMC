@@ -7,11 +7,44 @@ use PDO;
 
 class ReportService
 {
+    /**
+     * Movement-detail report columns, in display order: db field => header.
+     * Shared by the HTML and CSV renderers so the two can never drift apart.
+     */
+    private const MOVEMENT_COLUMNS = [
+        'id' => 'ID',
+        'registration' => 'Registration',
+        'aircraft_type' => 'Type',
+        'on_block_time' => 'On Block',
+        'off_block_time' => 'Off Block',
+        'parking_stand' => 'Stand',
+        'from_location' => 'From',
+        'to_location' => 'To',
+        'flight_no_arr' => 'Arr Flight',
+        'flight_no_dep' => 'Dep Flight',
+        'operator_airline' => 'Operator',
+        'remarks' => 'Remarks',
+        'is_ron' => 'RON',
+        'movement_date' => 'Date',
+    ];
+
     protected PDO $pdo;
 
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
+    }
+
+    /**
+     * is_ron renders as Yes/No; every other column is a plain string.
+     */
+    private static function cell(array $row, string $field): string
+    {
+        if ($field === 'is_ron') {
+            return ($row['is_ron'] ?? 0) ? 'Yes' : 'No';
+        }
+
+        return (string) ($row[$field] ?? '');
     }
 
     public function fetchReportData(string $type, string $dateFrom, string $dateTo): array
@@ -78,24 +111,18 @@ class ReportService
                 $html .= "<tr><td>" . htmlspecialchars($row['date'] ?? '', ENT_QUOTES, 'UTF-8') . "</td><td>" . htmlspecialchars((string) ($row['total'] ?? ''), ENT_QUOTES, 'UTF-8') . "</td></tr>";
             }
         } else {
-            $html .= "<table border='1'><tr><th>ID</th><th>Registration</th><th>Type</th><th>On Block</th><th>Off Block</th><th>Stand</th><th>From</th><th>To</th><th>Arr Flight</th><th>Dep Flight</th><th>Operator</th><th>Remarks</th><th>RON</th><th>Date</th></tr>";
+            $html .= "<table border='1'><tr>";
+            foreach (self::MOVEMENT_COLUMNS as $header) {
+                $html .= '<th>' . $header . '</th>';
+            }
+            $html .= '</tr>';
+
             foreach ($data as $row) {
-                $html .= '<tr>'
-                    . '<td>' . htmlspecialchars($row['id'] ?? '', ENT_QUOTES, 'UTF-8') . '</td>'
-                    . '<td>' . htmlspecialchars($row['registration'] ?? '', ENT_QUOTES, 'UTF-8') . '</td>'
-                    . '<td>' . htmlspecialchars($row['aircraft_type'] ?? '', ENT_QUOTES, 'UTF-8') . '</td>'
-                    . '<td>' . htmlspecialchars($row['on_block_time'] ?? '', ENT_QUOTES, 'UTF-8') . '</td>'
-                    . '<td>' . htmlspecialchars($row['off_block_time'] ?? '', ENT_QUOTES, 'UTF-8') . '</td>'
-                    . '<td>' . htmlspecialchars($row['parking_stand'] ?? '', ENT_QUOTES, 'UTF-8') . '</td>'
-                    . '<td>' . htmlspecialchars($row['from_location'] ?? '', ENT_QUOTES, 'UTF-8') . '</td>'
-                    . '<td>' . htmlspecialchars($row['to_location'] ?? '', ENT_QUOTES, 'UTF-8') . '</td>'
-                    . '<td>' . htmlspecialchars($row['flight_no_arr'] ?? '', ENT_QUOTES, 'UTF-8') . '</td>'
-                    . '<td>' . htmlspecialchars($row['flight_no_dep'] ?? '', ENT_QUOTES, 'UTF-8') . '</td>'
-                    . '<td>' . htmlspecialchars($row['operator_airline'] ?? '', ENT_QUOTES, 'UTF-8') . '</td>'
-                    . '<td>' . htmlspecialchars($row['remarks'] ?? '', ENT_QUOTES, 'UTF-8') . '</td>'
-                    . '<td>' . ((($row['is_ron'] ?? 0) ? 'Yes' : 'No')) . '</td>'
-                    . '<td>' . htmlspecialchars($row['movement_date'] ?? '', ENT_QUOTES, 'UTF-8') . '</td>'
-                    . '</tr>';
+                $html .= '<tr>';
+                foreach (array_keys(self::MOVEMENT_COLUMNS) as $field) {
+                    $html .= '<td>' . htmlspecialchars(self::cell($row, $field), ENT_QUOTES, 'UTF-8') . '</td>';
+                }
+                $html .= '</tr>';
             }
         }
 
@@ -114,24 +141,13 @@ class ReportService
                 fputcsv($handle, [$row['date'] ?? '', $row['total'] ?? 0]);
             }
         } else {
-            fputcsv($handle, ['ID', 'Registration', 'Type', 'On Block', 'Off Block', 'Stand', 'From', 'To', 'Arr Flight', 'Dep Flight', 'Operator', 'Remarks', 'RON', 'Date']);
+            fputcsv($handle, array_values(self::MOVEMENT_COLUMNS));
             foreach ($data as $row) {
-                fputcsv($handle, [
-                    $row['id'] ?? '',
-                    $row['registration'] ?? '',
-                    $row['aircraft_type'] ?? '',
-                    $row['on_block_time'] ?? '',
-                    $row['off_block_time'] ?? '',
-                    $row['parking_stand'] ?? '',
-                    $row['from_location'] ?? '',
-                    $row['to_location'] ?? '',
-                    $row['flight_no_arr'] ?? '',
-                    $row['flight_no_dep'] ?? '',
-                    $row['operator_airline'] ?? '',
-                    $row['remarks'] ?? '',
-                    (($row['is_ron'] ?? 0) ? 'Yes' : 'No'),
-                    $row['movement_date'] ?? '',
-                ]);
+                $line = [];
+                foreach (array_keys(self::MOVEMENT_COLUMNS) as $field) {
+                    $line[] = self::cell($row, $field);
+                }
+                fputcsv($handle, $line);
             }
         }
 
@@ -166,8 +182,6 @@ class ReportService
 
     public function buildMonthlyCharterHtml(array $data, string $month, string $year): string
     {
-        error_log('Month type: ' . gettype($month) . ', value: ' . $month);
-        error_log('Year type: ' . gettype($year) . ', value: ' . $year);
         $timestamp = mktime(0, 0, 0, (int) $month, 1, (int) $year);
         $title = date('F Y', $timestamp);
 
