@@ -9,6 +9,8 @@ class Request
     protected array $query;
     protected array $body;
     protected array $server;
+    protected array $files;
+    protected array $cookies;
     protected array $headers;
     protected ?string $basePath = null;
 
@@ -19,7 +21,9 @@ class Request
             $_SERVER['REQUEST_URI'] ?? '/',
             $_GET,
             $_POST,
-            $_SERVER
+            $_SERVER,
+            $_FILES,
+            $_COOKIE
         );
     }
 
@@ -28,13 +32,17 @@ class Request
         string $uri,
         array $query = [],
         array $body = [],
-        array $server = []
+        array $server = [],
+        array $files = [],
+        array $cookies = []
     ) {
         $this->method = strtoupper($method);
         $this->uri = $uri;
         $this->query = $query;
         $this->body = $body;
         $this->server = $server;
+        $this->files = $files;
+        $this->cookies = $cookies;
         $this->headers = $this->gatherHeaders($server);
     }
 
@@ -63,6 +71,11 @@ class Request
     public function method(): string
     {
         return $this->method;
+    }
+
+    public function uri(): string
+    {
+        return $this->uri;
     }
 
     public function path(): string
@@ -171,6 +184,15 @@ class Request
         return $decoded[$key] ?? $default;
     }
 
+    public function server(string $key = null, $default = null)
+    {
+        if ($key === null) {
+            return $this->server;
+        }
+
+        return $this->server[$key] ?? $default;
+    }
+
     public function header(string $key = null, $default = null)
     {
         if ($key === null) {
@@ -178,6 +200,24 @@ class Request
         }
 
         return $this->headers[$key] ?? $default;
+    }
+
+    public function files(string $key = null)
+    {
+        if ($key === null) {
+            return $this->files;
+        }
+
+        return $this->files[$key] ?? null;
+    }
+
+    public function cookies(string $key = null, $default = null)
+    {
+        if ($key === null) {
+            return $this->cookies;
+        }
+
+        return $this->cookies[$key] ?? $default;
     }
 }
 
