@@ -314,19 +314,15 @@ SECTION 7 - FINISHING UP
 SECTION 8 - STILL OUTSTANDING  (not done as of 29 Jul 2026)
 ===============================================================================
 
-1. DEFAULT PASSWORDS HAVE NOT BEEN CHANGED.
-   The app is publicly reachable at http://178.83.188.238 on default
-   credentials. Change them: Dashboard -> Manage Accounts.
-   Do this before showing anyone.
+1. NO HTTPS. Traffic including passwords travels in clear text over plain
+   HTTP. Fine on a closed demo, worth fixing before real daily use.
 
-2. NO HTTPS. Traffic including passwords travels in clear text.
-
-3. Branch DOCKER is behind branch main. That divergence is what broke the ML
+2. Branch DOCKER is behind branch main. That divergence is what broke the ML
    feature on 29 Jul (the server had numpy 1.26 pinned while the model needed
    numpy 2.x). It will cause the same class of problem again until the two
    branches are reconciled.
 
-4. API errors are silent in the UI. A server error on the recommendation
+3. API errors are silent in the UI. A server error on the recommendation
    endpoint shows only "Unable to fetch recommendations" and hides the real
    message in the browser console.
 
