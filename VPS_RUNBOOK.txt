@@ -1,0 +1,333 @@
+===============================================================================
+AMC VPS RUNBOOK
+Server: root@178.83.188.238  (Kencang K-2, Ubuntu 22.04, 2 vCPU / 2GB / 20GB)
+App:    http://178.83.188.238
+Repo:   https://github.com/SyarifAdriann/AMC   branch: DOCKER
+Path:   /opt/amc
+Last verified: 29 July 2026, commit 3c31919
+===============================================================================
+
+READ THIS FIRST
+---------------
+Run commands ONE AT A TIME. Wait for the prompt (root@AMCHLPtest:...#) to come
+back before pasting the next one.
+
+NEVER paste terminal output back into the terminal. If the screen fills with
+"command not found" errors, that is what happened. It is harmless - press
+Ctrl+L to clear the screen and carry on.
+
+Press Ctrl+L before pasting anything. It clears the screen so there is no old
+text to accidentally copy.
+
+
+===============================================================================
+SECTION 1 - CONNECT
+===============================================================================
+
+STEP 1.1  Open PowerShell on the laptop, then:
+
+    ssh root@178.83.188.238
+
+  It asks for the password. Nothing appears as you type - that is normal.
+  Press Enter when done.
+
+  EXPECTED:
+    Welcome to Ubuntu 22.04.5 LTS (GNU/Linux 5.15.0-186-generic x86_64)
+    ...
+    root@AMCHLPtest:~#
+
+  FIRST TIME ON A NEW LAPTOP you will also see:
+    The authenticity of host '178.83.188.238' can't be established.
+    ECDSA key fingerprint is SHA256:...
+    Are you sure you want to continue connecting (yes/no)?
+  Type  yes  and press Enter. This only happens once per laptop.
+
+
+STEP 1.2  Move into the project folder. SSH drops you in /root, not here.
+
+    cd /opt/amc
+
+  EXPECTED:
+    root@AMCHLPtest:/opt/amc#
+
+  The prompt changing to /opt/amc is the confirmation. No other output.
+
+
+===============================================================================
+SECTION 2 - HEALTH CHECK  (run this first, every time)
+===============================================================================
+
+STEP 2.1  Are the containers running?
+
+    docker compose ps
+
+  EXPECTED: three containers.
+    amc_app          ... Up ...
+    amc_db           ... Up (healthy) ...
+    amc_db_backup    ... Up ...
+
+  If amc_app says "Exited" or "Restarting", go to SECTION 6.
+
+
+STEP 2.2  Which version of the code is live?
+
+    git log --oneline -1
+
+  EXPECTED (or newer):
+    3c31919 feat(admin): save/restore versions of movement data
+
+
+STEP 2.3  Is the ML predictor healthy?
+
+    docker exec amc_app /opt/venv/bin/python3 -c "import numpy,sklearn; print(numpy.__version__, sklearn.__version__)"
+
+  EXPECTED, exactly:
+    2.4.2 1.7.2
+
+  IF IT SAYS 1.26.4 - the stand recommendation feature is broken. Go to
+  SECTION 6, problem C.
+
+
+STEP 2.4  Does the model actually load and predict?
+
+    docker exec amc_app sh -c 'echo "{\"aircraft_type\":\"B737\",\"operator_airline\":\"BATIK AIR\",\"category\":\"Commercial\"}" > /tmp/p.json'
+
+  EXPECTED: nothing at all. Silence means success.
+
+  Then:
+
+    docker exec amc_app bash -c 'time /opt/venv/bin/python3 /var/www/html/ml/predict.py < /tmp/p.json'
+
+  EXPECTED: a long line of JSON starting with {"success": true, ... followed by
+
+    real    0m2.378s
+    user    0m2.230s
+    sys     0m0.399s
+
+  The "real" number must stay under 6 seconds. The app kills the predictor at
+  6s. 2-3s is normal.
+
+  NOTE: it must be  bash -c  here, not  sh -c . The container's sh has no
+  "time" command and will say "sh: 1: time: not found".
+
+
+===============================================================================
+SECTION 3 - DEPLOY AN UPDATE  (pull new code from GitHub)
+===============================================================================
+
+Only needed when there is new code to pick up. Run in order.
+
+STEP 3.1  Throw away any accidental local edits on the server.
+
+    git checkout HEAD -- .
+
+  EXPECTED: nothing. Silence means success.
+
+  WHY "HEAD": plain  git checkout -- .  restores from the staging area, not
+  from the commit. If a file was ever staged, the plain form silently does
+  nothing and STEP 3.2 will abort. HEAD always wins.
+
+
+STEP 3.2  Pull the new code.
+
+    git pull
+
+  EXPECTED, something like:
+    Updating 0cba94e..3c31919
+    Fast-forward
+     9 files changed, 653 insertions(+), 5 deletions(-)
+
+  ALREADY UP TO DATE is also fine:
+    Already up to date.
+
+  IF YOU SEE "Aborting" or "local changes would be overwritten":
+  STEP 3.1 did not work. Run it again exactly as written, then retry.
+
+
+STEP 3.3  Confirm the new code is really there BEFORE building.
+
+    git log --oneline -1
+
+  EXPECTED: the new commit hash. If it is the old one, do not build - the
+  pull did not take. Re-run 3.1 and 3.2.
+
+
+STEP 3.4  Rebuild and restart.
+
+    docker compose up -d --build
+
+  EXPECTED, at the end:
+    [+] up 4/4
+     v Image amc-app           Built
+     v Container amc_db_backup Running
+     v Container amc_db        Healthy
+     v Container amc_app       Started
+
+  HOW LONG: 2-4 seconds if only PHP/JS changed (every layer says CACHED).
+  About 200 seconds if ml/requirements.txt changed (it re-downloads the
+  Python packages). A fast build means nothing changed in the Python deps -
+  that is normal and fine.
+
+
+STEP 3.5  Re-run SECTION 2 to confirm everything still works.
+
+
+===============================================================================
+SECTION 4 - USING MOVEMENT DATA VERSIONS  (the demo save/restore feature)
+===============================================================================
+
+This is all done in the browser, not the terminal. Admin login required.
+
+  Dashboard  ->  Movement Data Versions   (button next to Manage Accounts)
+
+WHAT IT DOES
+  Saves and restores the movement records only (aircraft_movements).
+  Logins, aircraft details, stands and ML logs are never touched.
+
+EVERY destructive action saves the current state first. Nothing is one-way.
+
+
+STEP 4.1  BEFORE the demo - save the current state.
+  Type a name, e.g.   Dummy data before staff demo
+  Click  Save current state
+  EXPECTED: green message, and the version appears in the list below with
+  today's date and the movement count.
+
+
+STEP 4.2  Clear the apron for live data.
+  Click  Wipe all movements - start clean
+  Confirm the dialog.
+  EXPECTED: green message. The list gains a new greyed entry called
+  "Auto-save before restore - <date time>". That auto-save IS your safety net.
+
+  The apron is now empty and ready for real operational data.
+
+
+STEP 4.3  AFTER the demo day - save the real data.
+  Type a name, e.g.   End of first live day 30 Jul
+  Click  Save current state
+
+
+STEP 4.4  Go back to any earlier state.
+  Find the version in the list, click  Restore , confirm.
+  EXPECTED: green message saying how many movements were restored.
+  Your pre-restore state is auto-saved first, so you can always come back.
+
+GREYED ENTRIES are automatic safety saves. Normal entries are ones you named.
+DELETE only removes the saved copy. It never touches current movement records.
+
+
+===============================================================================
+SECTION 5 - VERIFY THE SAVE/RESTORE LOGIC  (optional, safe on live data)
+===============================================================================
+
+Proves save -> wipe -> restore returns every row and ID identical. It saves
+your live data first and puts it back at the end, then cleans up after itself.
+
+STEP 5.1
+    docker cp /opt/amc/tests/movement_versions_check.php amc_app:/tmp/check.php
+
+  EXPECTED:
+    Successfully copied ... to amc_app:/tmp/check.php
+
+STEP 5.2
+    docker exec amc_app php /tmp/check.php
+
+  EXPECTED, last lines:
+    Restore returned N movements, IDs and values identical
+    PASS
+    Cleaned up self-check versions
+
+  Anything other than PASS - do not use the feature, send me the output.
+
+
+===============================================================================
+SECTION 6 - WHEN SOMETHING IS BROKEN
+===============================================================================
+
+PROBLEM A - The website will not load at all
+    docker compose ps
+  If amc_app is not "Up":
+    docker compose up -d
+  Then read the last 50 log lines:
+    docker logs --tail 50 amc_app
+
+
+PROBLEM B - "Get AI Recommendations" spins then shows nothing
+  The real error is hidden in the browser console, not on screen.
+  In the browser: press F12 -> Network tab -> click the button ->
+  click the "recommend" row -> Response tab. That shows the actual message.
+
+  Then check the predictor from the terminal - SECTION 2, steps 2.3 and 2.4.
+
+
+PROBLEM C - numpy says 1.26.4 instead of 2.4.2
+  This breaks stand recommendations. The model needs numpy 2.x.
+    git checkout HEAD -- ml/requirements.txt
+    git pull
+    docker compose up -d --build
+  Takes ~200 seconds. Then re-check with step 2.3.
+
+
+PROBLEM D - "git pull" says Aborting / local changes would be overwritten
+    git checkout HEAD -- .
+    git pull
+  Note the HEAD. Without it the command silently does nothing.
+
+
+PROBLEM E - Screen full of "command not found" / ": No such file or directory"
+  You pasted terminal output back into the terminal. Nothing is broken.
+    Ctrl+L
+  to clear, then carry on. If it is unreadable, type  exit  , close the
+  window, and start again from SECTION 1.
+
+
+PROBLEM F - Database looks wrong / need to see the raw data
+    docker exec amc_db mysql -uroot -pMikeCharlieHLP amc -e "SELECT COUNT(*) FROM aircraft_movements;"
+
+  EXPECTED: a table with one number.
+
+  List the saved versions from the terminal:
+    docker exec amc_db mysql -uroot -pMikeCharlieHLP amc -e "SELECT id,label,is_auto,row_count,created_at FROM movement_versions ORDER BY id DESC;"
+
+
+PROBLEM G - Total disaster, need the nightly backup
+  Backups are written daily to /opt/amc/backups/ and kept 14 days.
+    ls -lh /opt/amc/backups/
+  Restore one (THIS OVERWRITES THE WHOLE DATABASE):
+    docker exec -i amc_db mysql -uroot -pMikeCharlieHLP amc < /opt/amc/backups/amc_<date>.sql
+
+
+===============================================================================
+SECTION 7 - FINISHING UP
+===============================================================================
+
+    exit
+
+  EXPECTED: back at  PS C:\Users\...>
+
+  Closing SSH does NOT stop the app. The containers keep running. SSH is just
+  a remote keyboard.
+
+
+===============================================================================
+SECTION 8 - STILL OUTSTANDING  (not done as of 29 Jul 2026)
+===============================================================================
+
+1. DEFAULT PASSWORDS HAVE NOT BEEN CHANGED.
+   The app is publicly reachable at http://178.83.188.238 on default
+   credentials. Change them: Dashboard -> Manage Accounts.
+   Do this before showing anyone.
+
+2. NO HTTPS. Traffic including passwords travels in clear text.
+
+3. Branch DOCKER is behind branch main. That divergence is what broke the ML
+   feature on 29 Jul (the server had numpy 1.26 pinned while the model needed
+   numpy 2.x). It will cause the same class of problem again until the two
+   branches are reconciled.
+
+4. API errors are silent in the UI. A server error on the recommendation
+   endpoint shows only "Unable to fetch recommendations" and hides the real
+   message in the browser console.
+
+===============================================================================
