@@ -11,7 +11,8 @@ $bodyAttributes = 'id="dashboard-page"';
 $scripts = [
     'assets/js/mobile-adaptations.js',
     'assets/js/amc-http.js?v=1.0',
-    'assets/js/dashboard.js?v=' . time()
+    'assets/js/dashboard.js?v=' . time(),
+    'assets/js/movement-versions.js?v=' . time()
 ];
 ob_start();
 ?>
@@ -35,7 +36,8 @@ $hasRole = function ($roles) use ($user_role) {
                 mlMetrics: 'api/ml/metrics',
                 mlLogs: 'api/ml/logs',
                 userAdmin: 'api/admin/users',
-                snapshots: 'api/snapshots'
+                snapshots: 'api/snapshots',
+                movementVersions: 'api/movement-versions'
             }
         };
     </script>
@@ -360,6 +362,7 @@ $hasRole = function ($roles) use ($user_role) {
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
                             <?php if ($hasRole('admin')): ?>
                             <button class="bg-gray-600 hover:bg-gray-700 text-white text-center p-4 rounded-lg font-semibold transition-colors duration-300" data-modal-target="accountsModalBg">Manage Accounts</button>
+                            <button class="bg-gray-600 hover:bg-gray-700 text-white text-center p-4 rounded-lg font-semibold transition-colors duration-300" data-modal-target="movementVersionsModalBg">Movement Data Versions</button>
                             <?php endif; ?>
                             <button class="bg-gray-600 hover:bg-gray-700 text-white text-center p-4 rounded-lg font-semibold transition-colors duration-300" data-modal-target="aircraftModalBg">Manage Aircraft Details</button>
                             <button class="bg-gray-600 hover:bg-gray-700 text-white text-center p-4 rounded-lg font-semibold transition-colors duration-300" data-modal-target="flightRefModalBg">Manage Flight References</button>
@@ -373,6 +376,7 @@ $hasRole = function ($roles) use ($user_role) {
             </div>
 
     <?php require __DIR__ . '/partials/accounts-modal.php'; ?>
+    <?php require __DIR__ . '/partials/movement-versions-modal.php'; ?>
     <?php require __DIR__ . '/partials/user-form-modal.php'; ?>
     <?php require __DIR__ . '/partials/reset-password-modal.php'; ?>
     <?php require __DIR__ . '/partials/snapshot-modal.php'; ?>

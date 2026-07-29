@@ -1,5 +1,6 @@
 <?php
 
+use App\Controllers\Api\MovementVersionController;
 use App\Controllers\Api\SnapshotController;
 use App\Controllers\Admin\UserController;
 use App\Controllers\ApronController;
@@ -15,6 +16,7 @@ $router->group(['middleware' => [AuthMiddleware::class]], function ($router) {
     // Other routes...
     $router->match(['GET', 'POST'], '/snapshot-manager.php', [SnapshotController::class, 'handle']);
     $router->match(['GET', 'POST'], '/api/snapshots', [SnapshotController::class, 'handle']);
+    $router->match(['GET', 'POST'], '/api/movement-versions', [MovementVersionController::class, 'handle']);
     $router->post('/api/apron', [ApronController::class, 'handle']);
     $router->get('/api/apron/status', [ApronController::class, 'status']);
     $router->get('/api/apron/movements', [ApronController::class, 'movements']);

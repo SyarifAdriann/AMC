@@ -90,6 +90,10 @@ $app->singleton(App\Services\FreehandLayoutService::class, function (Application
     return new App\Services\FreehandLayoutService($app);
 });
 
+$app->singleton(App\Services\MovementVersionService::class, function (Application $app) {
+    return new App\Services\MovementVersionService($app);
+});
+
 $app->singleton(App\Services\RecommendationService::class, function (Application $app) {
     return new App\Services\RecommendationService(
         $app,

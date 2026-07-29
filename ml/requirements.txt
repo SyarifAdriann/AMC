@@ -8,7 +8,10 @@
 # joblib - scikit-learn's preferred serialization backend; required to correctly
 #           load .pkl files saved by sklearn's joblib.dump()
 
-numpy==1.26.4
-pandas==2.2.2
-scikit-learn==1.4.2
-joblib==1.4.0
+# Versions MUST match the env that trained/saved the .pkl files (numpy 2.x,
+# sklearn 1.7.x). Older numpy (1.26) cannot unpickle a numpy-2.x model and fails
+# with "No module named 'numpy._core.numeric'". Bump only if the model is retrained.
+numpy==2.4.2
+pandas==2.2.3
+scikit-learn==1.7.2
+joblib==1.5.3
