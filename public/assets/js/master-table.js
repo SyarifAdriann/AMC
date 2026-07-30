@@ -50,6 +50,29 @@
         }, duration);
     }
 
+    // Current wall-clock time as HH:MM. No date stamp — the backend adds one
+    // only when the off block lands on a different day than the movement.
+    function currentHhMm() {
+        const now = new Date();
+        return String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+    }
+
+    // Off block cells outside the two sheet-managed tables (the mobile card
+    // layout) get the same double-click stamp. The sheet tables handle their
+    // own, routed through applyBatch so undo works there.
+    document.addEventListener('dblclick', event => {
+        const input = event.target.closest('input[data-field="off_block_time"]');
+        if (!input || input.readOnly || input.disabled) {
+            return;
+        }
+        if (input.closest('#master-movements-table, #ron-data-table')) {
+            return;
+        }
+        input.value = currentHhMm();
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
     // ── Unsaved-changes tracking ────────────────────────────────────────
     let skipUnloadWarning = false;
 
@@ -1287,6 +1310,14 @@
             const c = cell.cellIndex;
             setSelection({ r, c }, { r, c });
             beginEdit(false);
+
+            // Double-clicking an off block cell stamps the current time.
+            // Routed through applyBatch so it queues the auto-save and lands on
+            // the undo stack exactly like a typed edit — Ctrl+Z reverts it.
+            const offBlock = cell.querySelector('input[data-field="off_block_time"]');
+            if (offBlock && !offBlock.readOnly && !offBlock.disabled) {
+                applyBatch([{ el: offBlock, after: currentHhMm() }]);
+            }
         });
 
         // Header click selects the whole column

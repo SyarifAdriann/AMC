@@ -12,7 +12,8 @@ $scripts = [
     'assets/js/mobile-adaptations.js',
     'assets/js/amc-http.js?v=1.0',
     'assets/js/dashboard.js?v=' . time(),
-    'assets/js/movement-versions.js?v=' . time()
+    'assets/js/movement-versions.js?v=' . time(),
+    'assets/js/reference-data.js?v=' . time()
 ];
 ob_start();
 ?>
@@ -37,7 +38,8 @@ $hasRole = function ($roles) use ($user_role) {
                 mlLogs: 'api/ml/logs',
                 userAdmin: 'api/admin/users',
                 snapshots: 'api/snapshots',
-                movementVersions: 'api/movement-versions'
+                movementVersions: 'api/movement-versions',
+                referenceData: 'api/reference-data'
             }
         };
     </script>
@@ -237,7 +239,7 @@ $hasRole = function ($roles) use ($user_role) {
                         <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm" style="background:#3b82f6"></span>Komersial</span>
                         <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm" style="background:#14b8a6"></span>Cargo</span>
                         <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm" style="background:#a855f7"></span>Charter</span>
-                        <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm" style="background:#f59e0b"></span>RON (overnight still parked)</span>
+                        <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm" style="background:#94a3b8;box-shadow:inset 0 0 0 2px #f59e0b"></span>RON (outline, overnight still parked)</span>
                         <span class="ml-auto text-slate-400 italic" id="gantt-status">Loading…</span>
                     </div>
                     <!-- Chart area -->

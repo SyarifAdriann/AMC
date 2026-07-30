@@ -864,9 +864,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 const labelSpan = document.createElement('span');
                 labelSpan.className = 'label';
                 const reg = escapeHtml(movement.registration || '');
+                // Arr/Dep show whatever the operator typed, matched against the
+                // flight reference list or not.
                 const arr = movement.arr ? `Arr: ${escapeHtml(movement.arr)}` : '';
+                const dep = movement.dep ? `Dep: ${escapeHtml(movement.dep)}` : '';
                 const remarks = movement.remarks ? `<b>${escapeHtml(movement.remarks)}</b>` : '';
-                labelSpan.innerHTML = [reg, arr, remarks].filter(Boolean).join('<br>');
+                labelSpan.innerHTML = [reg, arr, dep, remarks].filter(Boolean).join('<br>');
                 iconDiv.appendChild(labelSpan);
 
                 // Position the icon and label (label hugs the icon — no wasted space)
@@ -1120,6 +1123,39 @@ if (departureField) {
             }, 50);
         }
     });
+}
+
+// ===== Time fields: auto-colon while typing, double-click to stamp now =====
+//
+// The mask deliberately bails out the moment the field contains anything that
+// is not a digit or a colon. Operators legitimately type "EX RON", and stored
+// values carry a date stamp like "14:30 (16/08/2025)" — neither must be
+// rewritten by the mask.
+function applyTimeMask(input) {
+    if (!input) return;
+    input.addEventListener('input', function () {
+        if (/[^0-9:]/.test(this.value)) return;
+        const digits = this.value.replace(/\D/g, '').slice(0, 4);
+        this.value = digits.length <= 2 ? digits : digits.slice(0, 2) + ':' + digits.slice(2);
+    });
+}
+
+function currentHhMm() {
+    const now = new Date();
+    return String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+}
+
+applyTimeMask(document.getElementById('f-onblock'));
+applyTimeMask(document.getElementById('f-offblock'));
+
+const offBlockField = document.getElementById('f-offblock');
+if (offBlockField) {
+    offBlockField.addEventListener('dblclick', function () {
+        if (this.readOnly || this.disabled) return;
+        this.value = currentHhMm();
+        this.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    offBlockField.title = 'Double-click to stamp the current time';
 }
 
             // Sheets-like behavior for all tables:

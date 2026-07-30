@@ -9,6 +9,7 @@ use App\Core\Http\Response;
 use App\Security\CsrfManager;
 use App\Services\AuditLogger;
 use App\Services\MovementVersionService;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -62,12 +63,23 @@ class MovementVersionController extends Controller
                 default:
                     return $this->error('Invalid action');
             }
-        } catch (Throwable $e) {
-            error_log('MovementVersionController error: ' . $e->getMessage());
+        } catch (RuntimeException $e) {
+            // Messages this app raises deliberately, safe and useful to show.
+            error_log('MovementVersionController: ' . $e->getMessage());
 
             return $this->json([
                 'success' => false,
                 'message' => $e->getMessage(),
+            ], 500);
+        } catch (Throwable $e) {
+            // Anything unexpected: raw text can carry SQL and paths, so only in debug.
+            error_log('MovementVersionController error: ' . $e->getMessage());
+
+            return $this->json([
+                'success' => false,
+                'message' => $this->app->config('app.debug')
+                    ? $e->getMessage()
+                    : 'Unable to complete that request right now.',
             ], 500);
         }
     }

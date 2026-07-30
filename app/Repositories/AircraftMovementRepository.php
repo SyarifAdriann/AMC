@@ -212,17 +212,31 @@ class AircraftMovementRepository extends Repository
     }
 
     /**
-     * Returns every distinct parking_stand ever used, sorted naturally.
-     * Used by the Gantt chart "Show All Stands" toggle.
+     * Every stand the Gantt chart's "Show All Stands" toggle should list.
+     *
+     * Source of truth is the stands table, not the movement history — a stand
+     * that has never been used still exists and must be shown. Stands found in
+     * movements but missing from the table are unioned in so historical data
+     * never silently disappears from the chart.
      */
     public function getAllStands(): array
     {
+        // No is_active filter on purpose: every row in the shipped stands table
+        // has is_active = 0, so filtering on it would return nothing. The flag
+        // is unused in this dataset.
         $stmt = $this->pdo->query(
-            "SELECT DISTINCT parking_stand FROM aircraft_movements
-             WHERE parking_stand IS NOT NULL AND parking_stand != ''
-             ORDER BY parking_stand"
+            "SELECT stand_name AS stand FROM stands
+             UNION
+             SELECT DISTINCT parking_stand FROM aircraft_movements
+             WHERE parking_stand IS NOT NULL AND parking_stand != ''"
         );
-        return array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'parking_stand');
+
+        $stands = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'stand');
+
+        // Natural sort so B2 comes before B10, and SA09 before SA10.
+        usort($stands, static fn($a, $b) => strnatcasecmp((string) $a, (string) $b));
+
+        return $stands;
     }
 
     public function findCurrentApronMovements(): array
@@ -252,6 +266,134 @@ class AircraftMovementRepository extends Repository
         $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    /**
+     * Off block carries a "(dd/mm/yyyy)" stamp only when it falls on a
+     * different day than the movement itself — i.e. the aircraft stayed
+     * overnight and you would otherwise not know which day it left.
+     *
+     * A same-day departure needs no stamp: the movement date already says it.
+     * Values the operator stamped by hand (already containing a bracket) are
+     * passed through untouched.
+     */
+    protected function stampOffBlockTime(string $offBlockTime, ?string $movementDate, string $offBlockDate): string
+    {
+        if ($offBlockTime === '' || strpos($offBlockTime, '(') !== false) {
+            return $offBlockTime;
+        }
+
+        if ($movementDate !== null && $movementDate !== $offBlockDate) {
+            return $offBlockTime . ' (' . date('d/m/Y', strtotime($offBlockDate)) . ')';
+        }
+
+        return $offBlockTime;
+    }
+
+    protected function movementDateFor(int $id): ?string
+    {
+        $row = $this->currentMovementFor($id);
+
+        return $row['movement_date'] ?? null;
+    }
+
+    protected function currentMovementFor(int $id): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT movement_date, off_block_time FROM aircraft_movements WHERE id = :id'
+        );
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row ?: null;
+    }
+
+    /**
+     * True when the given text names a parking stand.
+     *
+     * Source of truth is the stands table, so every stand counts whether or not
+     * it has ever been used.
+     */
+    protected function isParkingStand(string $value): bool
+    {
+        $value = strtoupper(trim($value));
+        if ($value === '') {
+            return false;
+        }
+
+        $stmt = $this->pdo->prepare('SELECT 1 FROM stands WHERE UPPER(stand_name) = :name LIMIT 1');
+        $stmt->execute([':name' => $value]);
+
+        return (bool) $stmt->fetchColumn();
+    }
+
+    /**
+     * Reposition: when an aircraft off blocks with a parking stand in its
+     * destination field, it has not left the apron — it has taxied to another
+     * stand. Open the follow-on movement automatically so the operator does not
+     * have to retype it.
+     *
+     * Carries registration, aircraft type and operator only. No on block: the
+     * new record is a planned arrival until the operator confirms it.
+     *
+     * Returns the new movement id, or null when no reposition applies.
+     */
+    protected function createRepositionMovement(
+        string $registration,
+        string $aircraftType,
+        string $operatorAirline,
+        string $destination,
+        int $userId
+    ): ?int {
+        $stand = strtoupper(trim($destination));
+
+        if ($registration === '' || !$this->isParkingStand($stand)) {
+            return null;
+        }
+
+        // Idempotency guard: if this aircraft already has an open movement at
+        // that stand, a reposition was already created. Re-saving the closed
+        // record must not spawn duplicates.
+        $existing = $this->pdo->prepare(
+            "SELECT 1 FROM aircraft_movements
+             WHERE registration = :registration
+               AND UPPER(parking_stand) = :stand
+               AND (off_block_time IS NULL OR off_block_time = '')
+             LIMIT 1"
+        );
+        $existing->execute([':registration' => $registration, ':stand' => $stand]);
+
+        if ($existing->fetchColumn()) {
+            return null;
+        }
+
+        $insert = $this->pdo->prepare(
+            "INSERT INTO aircraft_movements (
+                registration, aircraft_type, on_block_time, off_block_time, parking_stand,
+                from_location, to_location, flight_no_arr, flight_no_dep, operator_airline,
+                remarks, is_ron, ron_complete, movement_date, on_block_date, off_block_date,
+                user_id_created, user_id_updated, created_at, updated_at
+             ) VALUES (
+                :registration, :aircraft_type, '', NULL, :parking_stand,
+                '', '', '', '', :operator_airline,
+                '', 0, 0, :movement_date, NULL, NULL,
+                :user_id_created, :user_id_updated, NOW(), NOW()
+             )"
+        );
+
+        // Two distinct placeholders on purpose: EMULATE_PREPARES is off, so a
+        // repeated named parameter is rejected by the driver.
+        $insert->execute([
+            ':registration' => $registration,
+            ':aircraft_type' => $aircraftType,
+            ':parking_stand' => $stand,
+            ':operator_airline' => $operatorAirline,
+            ':movement_date' => date('Y-m-d'),
+            ':user_id_created' => $userId,
+            ':user_id_updated' => $userId,
+        ]);
+
+        return (int) $this->pdo->lastInsertId();
     }
 
     public function saveMovement(array $attributes, int $userId): array
@@ -290,13 +432,17 @@ class AircraftMovementRepository extends Repository
             ':user_id_updated' => $userId,
         ];
 
+        $previous = $isUpdate ? $this->currentMovementFor($id) : null;
+        $previousOffBlock = trim((string) ($previous['off_block_time'] ?? ''));
+
         if ($offBlockTime !== '') {
-            if (strpos($offBlockTime, '(') === false) {
-                $params[':off_block_time'] = $offBlockTime . ' (' . date('d/m/Y') . ')';
-            } else {
-                $params[':off_block_time'] = $offBlockTime;
-            }
-            $params[':off_block_date'] = date('Y-m-d');
+            $offBlockDate = date('Y-m-d');
+            // On update the movement may have started on an earlier day, so the
+            // stored movement_date decides whether this is an overnight stay.
+            $movementDate = $isUpdate ? ($previous['movement_date'] ?? null) : $offBlockDate;
+
+            $params[':off_block_time'] = $this->stampOffBlockTime($offBlockTime, $movementDate, $offBlockDate);
+            $params[':off_block_date'] = $offBlockDate;
             $params[':ron_complete'] = $isRon ? 1 : 0;
         } else {
             $params[':off_block_time'] = null;
@@ -348,9 +494,23 @@ class AircraftMovementRepository extends Repository
 
         $newId = $isUpdate ? $id : (int) $this->pdo->lastInsertId();
 
+        // Only on the transition from "still parked" to "off blocked". Editing
+        // an already-closed movement must not open a second reposition.
+        $repositionId = null;
+        if ($offBlockTime !== '' && $previousOffBlock === '') {
+            $repositionId = $this->createRepositionMovement(
+                $registration,
+                $aircraftType,
+                $operatorAirline,
+                $toLocation,
+                $userId
+            );
+        }
+
         return [
             'id' => $newId,
             'is_new' => !$isUpdate,
+            'reposition_id' => $repositionId,
         ];
     }
 
@@ -389,7 +549,11 @@ class AircraftMovementRepository extends Repository
                 $value = $change['value'] ?? null;
 
                 if ($field === 'off_block_time') {
-                    $stmt = $this->pdo->prepare('SELECT is_ron FROM aircraft_movements WHERE id = :id');
+                    $stmt = $this->pdo->prepare(
+                        'SELECT is_ron, movement_date, off_block_time, registration, aircraft_type,
+                                operator_airline, to_location
+                         FROM aircraft_movements WHERE id = :id'
+                    );
                     $stmt->execute([':id' => $id]);
                     $current = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -397,11 +561,17 @@ class AircraftMovementRepository extends Repository
                         continue;
                     }
 
+                    $wasOpen = trim((string) ($current['off_block_time'] ?? '')) === '';
+
                     if (!empty($value)) {
-                        $formatted = (string) $value;
-                        if ((int) ($current['is_ron'] ?? 0) === 1 && strpos($formatted, '(') === false) {
-                            $formatted .= ' (' . date('d/m/Y') . ')';
-                        }
+                        // Same rule as saveMovement(): stamp the date only when
+                        // the off block falls on a different day than the
+                        // movement, RON or not.
+                        $formatted = $this->stampOffBlockTime(
+                            (string) $value,
+                            $current['movement_date'] ?? null,
+                            date('Y-m-d')
+                        );
 
                         $update = $this->pdo->prepare(
                             "UPDATE aircraft_movements
@@ -419,6 +589,18 @@ class AircraftMovementRepository extends Repository
                             ':user_id' => $userId,
                             ':id' => $id,
                         ]);
+
+                        // Reposition, same rule as saveMovement(): only on the
+                        // transition from open to off blocked.
+                        if ($wasOpen) {
+                            $this->createRepositionMovement(
+                                (string) ($current['registration'] ?? ''),
+                                (string) ($current['aircraft_type'] ?? ''),
+                                (string) ($current['operator_airline'] ?? ''),
+                                (string) ($current['to_location'] ?? ''),
+                                $userId
+                            );
+                        }
                     } else {
                         $reset = $this->pdo->prepare(
                             "UPDATE aircraft_movements

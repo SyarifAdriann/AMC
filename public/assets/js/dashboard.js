@@ -1410,9 +1410,15 @@ function hasRole(role) {
         return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
     }
 
+    // Category drives the fill. RON is shown as an outline on top of that
+    // fill, not instead of it — otherwise an overnight aircraft loses its
+    // category and you can only read one fact per bar.
     function getBarColor(row) {
-        if (parseInt(row.is_ron)===1 && parseInt(row.end_minutes)===1440) return RON_COLOR;
         return CAT_COLORS[(row.category||'').toLowerCase()] || OTHER_COLOR;
+    }
+
+    function isRonBar(row) {
+        return parseInt(row.is_ron)===1 && parseInt(row.end_minutes)===1440;
     }
 
     function renderGantt(container, movements, standsToShow) {
@@ -1483,9 +1489,15 @@ function hasRole(role) {
                     var lp=(st/1440*100).toFixed(3);
                     var wp=((en-st)/1440*100).toFixed(3);
                     var col=getBarColor(row);
+                    var ron=isRonBar(row);
                     var lbl=(parseFloat(wp)>4&&row.registration)?row.registration:'';
-                    var tip=[row.registration||'',row.operator_airline||'',row.category||'',minutesToHHMM(st)+'-'+(en===1440?'24:00':minutesToHHMM(en))].filter(Boolean).join(' | ').replace(/"/g,'&quot;');
-                    h+='<div title="'+tip+'" style="position:absolute;top:3px;bottom:3px;left:'+lp+'%;width:'+wp+'%;background:'+col+';border-radius:3px;opacity:0.88;overflow:hidden;display:flex;align-items:center;padding:0 3px;font-size:9px;color:#fff;white-space:nowrap;">'+lbl+'</div>';
+                    var tipParts=[row.registration||'',row.operator_airline||'',row.category||''];
+                    if (ron) tipParts.push('RON');
+                    tipParts.push(minutesToHHMM(st)+'-'+(en===1440?'24:00':minutesToHHMM(en)));
+                    var tip=tipParts.filter(Boolean).join(' | ').replace(/"/g,'&quot;');
+                    // RON: orange outline drawn inside the bar so it never shifts layout.
+                    var ronOutline=ron?'box-shadow:inset 0 0 0 2px '+RON_COLOR+';':'';
+                    h+='<div title="'+tip+'" style="position:absolute;top:3px;bottom:3px;left:'+lp+'%;width:'+wp+'%;background:'+col+';'+ronOutline+'border-radius:3px;opacity:0.88;overflow:hidden;display:flex;align-items:center;padding:0 3px;font-size:9px;color:#fff;white-space:nowrap;">'+lbl+'</div>';
                 });
             }
             h+='</div>';
