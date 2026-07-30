@@ -1421,6 +1421,32 @@ function hasRole(role) {
         return parseInt(row.is_ron)===1 && parseInt(row.end_minutes)===1440;
     }
 
+    // Operational stand order, not alphabetical: A, B, SA, RW, RE, NSA, WR.
+    // Anything with an unlisted prefix (C3 exists in movements but not in the
+    // stands table) sorts after these rather than being dropped.
+    var STAND_GROUPS = ['A', 'B', 'SA', 'RW', 'RE', 'NSA', 'WR'];
+
+    function standSortKey(name) {
+        var m = String(name || '').toUpperCase().match(/^([A-Z]*)(\d*)/);
+        var prefix = m ? m[1] : '';
+        var number = m && m[2] !== '' ? parseInt(m[2], 10) : -1;
+        var group = STAND_GROUPS.indexOf(prefix);
+        return {
+            group: group === -1 ? STAND_GROUPS.length : group,
+            prefix: prefix,
+            number: number
+        };
+    }
+
+    function compareStands(a, b) {
+        var ka = standSortKey(a), kb = standSortKey(b);
+        if (ka.group !== kb.group) return ka.group - kb.group;
+        // Unlisted prefixes share one group, so keep them alphabetical among themselves.
+        if (ka.prefix !== kb.prefix) return ka.prefix < kb.prefix ? -1 : 1;
+        if (ka.number !== kb.number) return ka.number - kb.number;
+        return String(a).localeCompare(String(b));
+    }
+
     function renderGantt(container, movements, standsToShow) {
         var byStand = {};
         (movements||[]).forEach(function(row) {
@@ -1433,9 +1459,10 @@ function hasRole(role) {
             var ss={};
             standsToShow.forEach(function(s){ss[s]=true;});
             Object.keys(byStand).forEach(function(s){ss[s]=true;});
-            stands=Object.keys(ss).sort();
+            stands=Object.keys(ss).sort(compareStands);
         } else {
-            stands=Object.keys(byStand).sort();
+            // Occupied-only uses the same order, just fewer rows.
+            stands=Object.keys(byStand).sort(compareStands);
         }
         if (stands.length===0) {
             container.innerHTML='<p style="color:#94a3b8;text-align:center;padding:24px 0;font-size:12px;">No movements recorded for this date.</p>';
