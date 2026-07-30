@@ -1,0 +1,557 @@
+===============================================================================
+AMC - APRON MOVEMENT CONTROL
+INSTALL GUIDE FOR A NEW COMPUTER  (Docker)
+
+Everything below is done in a terminal.
+Repo:   https://github.com/SyarifAdriann/AMC   (public - no login needed)
+Branch: DOCKER
+Written: 29 July 2026
+===============================================================================
+
+WHAT THIS GIVES YOU
+  A full working copy of the AMC system running on the local machine at
+    http://localhost
+  It includes the web app, the database with existing data, and the machine
+  learning stand-recommendation model. Nothing else needs installing -
+  no PHP, no MySQL, no Python. Docker supplies all of it.
+
+WHAT THE MACHINE NEEDS
+  - Windows 10/11 (64-bit), or Ubuntu/Debian Linux, or macOS
+  - 4 GB RAM minimum, 8 GB comfortable
+  - 10 GB free disk space
+  - Internet access for the install (about 1.5 GB of downloads)
+    -> If the machine has no internet or a restricted network, use
+       SECTION 8 (OFFLINE INSTALL) instead of sections 3-4.
+
+HOW LONG
+  About 30-45 minutes, most of it waiting on downloads.
+
+A NOTE ON PASTING
+  Run commands ONE AT A TIME. Wait for the prompt to come back before the
+  next one. Never paste terminal output back into the terminal.
+
+
+###############################################################################
+#  SECTION 1 - INSTALL DOCKER ON WINDOWS
+#  (Skip to SECTION 2 if the machine runs Linux)
+###############################################################################
+
+STEP 1.1  Check Windows is 64-bit and virtualisation is on.
+
+  Open PowerShell (press Start, type  powershell , press Enter) and run:
+
+    systeminfo | findstr /i "System Type"
+
+  EXPECTED:
+    System Type:               x64-based PC
+
+  Then:
+
+    systeminfo | findstr /i "Virtualization"
+
+  EXPECTED:
+    Virtualization Enabled In Firmware: Yes
+
+  IF IT SAYS "No" - Docker cannot run. Virtualisation must be turned on in
+  the computer's BIOS/UEFI (usually a setting called "Intel VT-x", "AMD-V",
+  or "SVM Mode"). This needs a reboot into BIOS. Ask whoever manages the
+  machine. Everything else below will fail until this is fixed.
+
+
+STEP 1.2  Install WSL2 (the Linux layer Docker needs on Windows).
+
+  Open PowerShell AS ADMINISTRATOR:
+  press Start, type  powershell , right-click "Windows PowerShell",
+  choose "Run as administrator". Then:
+
+    wsl --install
+
+  EXPECTED: a download, then
+    The requested operation is successful. Changes will not be effective
+    until the system is rebooted.
+
+  IF IT SAYS WSL is already installed, that is fine - carry on.
+
+  NOW REBOOT THE COMPUTER. This is not optional.
+
+
+STEP 1.3  After the reboot, confirm WSL2 is active.
+
+  In PowerShell:
+
+    wsl --status
+
+  EXPECTED, somewhere in the output:
+    Default Version: 2
+
+  If it says Default Version: 1, run:
+
+    wsl --set-default-version 2
+
+
+STEP 1.4  Install Docker Desktop.
+
+  In PowerShell as Administrator:
+
+    winget install -e --id Docker.DockerDesktop
+
+  EXPECTED, at the end:
+    Successfully installed
+
+  IF winget IS NOT RECOGNISED (older Windows), download the installer
+  manually instead:
+    https://www.docker.com/products/docker-desktop/
+  Click "Download for Windows", run the .exe, accept the defaults, and make
+  sure "Use WSL 2 instead of Hyper-V" stays ticked.
+
+  AFTER INSTALLING: reboot again if it asks.
+
+
+STEP 1.5  Start Docker Desktop and leave it running.
+
+  Press Start, type  Docker Desktop , press Enter.
+  Wait until the whale icon in the system tray (bottom-right) stops
+  animating and the app says "Engine running".
+
+  FIRST RUN: it shows a licence agreement - accept it. It may ask you to
+  sign in - you can SKIP that, no account is needed.
+
+  IMPORTANT: Docker Desktop must be running whenever you use AMC. Set it to
+  start with Windows: Docker Desktop -> Settings (gear icon) ->
+  General -> tick "Start Docker Desktop when you sign in to your computer".
+
+
+STEP 1.6  Confirm Docker works.
+
+    docker --version
+
+  EXPECTED, something like:
+    Docker version 27.4.0, build bde2b89
+
+    docker compose version
+
+  EXPECTED:
+    Docker Compose version v2.31.0
+
+    docker run --rm hello-world
+
+  EXPECTED, near the end:
+    Hello from Docker!
+    This message shows that your installation appears to be working correctly.
+
+  If all three worked, go to SECTION 3.
+
+
+###############################################################################
+#  SECTION 2 - INSTALL DOCKER ON UBUNTU / DEBIAN LINUX
+#  (Skip this if you did SECTION 1)
+###############################################################################
+
+STEP 2.1  Update the package list.
+
+    sudo apt update
+
+  EXPECTED: a list of package sources, ending in
+    Reading package lists... Done
+
+
+STEP 2.2  Install Docker using the official script.
+
+    curl -fsSL https://get.docker.com -o get-docker.sh
+
+  EXPECTED: nothing. Silence means success.
+
+    sudo sh get-docker.sh
+
+  EXPECTED: several minutes of output, ending with a Docker version banner.
+
+
+STEP 2.3  Allow your user to run Docker without sudo.
+
+    sudo usermod -aG docker $USER
+
+  EXPECTED: nothing.
+
+  NOW LOG OUT AND LOG BACK IN (or reboot). The group change does not apply
+  to the current session.
+
+
+STEP 2.4  Confirm Docker works.
+
+    docker --version
+    docker compose version
+    docker run --rm hello-world
+
+  EXPECTED, from the last one:
+    Hello from Docker!
+
+  IF YOU GET "permission denied while trying to connect to the Docker
+  daemon" - you did not log out and back in after STEP 2.3. Do that now.
+
+
+###############################################################################
+#  SECTION 3 - DOWNLOAD THE AMC CODE
+###############################################################################
+
+Two ways. METHOD A is simpler. METHOD B lets you pull future updates.
+
+-------------------------------------------------------------------------------
+METHOD A - ZIP DOWNLOAD  (recommended, no extra software)
+-------------------------------------------------------------------------------
+
+STEP 3A.1  Download and unpack.
+
+  WINDOWS (PowerShell, in your home folder):
+
+    cd ~
+    curl -L -o AMC.zip https://github.com/SyarifAdriann/AMC/archive/refs/heads/DOCKER.zip
+    Expand-Archive -Path AMC.zip -DestinationPath . -Force
+
+  LINUX / macOS:
+
+    cd ~
+    curl -L -o AMC.zip https://github.com/SyarifAdriann/AMC/archive/refs/heads/DOCKER.zip
+    unzip AMC.zip
+
+  EXPECTED: a folder called  AMC-DOCKER  appears.
+  The download is about 15 MB.
+
+
+STEP 3A.2  Go into the folder.
+
+    cd AMC-DOCKER
+
+  EXPECTED: the prompt now ends in  AMC-DOCKER
+
+  Confirm the important files are there:
+
+    WINDOWS:  dir docker-compose.yml, amc.sql
+    LINUX:    ls -l docker-compose.yml amc.sql
+
+  EXPECTED: both files listed. If amc.sql is missing the database will be
+  empty - re-download.
+
+  NOTE: with Method A there is no  git  history, so you cannot run
+  "git pull" later. To update, download a fresh ZIP. Use Method B if you
+  want easy updates.
+
+-------------------------------------------------------------------------------
+METHOD B - GIT CLONE  (if you want "git pull" updates later)
+-------------------------------------------------------------------------------
+
+STEP 3B.1  Install git.
+
+  WINDOWS:   winget install -e --id Git.Git      (then close and reopen PowerShell)
+  UBUNTU:    sudo apt install -y git
+
+STEP 3B.2  Clone the DOCKER branch.
+
+    cd ~
+    git clone -b DOCKER https://github.com/SyarifAdriann/AMC.git AMC-DOCKER
+
+  EXPECTED:
+    Cloning into 'AMC-DOCKER'...
+    ...
+    Resolving deltas: 100% ... done.
+
+STEP 3B.3
+    cd AMC-DOCKER
+
+  Later, to get updates:
+    git pull
+    docker compose up -d --build
+
+
+###############################################################################
+#  SECTION 4 - START AMC
+###############################################################################
+
+STEP 4.1  Build and start everything.
+
+  Make sure you are inside the AMC-DOCKER folder, then:
+
+    docker compose up -d --build
+
+  EXPECTED: 10-20 minutes on the first run. It downloads PHP, MariaDB and
+  the Python machine-learning packages. Lots of scrolling output. At the end:
+
+    [+] Running 4/4
+     v Network amc-docker_default  Created
+     v Container amc_db            Healthy
+     v Container amc_db_backup     Started
+     v Container amc_app           Started
+
+  NO .env FILE IS NEEDED. Sensible defaults are built in
+  (database password "root", app at http://localhost).
+
+  IF IT FAILS WITH "port is already allocated" - go to SECTION 7, problem A.
+  IF IT FAILS DOWNLOADING PACKAGES - the network is blocking it. Use
+  SECTION 8 (offline install) instead.
+
+
+STEP 4.2  Wait for the database to load, then check the containers.
+
+  The very first start imports the database. Give it 60 seconds, then:
+
+    docker compose ps
+
+  EXPECTED: three containers, all Up.
+    amc_app          Up
+    amc_db           Up (healthy)
+    amc_db_backup    Up
+
+
+STEP 4.3  Confirm the database loaded.
+
+    docker exec amc_db mysql -uroot -proot amc -e "SELECT COUNT(*) FROM users;"
+
+  EXPECTED: a small table with a number bigger than 0.
+
+    docker exec amc_db mysql -uroot -proot amc -e "SELECT COUNT(*) FROM aircraft_movements;"
+
+  EXPECTED: a number. This is the movement data that shipped with the copy.
+
+
+STEP 4.4  Confirm the machine-learning model works.
+
+    docker exec amc_app /opt/venv/bin/python3 -c "import numpy,sklearn; print(numpy.__version__, sklearn.__version__)"
+
+  EXPECTED, exactly:
+    2.4.2 1.7.2
+
+  Then:
+
+    docker exec amc_app sh -c 'echo "{\"aircraft_type\":\"B737\",\"operator_airline\":\"BATIK AIR\",\"category\":\"Commercial\"}" > /tmp/p.json'
+    docker exec amc_app bash -c 'time /opt/venv/bin/python3 /var/www/html/ml/predict.py < /tmp/p.json'
+
+  EXPECTED: a line of JSON beginning  {"success": true,  then a timing block.
+  The "real" time must be under 6 seconds.
+
+
+STEP 4.5  Open it.
+
+  In a web browser go to:
+
+    http://localhost
+
+  EXPECTED: the AMC login page.
+
+  Type the  http://  part. Some browsers try https:// and show an error.
+
+  DONE. Log in with the account credentials provided separately.
+
+
+###############################################################################
+#  SECTION 5 - EVERYDAY USE
+###############################################################################
+
+All commands must be run from inside the AMC-DOCKER folder.
+To get there in a new terminal:   cd ~/AMC-DOCKER
+
+START (after a reboot, or after stopping):
+    docker compose up -d
+  EXPECTED: three containers Started/Running. Takes about 15 seconds.
+  On Windows, Docker Desktop must be running first.
+
+STOP (keeps all data):
+    docker compose down
+  EXPECTED: containers and network Removed.
+
+RESTART (if something looks stuck):
+    docker compose restart
+  EXPECTED: three containers Restarted.
+
+SEE WHAT IS RUNNING:
+    docker compose ps
+
+READ THE APP LOG (for diagnosing errors):
+    docker logs --tail 50 amc_app
+
+DOES IT SURVIVE A REBOOT?
+  Yes. The containers are set to restart automatically. On Windows, Docker
+  Desktop must be set to start with Windows (SECTION 1.5).
+
+NEVER RUN THIS unless you intend to erase everything:
+    docker compose down -v
+  The  -v  deletes the database volume. All movement data is destroyed.
+
+
+###############################################################################
+#  SECTION 6 - BACKUPS
+###############################################################################
+
+A backup runs automatically once every 24 hours into the  backups  folder
+inside AMC-DOCKER, and the last 14 days are kept.
+
+SEE THE BACKUPS:
+    WINDOWS:  dir backups
+    LINUX:    ls -lh backups/
+
+MAKE A BACKUP RIGHT NOW (does not wait for the daily one):
+    docker exec amc_db mysqldump -uroot -proot --single-transaction --routines amc > backup_manual.sql
+
+  EXPECTED: nothing printed. A file  backup_manual.sql  appears, a few MB.
+
+RESTORE A BACKUP  (WARNING: overwrites the entire current database):
+    LINUX:    docker exec -i amc_db mysql -uroot -proot amc < backups/amc_2026-07-30_0300.sql
+    WINDOWS:  Get-Content backups\amc_2026-07-30_0300.sql | docker exec -i amc_db mysql -uroot -proot amc
+
+  Replace the filename with a real one from the folder listing.
+
+COPY BACKUPS OFF THE MACHINE regularly. A backup that only exists on the
+same computer as the data is not a backup.
+
+
+###############################################################################
+#  SECTION 7 - WHEN SOMETHING GOES WRONG
+###############################################################################
+
+PROBLEM A - "Bind for 0.0.0.0:80 failed: port is already allocated"
+  Something else on the machine is using port 80 - usually XAMPP, IIS, or
+  Skype. Move AMC to port 8080 instead.
+
+  Open  docker-compose.yml  in a text editor (Notepad is fine). Find:
+        ports:
+          - "80:80"
+  Change it to:
+        ports:
+          - "8080:80"
+  Save, then:
+    docker compose up -d
+  AMC is now at  http://localhost:8080
+  No other setting needs changing.
+
+
+PROBLEM B - "docker: command not found" / "not recognized"
+  Docker is not installed, or the terminal was opened before installing it.
+  Close the terminal, open a new one, try again. If it still fails, redo
+  SECTION 1 or 2.
+
+
+PROBLEM C - "Cannot connect to the Docker daemon" (Windows)
+  Docker Desktop is not running. Start it from the Start menu and wait for
+  "Engine running".
+
+
+PROBLEM D - "permission denied ... docker daemon" (Linux)
+  You did not log out and back in after adding yourself to the docker group.
+  Log out, log back in. Or run once:
+    newgrp docker
+
+
+PROBLEM E - The website loads but says a database error
+  The database was still starting. Wait 60 seconds and reload. If it
+  persists:
+    docker compose restart
+    docker logs --tail 50 amc_app
+
+
+PROBLEM F - The login page loads but has no styling / looks broken
+  A stale browser cache. Press Ctrl+Shift+R to force a reload.
+
+
+PROBLEM G - "Get AI Recommendations" spins then shows nothing
+  Check the model (SECTION 4.4). If numpy is not 2.4.2, rebuild:
+    docker compose up -d --build
+  If the version is right, open the browser console with F12 -> Network tab,
+  click the button, click the "recommend" row, then the Response tab. That
+  shows the real error message.
+
+
+PROBLEM H - The first build fails partway through downloading
+  Usually a blocked or unstable network. Just run it again - Docker resumes
+  from where it got to:
+    docker compose up -d --build
+  If it fails repeatedly, the network is blocking it. Use SECTION 8.
+
+
+PROBLEM I - Everything is broken and you want a clean start
+  This ERASES ALL DATA. Restore a backup afterwards.
+    docker compose down -v
+    docker compose up -d --build
+
+
+###############################################################################
+#  SECTION 8 - OFFLINE INSTALL
+#  Use this if the target machine has no internet or a restricted network.
+###############################################################################
+
+The normal install downloads about 1.5 GB. If the airport network blocks
+that, prepare a file on a machine that DOES have internet, carry it over on
+a USB drive, and load it there.
+
+-------------------------------------------------------------------------------
+PART 1 - ON A MACHINE WITH INTERNET (do this beforehand)
+-------------------------------------------------------------------------------
+
+STEP 8.1  Get the code and build the image normally (SECTIONS 3 and 4).
+          Confirm it works at http://localhost before continuing.
+
+STEP 8.2  Export the built images to a single file.
+
+    docker save -o amc-images.tar amc-app:latest mariadb:10.4
+
+  EXPECTED: nothing printed. Takes a few minutes.
+  A file  amc-images.tar  appears, roughly 1.5-2 GB.
+
+STEP 8.3  Copy BOTH of these onto the USB drive:
+    - amc-images.tar
+    - the whole AMC-DOCKER folder
+
+-------------------------------------------------------------------------------
+PART 2 - ON THE OFFLINE MACHINE
+-------------------------------------------------------------------------------
+
+STEP 8.4  Install Docker. This still needs internet ONCE.
+          If the target machine has no internet at all, Docker must be
+          installed from an offline installer - download Docker Desktop's
+          .exe on the internet-connected machine and carry it over too.
+
+STEP 8.5  Copy the AMC-DOCKER folder from the USB to the machine, e.g. to
+          the home folder. Then copy  amc-images.tar  next to it.
+
+STEP 8.6  Load the images.
+
+    docker load -i amc-images.tar
+
+  EXPECTED, after a few minutes:
+    Loaded image: amc-app:latest
+    Loaded image: mariadb:10.4
+
+STEP 8.7  Start it WITHOUT rebuilding. The  --build  flag is deliberately
+          left off here - that is what would need the internet.
+
+    cd AMC-DOCKER
+    docker compose up -d
+
+  EXPECTED: three containers Started. No downloading.
+
+STEP 8.8  Verify with SECTION 4.2 through 4.5.
+
+
+###############################################################################
+#  SECTION 9 - THINGS THE STAFF SHOULD KNOW
+###############################################################################
+
+1. THIS COPY IS INDEPENDENT of the server at 178.83.188.238. Data entered
+   here stays here. Data entered there stays there. They do not sync.
+
+2. THE DATABASE PASSWORD IS "root" by default. That is acceptable only
+   because the database is not reachable from outside this machine. Do not
+   expose port 3307 to a network.
+
+3. IT IS HTTP, NOT HTTPS. Fine on a single machine at localhost. If this is
+   ever put on a shared network, it needs TLS first.
+
+4. TO CHANGE LOGIN PASSWORDS: log in as an admin, then
+   Dashboard -> Manage Accounts.
+
+5. TO SAVE OR RESTORE A SET OF MOVEMENT RECORDS: log in as an admin, then
+   Dashboard -> Movement Data Versions. Every restore saves the current
+   state first, so it can always be undone.
+
+6. THE COMPUTER MUST STAY ON for the app to be reachable. Closing the
+   browser is fine; shutting down the machine stops AMC until it is started
+   again (SECTION 5).
+
+===============================================================================
