@@ -56,9 +56,12 @@ class SnapshotController extends Controller
         } catch (Throwable $e) {
             error_log('SnapshotController error: ' . $e->getMessage());
 
+            // Raw exception text can carry SQL, table names and file paths.
             return $this->json([
                 'success' => false,
-                'message' => 'Server error: ' . $e->getMessage(),
+                'message' => $this->app->config('app.debug')
+                    ? 'Server error: ' . $e->getMessage()
+                    : 'Server error. Please try again.',
             ], 500);
         }
     }

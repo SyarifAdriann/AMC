@@ -71,9 +71,14 @@ class UserController extends Controller
         } catch (Throwable $e) {
             error_log('Admin user management error: ' . $e->getMessage());
 
+            // Raw exception text can carry SQL, table names and file paths.
+            // InvalidArgumentException above still surfaces: those messages are
+            // written for the operator and are safe to show.
             return Response::json([
                 'success' => false,
-                'message' => 'A server error occurred: ' . $e->getMessage(),
+                'message' => $this->app->config('app.debug')
+                    ? 'A server error occurred: ' . $e->getMessage()
+                    : 'A server error occurred. Please try again.',
             ], 500);
         }
     }
