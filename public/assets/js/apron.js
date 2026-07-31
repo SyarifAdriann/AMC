@@ -1197,7 +1197,17 @@ if (sr) sr.addEventListener('click', () => {
         }
     })
     .catch(error => {
-        alert('Network error saving roster.');
+        // Surface what the server actually said. A 401 (session gone, usually
+        // after a container restart) and a 403 (stale security token) both used
+        // to be reported as "Network error", which sent people looking at the
+        // network instead of just reloading the page.
+        if (error.status === 401) {
+            alert('Your session has expired. Please reload the page and log in again.');
+        } else if (error.status === 403) {
+            alert('Security token expired. Please reload the page (Ctrl+Shift+R) and try again.');
+        } else {
+            alert('Could not save roster: ' + (error.message || error));
+        }
         console.error(error);
     });
 });

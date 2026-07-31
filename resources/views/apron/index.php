@@ -10,7 +10,7 @@ $bodyClass = 'gradient-bg min-h-screen font-sans';
 $scripts = [
     'assets/js/mobile-adaptations.js',
     'assets/js/amc-http.js?v=1.0',
-    'assets/js/apron.js?v=2.5'
+    'assets/js/apron.js?v=2.6'
 ];
 ob_start();
 ?>

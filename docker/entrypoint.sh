@@ -58,6 +58,11 @@ mkdir -p "$APP_DIR/cache"
 mkdir -p "$APP_DIR/storage/cache"
 mkdir -p "$APP_DIR/logs"
 
+# Sessions live here (see session.save_path in docker/php/php.ini) so they
+# survive a rebuild. If this directory is missing, session_start() fails and
+# every page 500s — so it must be created before Apache starts.
+mkdir -p "$APP_DIR/storage/sessions"
+
 chown -R www-data:www-data "$APP_DIR/cache" "$APP_DIR/storage" "$APP_DIR/logs"
 chmod -R 775 "$APP_DIR/cache" "$APP_DIR/storage" "$APP_DIR/logs"
 
