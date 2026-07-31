@@ -4,7 +4,7 @@ Server: root@178.83.188.238  (Kencang K-2, Ubuntu 22.04, 2 vCPU / 2GB / 20GB)
 App:    http://178.83.188.238
 Repo:   https://github.com/SyarifAdriann/AMC   branch: DOCKER
 Path:   /opt/amc
-Last verified: 29 July 2026, commit 3c31919
+Last verified: 31 July 2026, commit d5e98ad
 ===============================================================================
 
 READ THIS FIRST
@@ -74,7 +74,7 @@ STEP 2.2  Which version of the code is live?
     git log --oneline -1
 
   EXPECTED (or newer):
-    3c31919 feat(admin): save/restore versions of movement data
+    d5e98ad chore: declare dependencies and add a single test entry point
 
 
 STEP 2.3  Is the ML predictor healthy?
@@ -169,7 +169,9 @@ STEP 3.4  Rebuild and restart.
   that is normal and fine.
 
 
-STEP 3.5  Re-run SECTION 2 to confirm everything still works.
+STEP 3.5  Re-run SECTION 2 to confirm everything still works, then run the
+          self-checks in SECTION 5. Those two together are the deploy gate: if
+          both are clean, the deploy is good.
 
 
 ===============================================================================
@@ -218,27 +220,45 @@ DELETE only removes the saved copy. It never touches current movement records.
 
 
 ===============================================================================
-SECTION 5 - VERIFY THE SAVE/RESTORE LOGIC  (optional, safe on live data)
+SECTION 5 - RUN THE SELF-CHECKS  (safe on live data, run after every deploy)
 ===============================================================================
 
-Proves save -> wipe -> restore returns every row and ID identical. It saves
-your live data first and puts it back at the end, then cleans up after itself.
+Three checks: off block date stamps and reposition, reference data CRUD, and
+movement save/wipe/restore. Each one creates its own throwaway records and
+deletes them at the end, so they are safe against real operational data.
+
+The tests folder is excluded from the Docker image on purpose (nothing that
+wipes movements should sit on the production server), so copy it in first. It
+disappears again on the next rebuild.
 
 STEP 5.1
-    docker cp /opt/amc/tests/movement_versions_check.php amc_app:/tmp/check.php
+    docker exec amc_app mkdir -p /var/www/html/tests
 
-  EXPECTED:
-    Successfully copied ... to amc_app:/tmp/check.php
+  EXPECTED: nothing.
 
 STEP 5.2
-    docker exec amc_app php /tmp/check.php
+    docker cp /opt/amc/tests/. amc_app:/var/www/html/tests/
 
-  EXPECTED, last lines:
-    Restore returned N movements, IDs and values identical
-    PASS
-    Cleaned up self-check versions
+  EXPECTED:
+    Successfully copied ... to amc_app:/var/www/html/tests/
 
-  Anything other than PASS - do not use the feature, send me the output.
+STEP 5.3  Run all three at once.
+
+    docker exec amc_app php /var/www/html/tests/run_all.php
+
+  EXPECTED:
+    Off block date stamps + reposition  PASS
+    Aircraft / flight reference CRUD    PASS
+    Movement save / wipe / restore      PASS
+
+    ALL 3 CHECKS PASSED
+
+  Anything other than PASS - the failing check prints its own output right
+  below its name. Send me that.
+
+  NOTE: do NOT copy these to /tmp and run them from there. They resolve the
+  application via a path relative to their own location, so they must sit in
+  a folder directly under /var/www/html.
 
 
 ===============================================================================
@@ -311,19 +331,93 @@ SECTION 7 - FINISHING UP
 
 
 ===============================================================================
-SECTION 8 - STILL OUTSTANDING  (not done as of 29 Jul 2026)
+SECTION 8 - BRANCHES  (settled 31 Jul 2026)
 ===============================================================================
 
-1. NO HTTPS. Traffic including passwords travels in clear text over plain
-   HTTP. Fine on a closed demo, worth fixing before real daily use.
+The repository now has exactly TWO branches, and only one of them matters for
+the server:
 
-2. Branch DOCKER is behind branch main. That divergence is what broke the ML
-   feature on 29 Jul (the server had numpy 1.26 pinned while the model needed
-   numpy 2.x). It will cause the same class of problem again until the two
-   branches are reconciled.
+  DOCKER   the production branch. Everything runs from here. It is now the
+           repository default branch on GitHub.
 
-3. API errors are silent in the UI. A server error on the recommendation
-   endpoint shows only "Unable to fetch recommendations" and hides the real
-   message in the browser console.
+  main     a historical archive: thesis drafts, screenshots, datasets, ML
+           experiment scripts, and the old pre-Docker asset layout. It has NO
+           application code that DOCKER lacks.
+
+A third branch called "docker" (lowercase) was deleted on 31 Jul. It was an
+exact duplicate of main and it collided with DOCKER on Windows, whose file
+system treats the two names as the same ref. That collision is why "git pull"
+sometimes appeared to show the wrong commit.
+
+DO NOT merge main into DOCKER. It conflicts in 13 places and would drag 228
+files of thesis material into the production branch. The only code improvement
+main ever had (a shared column list in ReportService) was already brought
+across on 31 Jul.
+
+ALWAYS deploy from DOCKER. Always commit fixes to DOCKER.
+
+
+===============================================================================
+SECTION 9 - SETTING UP HTTPS  (blocked: needs a domain name)
+===============================================================================
+
+The site runs on plain HTTP, so passwords cross the network in clear text.
+
+WHY IT IS NOT DONE: a trusted certificate cannot be issued for a bare IP
+address like 178.83.188.238. Let's Encrypt and every other public authority
+issue certificates for DOMAIN NAMES only. Certbot will refuse to run against
+an IP.
+
+A self-signed certificate was deliberately NOT used. It encrypts traffic but
+shows a full-page security warning on every visit, which teaches staff to
+click through exactly the warning that is meant to protect them.
+
+WHAT IT TAKES:
+
+  1. Buy a domain. Any registrar, roughly 15,000 - 200,000 IDR per year.
+     Something like amc-hlp.com or apron.yourdomain.com.
+
+  2. Create a DNS "A" record pointing that name at  178.83.188.238 .
+     Wait for it to resolve. Check from PowerShell:
+         nslookup yourdomain.com
+     It must answer 178.83.188.238 before continuing.
+
+  3. On the VPS, install certbot and issue the certificate:
+         sudo apt update
+         sudo apt install -y certbot
+         sudo certbot certonly --standalone -d yourdomain.com
+     Port 80 must be free while this runs, so stop the app first:
+         cd /opt/amc && docker compose down
+     and start it again afterwards.
+
+  4. Tell me the domain and I will wire the certificate into the container and
+     turn on the HTTPS redirect. The redirect is already written and waiting,
+     commented out, at the bottom of the .htaccess RewriteRule section.
+
+  5. Renewals are automatic once certbot is installed, but the container needs
+     to pick up renewed files. Worth checking after the first 90 days.
+
+UNTIL THEN: treat the site as safe only on a trusted network. Do not use it
+over public wifi.
+
+
+===============================================================================
+SECTION 10 - STILL OUTSTANDING  (as of 31 Jul 2026)
+===============================================================================
+
+1. NO HTTPS. See Section 9. Blocked on buying a domain name.
+
+2. API errors are partly silent in the UI. A server error on the
+   recommendation endpoint shows only "Unable to fetch recommendations" and
+   hides the real message in the browser console (F12 -> Console).
+
+3. No automated tests beyond the three integration self-checks in Section 5.
+   composer.json now declares the project's requirements, but composer itself
+   is not installed on the server or in the image, so PHPUnit is declared
+   rather than usable.
+
+FIXED on 31 Jul, no longer a concern:
+  - Branch divergence (Section 8)
+  - Raw database and file path text leaking into API error messages
 
 ===============================================================================
