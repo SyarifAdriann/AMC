@@ -289,6 +289,36 @@
             letter-spacing: 0;
             box-shadow: none;
         }
+
+        /* View toggle — mirrors the real project's #toggle-view-a / #toggle-view-b pill buttons */
+        .view-toggle {
+            display: inline-flex;
+            border: 1px solid #DBE2EF;
+            border-radius: 6px;
+            overflow: hidden;
+            height: 34px;
+        }
+
+        .view-toggle button {
+            padding: 0 16px;
+            font-size: 12px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            background: white;
+            color: #112D4E;
+            transition: all 0.2s;
+        }
+
+        .view-toggle button.active {
+            background: #112D4E;
+            color: white;
+        }
+
+        #active-view-label {
+            font-weight: 700;
+            color: #112D4E;
+        }
     </style>
 </head>
 
@@ -299,10 +329,16 @@
             Container is <strong>pixel-identical</strong> to the live project (same outer width, same scaling, same
             stand button sizes).<br>
             Drag stands to position. APRON.png overlay is semi-transparent for reference only — it does not affect
-            coordinates.
+            coordinates.<br>
+            Editing: <span id="active-view-label">View B</span> — each view keeps its own positions while you switch,
+            and exports the matching <code>$standsViewA</code> / <code>$standsViewB</code> array.
         </div>
 
         <div class="controls">
+            <div class="view-toggle">
+                <button id="btn-view-a" onclick="switchView('a')">View A</button>
+                <button id="btn-view-b" onclick="switchView('b')" class="active">View B</button>
+            </div>
             <button onclick="exportCoordinates()">📋 Export Coordinates</button>
             <button onclick="resetPositions()" class="danger">🔄 Reset Positions</button>
             <button onclick="toggleGrid()">📐 Toggle Grid</button>
@@ -340,7 +376,7 @@
     <div id="output">
         <div id="output-content">
             <h2>Stand Coordinates</h2>
-            <p>Copy and paste the <code>$standsViewB</code> array into <code>resources/views/apron/index.php</code>:</p>
+            <p>Copy and paste the array into <code>resources/views/apron/index.php</code>:</p>
             <pre id="output-code"></pre>
             <button onclick="copyToClipboard()">Copy to Clipboard</button>
             <button onclick="closeOutput()">Close</button>
@@ -348,8 +384,43 @@
     </div>
 
     <script>
-        // ── Current View B stand positions ──────────────────────────────────────
-        const initialStands = {
+        // ── Baseline stand positions, one per view ────────────────────────────────
+        // Pulled verbatim from resources/views/apron/index.php ($standsViewA /
+        // $standsViewB) on 2026-07-31. Kept as the reset target — never mutated
+        // directly; drags write into standsByView[activeView] instead.
+        //
+        // NOTE: when this tool was last updated, its View B baseline had drifted
+        // from production on 48 stands (every SA/NSA/WR code) — production had
+        // been refined since (schematic runway/taxiway/zone markings for View A)
+        // and this file was never re-synced. The values below are re-synced to
+        // current production. Re-sync again from index.php before starting a new
+        // session if either view has been hand-edited there since.
+        const standsAInit = {
+            'A0': [1785, 923], 'A1': [1712, 923], 'A2': [1621, 923], 'A3': [1518, 923],
+            'B1': [1414, 923], 'B2': [1321, 923], 'B3': [1229, 923], 'B4': [1136, 923],
+            'B5': [1043, 923], 'B6': [950, 923], 'B7': [859, 923], 'B8': [768, 923],
+            'B9': [673, 923], 'B10': [577, 923], 'B11': [483, 923], 'B12': [394, 923], 'B13': [306, 923],
+            'SA01': [152, 125], 'SA02': [365, 125], 'SA03': [578, 125], 'SA04': [791, 125],
+            'SA05': [1004, 125], 'SA06': [1218, 125], 'SA07': [87, 250], 'SA08': [210, 250],
+            'SA09': [300, 250], 'SA10': [423, 250], 'SA11': [514, 250], 'SA12': [635, 250],
+            'SA13': [726, 250], 'SA14': [849, 250], 'SA15': [940, 250], 'SA16': [1062, 250],
+            'SA17': [1153, 250], 'SA18': [1275, 250], 'SA19': [87, 399], 'SA20': [208, 399],
+            'SA21': [300, 399], 'SA22': [421, 399], 'SA23': [513, 399], 'SA24': [635, 399],
+            'SA25': [726, 399], 'SA26': [848, 399], 'SA27': [939, 399], 'SA28': [1061, 399],
+            'SA29': [1153, 399], 'SA30': [1275, 399],
+            'NSA01': [1460, 146], 'NSA02': [1520, 146], 'NSA03': [1584, 146], 'NSA04': [1643, 146],
+            'NSA05': [1702, 146], 'NSA06': [1761, 146], 'NSA07': [1819, 146], 'NSA08': [1883, 180],
+            'NSA09': [1883, 293], 'NSA10': [1520, 328], 'NSA11': [1584, 328], 'NSA12': [1643, 328],
+            'NSA13': [1702, 328], 'NSA14': [1761, 328], 'NSA15': [1819, 328],
+            'WR01': [115, 627], 'WR02': [115, 784], 'WR03': [115, 941],
+            'RE01': [703, 700], 'RE02': [637, 700], 'RE03': [568, 700], 'RE04': [499, 700],
+            'RE05': [431, 700], 'RE06': [363, 700], 'RE07': [296, 700],
+            'RW01': [1647, 700], 'RW02': [1580, 700], 'RW03': [1513, 700], 'RW04': [1446, 700],
+            'RW05': [1379, 700], 'RW06': [1307, 700], 'RW07': [1241, 700], 'RW08': [1173, 700],
+            'RW09': [1107, 700], 'RW10': [1039, 700], 'RW11': [970, 700]
+        };
+
+        const standsBInit = {
             // MAIN APRON
             'A0': [1875, 903], 'A1': [1818, 903], 'A2': [1761, 903], 'A3': [1704, 903],
             'B1': [1647, 903], 'B2': [1590, 903], 'B3': [1533, 903], 'B4': [1476, 903],
@@ -363,22 +434,22 @@
             'RE01': [1150, 773], 'RE02': [1100, 773], 'RE03': [1050, 773], 'RE04': [1000, 773],
             'RE05': [950, 773], 'RE06': [900, 773], 'RE07': [850, 773],
             // SOUTH APRON
-            'SA01': [83, 93], 'SA02': [186, 93], 'SA03': [289, 93], 'SA04': [392, 93],
-            'SA05': [495, 93], 'SA06': [598, 93],
-            'SA07': [38, 134], 'SA08': [128, 134], 'SA09': [141, 134], 'SA10': [231, 134],
-            'SA11': [244, 134], 'SA12': [334, 134], 'SA13': [347, 134], 'SA14': [437, 134],
-            'SA15': [450, 134], 'SA16': [540, 134], 'SA17': [553, 134], 'SA18': [643, 134],
-            'SA19': [38, 180], 'SA20': [128, 180], 'SA21': [141, 180], 'SA22': [231, 180],
-            'SA23': [244, 180], 'SA24': [334, 180], 'SA25': [347, 180], 'SA26': [437, 180],
-            'SA27': [450, 180], 'SA28': [540, 180], 'SA29': [553, 180], 'SA30': [643, 180],
+            'SA01': [42, 93], 'SA02': [185, 93], 'SA03': [328, 93], 'SA04': [463, 93],
+            'SA05': [600, 93], 'SA06': [731, 93],
+            'SA07': [0, 195], 'SA08': [80, 195], 'SA09': [141, 195], 'SA10': [228, 195],
+            'SA11': [289, 195], 'SA12': [366, 195], 'SA13': [427, 195], 'SA14': [504, 195],
+            'SA15': [565, 195], 'SA16': [642, 195], 'SA17': [703, 195], 'SA18': [777, 195],
+            'SA19': [0, 297], 'SA20': [80, 297], 'SA21': [141, 297], 'SA22': [228, 297],
+            'SA23': [289, 297], 'SA24': [366, 297], 'SA25': [427, 297], 'SA26': [504, 297],
+            'SA27': [565, 297], 'SA28': [642, 297], 'SA29': [703, 297], 'SA30': [777, 297],
             // NEW SOUTH APRON
-            'NSA01': [850, 160], 'NSA02': [900, 160], 'NSA03': [950, 160], 'NSA04': [1000, 160],
-            'NSA05': [1050, 160], 'NSA06': [1100, 160], 'NSA07': [1150, 160],
-            'NSA08': [1150, 200], 'NSA09': [1150, 250],
-            'NSA10': [900, 250], 'NSA11': [950, 250], 'NSA12': [1000, 250],
-            'NSA13': [1050, 250], 'NSA14': [1100, 250], 'NSA15': [1150, 250],
+            'NSA01': [943, 195], 'NSA02': [1015, 195], 'NSA03': [1087, 195], 'NSA04': [1159, 195],
+            'NSA05': [1231, 195], 'NSA06': [1303, 195], 'NSA07': [1376, 195],
+            'NSA08': [1448, 231], 'NSA09': [1448, 307],
+            'NSA10': [1015, 343], 'NSA11': [1087, 343], 'NSA12': [1159, 343],
+            'NSA13': [1231, 343], 'NSA14': [1303, 343], 'NSA15': [1376, 343],
             // WEST REMOTE
-            'WR01': [880, 843], 'WR02': [880, 875], 'WR03': [880, 907]
+            'WR01': [760, 680], 'WR02': [760, 770], 'WR03': [760, 860]
         };
 
         const container = document.getElementById('apron-container');
@@ -387,7 +458,16 @@
         const gridCanvas = document.getElementById('grid-overlay');
         const gridCtx = gridCanvas.getContext('2d');
 
-        const stands = JSON.parse(JSON.stringify(initialStands));
+        // Independent working copies per view. Drags write into whichever of
+        // these `stands` currently references; switching views reassigns the
+        // reference (not a copy), so edits in each view survive going back and
+        // forth. Initial active view is B, matching this tool's prior behaviour.
+        const standsByView = {
+            a: JSON.parse(JSON.stringify(standsAInit)),
+            b: JSON.parse(JSON.stringify(standsBInit))
+        };
+        let activeView = 'b';
+        let stands = standsByView[activeView];
         let draggedElement = null;
         let offsetX = 0, offsetY = 0;
         let showGrid = true;
@@ -637,6 +717,28 @@
             document.getElementById('apron-image-overlay').style.opacity = showOverlay ? '0.5' : '0';
         }
 
+        // ── View switching ─────────────────────────────────────────────────────
+        // Same stand codes exist in both views (verified against production), so
+        // this repositions the existing stand elements rather than recreating
+        // them — drag, snap and resize logic all read the DOM live and need no
+        // changes here.
+        function switchView(view) {
+            if (view === activeView) return;
+            activeView = view;
+            stands = standsByView[view];
+
+            Object.entries(stands).forEach(function ([code, pos]) {
+                const el = container.querySelector('[data-stand="' + code + '"]');
+                if (el) { el.style.left = pos[0] + 'px'; el.style.top = pos[1] + 'px'; }
+            });
+
+            document.getElementById('btn-view-a').classList.toggle('active', view === 'a');
+            document.getElementById('btn-view-b').classList.toggle('active', view === 'b');
+            document.getElementById('active-view-label').textContent = view === 'a' ? 'View A' : 'View B';
+
+            resizeApron();
+        }
+
         // ── Export ─────────────────────────────────────────────────────────────
         function exportCoordinates() {
             const categories = {
@@ -648,7 +750,12 @@
                 'WEST REMOTE': ['WR01', 'WR02', 'WR03']
             };
 
-            let out = "// VIEW B \u2014 Real Halim Perdanakusuma layout\n$standsViewB = [\n";
+            const varName = activeView === 'a' ? 'standsViewA' : 'standsViewB';
+            const heading = activeView === 'a'
+                ? "// VIEW A \u2014 Current stylized layout"
+                : "// VIEW B \u2014 Real Halim Perdanakusuma layout";
+
+            let out = heading + "\n$" + varName + " = [\n";
             Object.entries(categories).forEach(function ([cat, codes]) {
                 out += "    // " + cat + "\n";
                 codes.forEach(function (code) {
@@ -661,6 +768,8 @@
             out += "];";
 
             document.getElementById('output-code').textContent = out;
+            document.querySelector('#output-content p').innerHTML =
+                'Copy and paste the <code>$' + varName + '</code> array into <code>resources/views/apron/index.php</code>:';
             document.getElementById('output').classList.add('show');
         }
 
@@ -674,8 +783,9 @@
         }
 
         function resetPositions() {
-            if (!confirm('Reset all stands to the last saved positions?')) return;
-            Object.entries(initialStands).forEach(function ([code, pos]) {
+            if (!confirm('Reset ' + (activeView === 'a' ? 'View A' : 'View B') + ' stands to their saved positions?')) return;
+            const init = activeView === 'a' ? standsAInit : standsBInit;
+            Object.entries(init).forEach(function ([code, pos]) {
                 stands[code] = [pos[0], pos[1]];
                 const el = container.querySelector('[data-stand="' + code + '"]');
                 if (el) { el.style.left = pos[0] + 'px'; el.style.top = pos[1] + 'px'; }
