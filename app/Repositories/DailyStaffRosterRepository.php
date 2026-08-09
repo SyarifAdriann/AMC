@@ -59,12 +59,22 @@ class DailyStaffRosterRepository extends Repository
             return 'updated';
         }
 
+        // 'shift' is NOT NULL with no default in the shipped schema, but this
+        // table stores day AND night staffing in one row per date, so the
+        // column is otherwise unused — nothing in this repository filters or
+        // writes it per-shift. A constant value satisfies the constraint
+        // without pretending the value means anything.
+        //
+        // Local dev's MariaDB has a relaxed sql_mode and silently accepted the
+        // missing column; MariaDB 10.4's default STRICT_TRANS_TABLES does not,
+        // so every INSERT failed in production with "Field 'shift' doesn't
+        // have a default value" while working locally.
         $insertStmt = $this->pdo->prepare(
             "INSERT INTO daily_staff_roster (
-                roster_date, updated_by_user_id, aerodrome_code,
+                roster_date, shift, updated_by_user_id, aerodrome_code,
                 day_shift_staff_1, day_shift_staff_2, day_shift_staff_3,
                 night_shift_staff_1, night_shift_staff_2, night_shift_staff_3
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            ) VALUES (?, 'ALL', ?, ?, ?, ?, ?, ?, ?, ?)"
         );
         $insertStmt->execute(array_merge([$date, $userId, $aerodromeCode], $params));
 
